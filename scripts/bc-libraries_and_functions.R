@@ -11,6 +11,7 @@
 
 # list of required packages
 required_packages = c(
+  'plyr',
   'knitr',
   'dplyr',
   'lme4',
