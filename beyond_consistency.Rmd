@@ -43,3 +43,16 @@ source('./scripts/bc-libraries_and_functions.r')
 
 ```
 
+***
+
+# Data preparation
+
+```{r load-data}
+
+# get list of monologue files
+monologue_files = list.files('./data/LIWC-results/RQA/Monologues', pattern = ".txt", full.names = TRUE)
+monologue_rqa_df = read.table('./data/LIWC-results/RQA/Monologues/20190607_Mon_SpeakerA_Comp.txt',
+                              sep="\t", header=TRUE)
+
+```
+
