@@ -29,12 +29,17 @@ knitr::opts_chunk$set(cache=TRUE, autodep=TRUE, cache.lazy=FALSE)
 
 ```
 
-## Including Plots
+***
 
-You can also embed plots, for example:
+## Preliminaries
 
-```{r pressure, echo=FALSE}
-plot(pressure)
+```{r prelim, warning = FALSE, error = FALSE, message = FALSE}
+
+# clear everything
+rm(list=ls())
+
+# load libraries and add new functions
+source('./script/bc-libraries_and_functions.r')
+
 ```
 
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
