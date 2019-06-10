@@ -39,7 +39,7 @@ knitr::opts_chunk$set(cache=TRUE, autodep=TRUE, cache.lazy=FALSE)
 rm(list=ls())
 
 # load libraries and add new functions
-source('./script/bc-libraries_and_functions.r')
+source('./scripts/bc-libraries_and_functions.r')
 
 ```
 
