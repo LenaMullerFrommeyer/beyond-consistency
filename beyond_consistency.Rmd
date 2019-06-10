@@ -55,3 +55,38 @@ monologue_dfs = plyr::ldply(monologue_files, read.table, sep="\t", header=TRUE)
 
 ```
 
+```{r}
+
+# first thing: use `separate` to get out the individual variables
+
+# split dataframe by participant and conversation
+toy_split_monologues = split(monologue_dfs,
+                             list(monologue_dfs$Filename))
+
+# cycle through the individual monologues
+for (next_monologue in toy_split_monologues){
+  
+  print(dim(next_monologue))
+  
+  # 1. create a second variable that replaces all 0 in function variable with anything other than 0 or 100
+  # function_contrast = [replace 100s for -1 here]
+  
+  # 2. run categorical RQA over the individual monologues
+  # rqa_for_monologue = crqa(ts1 = function, ts2 = function_contrast...)
+  
+  # 3. make sure to save the individual monologue results to a dataframe
+  
+}
+
+```
+
+
+*** 
+
+# List of next steps
+
+* separate `Filename` into separate columns using `tidyr::separate`: https://tidyr.tidyverse.org/reference/separate.html
+* look over example of using categorical CRQA from emotion dynamics paper: 
+https://github.com/a-paxton/emotion-dynamics/blob/master/get_rqa_measures.R
+  * another useful example will be continuous CRQA in dual conversation constraints paper: https://github.com/a-paxton/dual-conversation-constraints/blob/a167f004c71d9637ec30082de13a1ba6283846bb/dual-conversation-constraints.Rmd#L309 (direct link to line)
+* try out the categorical RQA part 
