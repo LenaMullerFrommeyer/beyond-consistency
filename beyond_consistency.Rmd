@@ -98,11 +98,13 @@ for (next_mon in split_mon){
                      whiteline=FALSE,
                      recpt=FALSE)
   
-  dyad_num = unique(next_mon$code)
-  next_data_line = data.frame(c(dyad_num,                            
-                                unique(next_mon$conv.type),
-                                rqa_for_mon[1:10]))   #had to change 1:9 to 1:10, because it produced an error
-  names(next_data_line) = c("code","conv.type",names(rqa_for_mon[1:10]))
+  # save plot-level information to dataframe
+  dyad_id = unique(next_mon$dyad_id)
+  conv.type = unique(next_mon$conv.type)
+  next_data_line = data.frame(dyad_id,                            
+                                conv.type,
+                                rqa_for_mon[1:9])
+  #names(next_data_line) = c("dyad_id","conv.type",names(rqa_for_mon[1:9]))
   crqa_results_mon = rbind.data.frame(crqa_results_mon,next_data_line)
 
   }
