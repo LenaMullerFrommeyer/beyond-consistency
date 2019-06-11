@@ -81,24 +81,22 @@ mon_dfs = mon_dfs %>%
 split_mon = split(mon_dfs, list(mon_dfs$Filename))
 
 # cycle through the individual monologues
-crqa_results = data.frame()
+crqa_results_mon = data.frame()
 for (next_mon in split_mon){
   
-# run cross-recurrence
-  rqa_for_mon = crqa(ts1=next_mon$function.,
-                      ts2=next_mon$function_contrast,
-                      delay=1,
-                      embed=1,
-                      r=0.1,
-                      normalize=0, 
-                      rescale=0, 
-                      mindiagline=2,
-                      minvertline=2, 
-                      tw=0, 
-                      whiteline=FALSE,
-                      recpt=FALSE)
-  
-# save plot-level information to dataframe
+  # run (auto-)recurrence
+  rqa_for_mon = crqa(ts1=next_mon$function_words,
+                     ts2=next_mon$function_contrast,
+                     delay=1,
+                     embed=1,
+                     r=0.1,
+                     normalize=0, 
+                     rescale=0, 
+                     mindiagline=2,
+                     minvertline=2, 
+                     tw=1, # exclude line of identity
+                     whiteline=FALSE,
+                     recpt=FALSE)
   
   dyad_num = unique(next_mon$code)
   next_data_line = data.frame(c(dyad_num,                            
