@@ -57,13 +57,25 @@ mon_dfs = plyr::ldply(mon_files, read.table, sep="\t", dec = ",", header=TRUE) #
 
 ```{r}
 
-#separate 'Filename' column into separate columns
-# %>% separate(mon_dfs, mon_dfs$Filename , into = "conv.type", "speaker",  "code", sep = '_', remove = FALSE, extra = drop, fill = warn)
-
-#create new variable function_contrast with all 0 replaced by -1
-mon_dfs$function_contrast <- mon_dfs$function.
-mon_dfs$function_contrast[mon_dfs$function_contrast == 0] <- -1
-
+# prepare monologues for RQA
+mon_dfs = mon_dfs %>% 
+  
+  # separate 'Filename' column into separate columns
+  tidyr::separate(Filename, 
+                  into = c("dyad_id", "dyad_position",  "speaker_code"), 
+                  sep = '_', 
+                  remove = FALSE, 
+                  extra = "drop", 
+                  fill = "warn") %>%
+  
+  # extract speaker number ID and conversation type from variable
+  mutate(conv.type = gsub("[[:digit:]]+","",dyad_id)) %>%
+  
+  # create new variable function_contrast with all 0 replaced by -1
+  dplyr::rename(function_words = function.) %>%
+  mutate(function_contrast = dplyr::if_else(function_words==0,
+                                            -1,
+                                            function_words))
 
 # split dataframe by participant and conversation
 split_mon = split(mon_dfs, list(mon_dfs$Filename))
