@@ -111,27 +111,7 @@ for (next_mon in split_mon){
 
 #write.table(crqa_results,'./data/crqa_results-DCC.csv',sep=",") #change output folder
 
-
-
-# 1. create new variable function_contrast with all 0 replaced by -1
-# 2. run categorical RQA over the individual monologues
-# 3. make sure to save the individual monologue results to a dataframe
-
-# Not done: first thing: use `separate` to get out the individual variables
-
-
 ```
-
-
-*** 
-
-# List of next steps
-
-* separate `Filename` into separate columns using `tidyr::separate`: https://tidyr.tidyverse.org/reference/separate.html
-* look over example of using categorical CRQA from emotion dynamics paper: 
-https://github.com/a-paxton/emotion-dynamics/blob/master/get_rqa_measures.R
-* another useful example will be continuous CRQA in dual conversation constraints paper: https://github.com/a-paxton/dual-conversation-constraints/blob/a167f004c71d9637ec30082de13a1ba6283846bb/dual-conversation-constraints.Rmd#L309 (direct link to line)
-* try out the categorical RQA part 
 
 ***
 
@@ -185,7 +165,35 @@ for (next_conv in split_conv){
   
 }
 
-h1_data = cbind(crqa_results_mon, crqa_results_conv)
 
 #write.table(crqa_results,'./data/crqa_results-DCC.csv',sep=",") #change output folder
 
+```
+
+```{r}
+
+h1_data = cbind(crqa_results_mon, crqa_results_conv)
+
+
+```
+
+***
+
+
+# List of next steps
+
+* previous examples
+  * look over example of using categorical CRQA from emotion dynamics paper: 
+https://github.com/a-paxton/emotion-dynamics/blob/master/get_rqa_measures.R
+  * another useful example will be continuous CRQA in dual conversation constraints paper: https://github.com/a-paxton/dual-conversation-constraints/blob/a167f004c71d9637ec30082de13a1ba6283846bb/dual-conversation-constraints.Rmd#L309 (direct link to line)
+* for RQA and CRQA, update so that we have all of the variables we need in the
+  eventual dataframes (compare with the `mon_dfs` and figure out which to 
+  preserve)
+* fix CRQA based on fixes to RQA today
+* add variable to monologue and dialogue dataframes to specify monologue v.
+  dialogue
+* add a step to save the eventual table
+* start doing categorical CRQA
+  * create quartiles of function words -- function `quantile`
+  * recode 0 appearances of function words as something else (e.g., 0 for one participant, -1 for the other)
+  * run categorical CRQA with `tw=0` over all of these
