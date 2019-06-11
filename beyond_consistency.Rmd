@@ -183,10 +183,10 @@ for (next_conv in split_conv){
                                 rqa_for_monologue[1:10]))   #had to change 1:9 to 1:10, because it produced an error
   names(next_data_line) = c("filename","conv.type",names(rqa_for_monologue[1:10]))
   crqa_results_conv = rbind.data.frame(crqa_results_conv,next_data_line)
-
-  }
   
- h1_data = cbind(crqa_results_mon, crqa_results_conv)
+}
+
+h1_data = cbind(crqa_results_mon, crqa_results_conv)
 
 #write.table(crqa_results,'./data/crqa_results-DCC.csv',sep=",") #change output folder
 
