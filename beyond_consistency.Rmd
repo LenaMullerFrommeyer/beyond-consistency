@@ -14,7 +14,7 @@ To run this from scratch, you will need the following files:
 
 * [This is where a description of the data setup goes]
 * `./scripts/bc-libraries_and_functions.r`: Loads in necessary libraries and
-  creates new functions for our analyses.
+creates new functions for our analyses.
 
 **Code written by**: L. C. Mueller-Frommeyer (Technische Universitaet 
 Braunschweig) & A. Paxton (University of Connecticut)
@@ -106,18 +106,18 @@ for (next_mon in split_mon){
                                 rqa_for_mon[1:9])
   #names(next_data_line) = c("dyad_id","conv.type",names(rqa_for_mon[1:9]))
   crqa_results_mon = rbind.data.frame(crqa_results_mon,next_data_line)
-
-  }
   
+}
+
 
 #write.table(crqa_results,'./data/crqa_results-DCC.csv',sep=",") #change output folder
 
 
 
-    # 1. create new variable function_contrast with all 0 replaced by -1
-    # 2. run categorical RQA over the individual monologues
-    # 3. make sure to save the individual monologue results to a dataframe
-  
+# 1. create new variable function_contrast with all 0 replaced by -1
+# 2. run categorical RQA over the individual monologues
+# 3. make sure to save the individual monologue results to a dataframe
+
 # Not done: first thing: use `separate` to get out the individual variables
 
 
@@ -131,7 +131,7 @@ for (next_mon in split_mon){
 * separate `Filename` into separate columns using `tidyr::separate`: https://tidyr.tidyverse.org/reference/separate.html
 * look over example of using categorical CRQA from emotion dynamics paper: 
 https://github.com/a-paxton/emotion-dynamics/blob/master/get_rqa_measures.R
-  * another useful example will be continuous CRQA in dual conversation constraints paper: https://github.com/a-paxton/dual-conversation-constraints/blob/a167f004c71d9637ec30082de13a1ba6283846bb/dual-conversation-constraints.Rmd#L309 (direct link to line)
+* another useful example will be continuous CRQA in dual conversation constraints paper: https://github.com/a-paxton/dual-conversation-constraints/blob/a167f004c71d9637ec30082de13a1ba6283846bb/dual-conversation-constraints.Rmd#L309 (direct link to line)
 * try out the categorical RQA part 
 
 ***
@@ -175,7 +175,7 @@ for (next_conv in split_conv){
                       whiteline=FALSE,
                       recpt=FALSE)
   
-# save plot-level information to dataframe
+  # save plot-level information to dataframe
   
   dyad_num = unique(next_conv$filename)
   next_data_line = data.frame(c(dyad_num,                            
