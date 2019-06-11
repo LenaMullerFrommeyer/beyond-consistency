@@ -150,7 +150,7 @@ conv_dfs = plyr::ldply(conv_files, read.table, sep="\t", dec = ",", header=TRUE)
 #Still need to add the separate command
 
 #create new variable function_contrast with all 0 replaced by -1
-conv_dfs$function_contrast <- conv_dfs$function.
+conv_dfs$function_contrast <- conv_dfs$function_words
 conv_dfs$function_contrast[conv_dfs$function_contrast == 0] <- -1
 
 
@@ -161,8 +161,8 @@ split_conv = split(conv_dfs, list(conv_dfs$Filename))
 crqa_results = data.frame()
 for (next_conv in split_conv){
   
-# run cross-recurrence
-  rqa_for_conv = crqa(ts1=next_conv$function.,
+  # run cross-recurrence
+  rqa_for_conv = crqa(ts1=next_conv$function_words,
                       ts2=next_conv$function_contrast,
                       delay=1,
                       embed=1,
