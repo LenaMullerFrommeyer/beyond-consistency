@@ -104,7 +104,6 @@ for (next_mon in split_mon){
   next_data_line = data.frame(dyad_id,                            
                                 conv.type,
                                 rqa_for_mon[1:9])
-  #names(next_data_line) = c("dyad_id","conv.type",names(rqa_for_mon[1:9]))
   crqa_results_mon = rbind.data.frame(crqa_results_mon,next_data_line)
   
 }
