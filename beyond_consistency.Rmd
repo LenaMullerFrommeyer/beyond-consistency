@@ -16,10 +16,10 @@ To run this from scratch, you will need the following files:
 * `./scripts/bc-libraries_and_functions.r`: Loads in necessary libraries and
   creates new functions for our analyses.
 
-**Code written by**: L. Mueller-Frommeyer (Technische Universitaet 
+**Code written by**: L. C. Mueller-Frommeyer (Technische Universitaet 
 Braunschweig) & A. Paxton (University of Connecticut)
 
-**Date last modified**: 10 June 2019
+**Date last modified**: 11 June 2019
 
 ```{r silent-setup, include=FALSE}
 
@@ -50,33 +50,64 @@ source('./scripts/bc-libraries_and_functions.r')
 ```{r load-data}
 
 # get list of monologue files
-monologue_files = list.files('./data/LIWC-results/RQA/Monologues', pattern = ".txt", full.names = TRUE)
-monologue_dfs = plyr::ldply(monologue_files, read.table, sep="\t", header=TRUE) 
+mon_files = list.files('./data/LIWC-results/RQA/Monologues', pattern = ".txt", full.names = TRUE)
+mon_dfs = plyr::ldply(mon_files, read.table, sep="\t", dec = ",", header=TRUE) #added decimal to get numbers instead of characters
 
 ```
 
 ```{r}
 
-# first thing: use `separate` to get out the individual variables
+#separate 'Filename' column into separate columns
+# %>% separate(mon_dfs, mon_dfs$Filename , into = "conv.type", "speaker",  "code", sep = '_', remove = FALSE, extra = drop, fill = warn)
+
+#create new variable function_contrast with all 0 replaced by -1
+mon_dfs$function_contrast <- mon_dfs$function.
+mon_dfs$function_contrast[mon_dfs$function_contrast == 0] <- -1
+
 
 # split dataframe by participant and conversation
-toy_split_monologues = split(monologue_dfs,
-                             list(monologue_dfs$Filename))
+split_mon = split(mon_dfs, list(mon_dfs$Filename))
 
 # cycle through the individual monologues
-for (next_monologue in toy_split_monologues){
+crqa_results = data.frame()
+for (next_mon in split_mon){
   
-  print(dim(next_monologue))
+# run cross-recurrence
+  rqa_for_mon = crqa(ts1=next_mon$function.,
+                      ts2=next_mon$function_contrast,
+                      delay=1,
+                      embed=1,
+                      r=0.1,
+                      normalize=0, 
+                      rescale=0, 
+                      mindiagline=2,
+                      minvertline=2, 
+                      tw=0, 
+                      whiteline=FALSE,
+                      recpt=FALSE)
   
-  # 1. create a second variable that replaces all 0 in function variable with anything other than 0 or 100
-  # function_contrast = [replace 100s for -1 here]
+# save plot-level information to dataframe
   
-  # 2. run categorical RQA over the individual monologues
-  # rqa_for_monologue = crqa(ts1 = function, ts2 = function_contrast...)
+  dyad_num = unique(next_mon$code)
+  next_data_line = data.frame(c(dyad_num,                            
+                                unique(next_mon$conv.type),
+                                rqa_for_mon[1:10]))   #had to change 1:9 to 1:10, because it produced an error
+  names(next_data_line) = c("code","conv.type",names(rqa_for_mon[1:10]))
+  crqa_results_mon = rbind.data.frame(crqa_results_mon,next_data_line)
+
+  }
   
-  # 3. make sure to save the individual monologue results to a dataframe
+
+#write.table(crqa_results,'./data/crqa_results-DCC.csv',sep=",") #change output folder
+
+
+
+    # 1. create new variable function_contrast with all 0 replaced by -1
+    # 2. run categorical RQA over the individual monologues
+    # 3. make sure to save the individual monologue results to a dataframe
   
-}
+# Not done: first thing: use `separate` to get out the individual variables
+
 
 ```
 
@@ -90,3 +121,60 @@ for (next_monologue in toy_split_monologues){
 https://github.com/a-paxton/emotion-dynamics/blob/master/get_rqa_measures.R
   * another useful example will be continuous CRQA in dual conversation constraints paper: https://github.com/a-paxton/dual-conversation-constraints/blob/a167f004c71d9637ec30082de13a1ba6283846bb/dual-conversation-constraints.Rmd#L309 (direct link to line)
 * try out the categorical RQA part 
+
+***
+
+#Repeat with conversation transcripts
+
+```{r load-data}
+
+# get list of conversation  files
+conv_files = list.files('./data/LIWC-results/RQA/Conversations-1', pattern = ".txt", full.names = TRUE)
+conv_dfs = plyr::ldply(conv_files, read.table, sep="\t", dec = ",", header=TRUE) #added decimal to get numbers instead of characters
+
+```
+
+```{r}
+#Still need to add the separate command
+
+#create new variable function_contrast with all 0 replaced by -1
+conv_dfs$function_contrast <- conv_dfs$function.
+conv_dfs$function_contrast[conv_dfs$function_contrast == 0] <- -1
+
+
+# split dataframe by participant and conversation
+split_conv = split(conv_dfs, list(conv_dfs$Filename))
+
+# cycle through the individual monologues
+crqa_results = data.frame()
+for (next_conv in split_conv){
+  
+# run cross-recurrence
+  rqa_for_conv = crqa(ts1=next_conv$function.,
+                      ts2=next_conv$function_contrast,
+                      delay=1,
+                      embed=1,
+                      r=0.1,
+                      normalize=0, 
+                      rescale=0, 
+                      mindiagline=2,
+                      minvertline=2, 
+                      tw=0, 
+                      whiteline=FALSE,
+                      recpt=FALSE)
+  
+# save plot-level information to dataframe
+  
+  dyad_num = unique(next_conv$filename)
+  next_data_line = data.frame(c(dyad_num,                            
+                                unique(next_conv$filename),
+                                rqa_for_monologue[1:10]))   #had to change 1:9 to 1:10, because it produced an error
+  names(next_data_line) = c("filename","conv.type",names(rqa_for_monologue[1:10]))
+  crqa_results_conv = rbind.data.frame(crqa_results_conv,next_data_line)
+
+  }
+  
+ h1_data = cbind(crqa_results_mon, crqa_results_conv)
+
+#write.table(crqa_results,'./data/crqa_results-DCC.csv',sep=",") #change output folder
+
