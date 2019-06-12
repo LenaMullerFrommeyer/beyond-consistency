@@ -45,26 +45,30 @@ source('./scripts/bc-libraries_and_functions.r')
 
 ***
 
-# Data preparation and analyses for Hypothesis 1 - RQA
+# Data preparation
 
-##Monologues - Data preparation
+***
 
-```{r load-data}
+## Monologues
 
-# get list of monologue files
-mon_files = list.files('./data/LIWC-results/RQA/Monologues', pattern = ".txt", full.names = TRUE)
-mon_dfs = plyr::ldply(mon_files, read.table, sep="\t", dec = ",", header=TRUE) #added decimal to get numbers instead of characters
+```{r monologue-load-data}
+
+# read in all monologue files
+mon_files = list.files('./data/LIWC-results/RQA/Monologues', 
+                       pattern = ".txt", full.names = TRUE)
+mon_dfs = plyr::ldply(mon_files, 
+                      read.table, sep="\t", dec = ",", header=TRUE) #added decimal to get numbers instead of characters
 
 ```
 
-```{r}
+```{r monologue-prepare-for-rqa}
 
 # prepare monologues for RQA
 mon_dfs = mon_dfs %>% 
   
   # separate 'Filename' column into separate columns
   tidyr::separate(Filename, 
-                  into = c("dyad_id", "dyad_position",  "speaker_code"), 
+                  into = c("dyad_id", "dyad_position", "speaker_code"), 
                   sep = '_', 
                   remove = FALSE, 
                   extra = "drop", 
@@ -125,24 +129,26 @@ for (next_mon in split_mon){
 
 ***
 
-##Conversations - Data preparation
+## Conversations
 
-```{r load-data}
+```{r conversations-load-data}
 
-# get list of conversation files
-conv_files = list.files('./data/LIWC-results/RQA/Conversations-1', pattern = ".txt", full.names = TRUE)
-conv_dfs = plyr::ldply(conv_files, read.table, sep="\t", dec = ",", header=TRUE) 
+# read in all conversation files
+conv_files = list.files('./data/LIWC-results/RQA/Conversations-1', 
+                        pattern = ".txt", full.names = TRUE)
+conv_dfs = plyr::ldply(conv_files, 
+                       read.table, sep="\t", dec = ",", header=TRUE) 
 
 ```
 
-```{r}
+```{r conversations-prepare-for-crqa}
 
-# prepare conversations for RQA
+# prepare conversations for CRQA
 conv_dfs = conv_dfs %>% 
   
   # separate 'Filename' column into separate columns
   tidyr::separate(Filename, 
-                  into = c("dyad_id", "dyad_position",  "speaker_code"), 
+                  into = c("dyad_id", "dyad_position", "speaker_code"), 
                   sep = '_', 
                   remove = FALSE, 
                   extra = "drop", 
@@ -167,11 +173,11 @@ conv_dfs = conv_dfs %>%
 # split dataframe by conversation
 split_conv = split(conv_dfs, list(conv_dfs$Filename))
 
-# cycle through the individual monologues
+# cycle through the individual conversations
 crqa_results_conv = data.frame()
 for (next_conv in split_conv){
   
-  # run (auto-)recurrence
+  # run cross-recurrence
   rqa_for_conv = crqa(ts1=next_conv$function_words,
                      ts2=next_conv$function_contrast,
                      delay=1,
@@ -202,6 +208,10 @@ for (next_conv in split_conv){
 colnames(crqa_results_conv) <- paste(colnames(crqa_results_conv), "C", sep = "_")
 
 ```
+
+***
+
+# Data analyses
 
 ```{r}
 
