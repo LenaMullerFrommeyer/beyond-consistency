@@ -45,11 +45,15 @@ source('./scripts/bc-libraries_and_functions.r')
 
 ***
 
-# Data preparation
+# Hypothesis 1
 
 ***
 
-## Monologues
+## Data preparation
+
+***
+
+### Monologues
 
 ```{r monologue-load-data}
 
@@ -130,7 +134,7 @@ colnames(crqa_results_mon) <- paste(colnames(crqa_results_mon), "M", sep = "_")
 
 ***
 
-## Conversations
+### Conversations
 
 ```{r conversations-load-data}
 
@@ -210,25 +214,34 @@ colnames(crqa_results_conv) <- paste(colnames(crqa_results_conv), "C", sep = "_"
 
 ```
 
+### Combine monnologues and dialogues
+
+```{r create-h1-dataframe}
+
+# bring together the monologue and conversation data
+h1_data = cbind(crqa_results_mon, crqa_results_conv)
+
+```
+
+
 ***
 
-# Data analyses
+## Data analyses
 
 ```{r}
 
-h1_data = cbind(crqa_results_mon, crqa_results_conv)
+
+
 #write.table(h1_data, file = 'C:/Users/Lena/Desktop',sep=",") 
 
 ```
 
-***
-## Analyses for H1
 ```{r}
 
 ```
 
 *** 
-#Data preparation and analyses for H2
+# Hypothesis 2
 
 ```{r}
 #I added subfolders for speaker A and B for data preparation
