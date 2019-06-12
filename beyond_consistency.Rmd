@@ -184,17 +184,17 @@ for (next_conv in split_conv){
   
   # run cross-recurrence
   rqa_for_conv = crqa(ts1=next_conv$function_words,
-                     ts2=next_conv$function_contrast,
-                     delay=1,
-                     embed=1,
-                     r=0.1,
-                     normalize=0, 
-                     rescale=0, 
-                     mindiagline=2,
-                     minvertline=2, 
-                     tw=0,
-                     whiteline=FALSE,
-                     recpt=FALSE)
+                      ts2=next_conv$function_contrast,
+                      delay=1,
+                      embed=1,
+                      r=0.1,
+                      normalize=0, 
+                      rescale=0, 
+                      mindiagline=2,
+                      minvertline=2, 
+                      tw=0,
+                      whiteline=FALSE,
+                      recpt=FALSE)
   
   # save plot-level information to dataframe
   dyad_id = unique(next_conv$dyad_id)
@@ -220,6 +220,7 @@ colnames(crqa_results_conv) <- paste(colnames(crqa_results_conv), "C", sep = "_"
 
 # bring together the monologue and conversation data
 h1_data = cbind(crqa_results_mon, crqa_results_conv)
+#write.table(h1_data, file = 'C:/Users/Lena/Desktop',sep=",") 
 
 ```
 
@@ -230,25 +231,25 @@ h1_data = cbind(crqa_results_mon, crqa_results_conv)
 
 ```{r}
 
-
-
-#write.table(h1_data, file = 'C:/Users/Lena/Desktop',sep=",") 
-
-```
-
-```{r}
-
 ```
 
 *** 
+
 # Hypothesis 2
 
+***
+
+## Data preparation
+
+### Speaker A
+
 ```{r}
-#I added subfolders for speaker A and B for data preparation
 
 # get list of Conversation files speaker A
-A_files = list.files('./data/LIWC-results/cRQA/SpeakerA', pattern = ".txt", full.names = TRUE)
-A_dfs = plyr::ldply(A_files, read.table, sep="\t", dec = ",", header=TRUE) #added decimal to get numbers instead of characters
+A_files = list.files('./data/LIWC-results/cRQA/SpeakerA', 
+                     pattern = ".txt", full.names = TRUE)
+A_dfs = plyr::ldply(A_files, 
+                    read.table, sep="\t", dec = ",", header=TRUE) #added decimal to get numbers instead of characters
 
 ```
 
@@ -287,23 +288,33 @@ split_mon = split(mon_dfs, list(mon_dfs$Filename))
 
 ```
 
+***
+
+### Speaker B
+
+
+***
+
+### Cross-recurrence quantification analysis
+
+***
 
 # List of next steps
 
 * previous examples
-  * look over example of using categorical CRQA from emotion dynamics paper: 
+* look over example of using categorical CRQA from emotion dynamics paper: 
 https://github.com/a-paxton/emotion-dynamics/blob/master/get_rqa_measures.R
-  * another useful example will be continuous CRQA in dual conversation constraints paper: https://github.com/a-paxton/dual-conversation-constraints/blob/a167f004c71d9637ec30082de13a1ba6283846bb/dual-conversation-constraints.Rmd#L309 (direct link to line)
+* another useful example will be continuous CRQA in dual conversation constraints paper: https://github.com/a-paxton/dual-conversation-constraints/blob/a167f004c71d9637ec30082de13a1ba6283846bb/dual-conversation-constraints.Rmd#L309 (direct link to line)
 #for RQA and CRQA, update so that we have all of the variables we need in the
-  eventual dataframes (compare with the `mon_dfs` and figure out which to 
-  preserve)
+eventual dataframes (compare with the `mon_dfs` and figure out which to 
+preserve)
 #fix CRQA based on fixes to RQA today
 #add variable to monologue and dialogue dataframes to specify monologue v.
-  dialogue
+dialogue
 * add a step to save the eventual table
 
 * start doing categorical CRQA
-  * create quartiles of function words -- function `quantile`
-  * recode 0 appearances of function words as something else (e.g., 0 for one participant, -1 for the other)
-  * run categorical CRQA with `tw=0` over all of these
-  * create baseline surrogate measures for H2
+* create quartiles of function words -- function `quantile`
+* recode 0 appearances of function words as something else (e.g., 0 for one participant, -1 for the other)
+* run categorical CRQA with `tw=0` over all of these
+* create baseline surrogate measures for H2
