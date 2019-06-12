@@ -19,7 +19,7 @@ creates new functions for our analyses.
 **Code written by**: L. C. Mueller-Frommeyer (Technische Universitaet 
 Braunschweig) & A. Paxton (University of Connecticut)
 
-**Date last modified**: 11 June 2019
+**Date last modified**: 12 June 2019
 
 ```{r silent-setup, include=FALSE}
 
@@ -69,13 +69,16 @@ mon_dfs = mon_dfs %>%
                   fill = "warn") %>%
   
   # extract speaker number ID and conversation type from variable
-  mutate(conv.type = gsub("[[:digit:]]+","",dyad_id)) %>%
+  mutate(cond = gsub("[[:digit:]]+","",dyad_id)) %>%
   
   # create new variable function_contrast with all 0 replaced by -1
   dplyr::rename(function_words = function.) %>%
   mutate(function_contrast = dplyr::if_else(function_words==0,
                                             -1,
                                             function_words))
+
+#add new variable specifying conversation type
+mon_dfs$conv.type <- c("M")
 
 # split dataframe by participant and conversation
 split_mon = split(mon_dfs, list(mon_dfs$Filename))
@@ -100,14 +103,17 @@ for (next_mon in split_mon){
   
   # save plot-level information to dataframe
   dyad_id = unique(next_mon$dyad_id)
+  speaker_code = unique(next_mon$speaker_code)
+  cond = unique(next_mon$cond)
   conv.type = unique(next_mon$conv.type)
-  next_data_line = data.frame(dyad_id,                            
-                                conv.type,
-                                rqa_for_mon[1:9])
+  next_data_line = data.frame(dyad_id,  
+                              speaker_code,
+                              conv.type,
+                              rqa_for_mon[1:9])
   crqa_results_mon = rbind.data.frame(crqa_results_mon,next_data_line)
   
 }
-
+ colnames(crqa_results_mon) <- paste(colnames(crqa_results_mon), "M", sep = "_")
 
 #write.table(crqa_results,'./data/crqa_results-DCC.csv',sep=",") #change output folder
 
@@ -119,61 +125,79 @@ for (next_mon in split_mon){
 
 ```{r load-data}
 
-# get list of conversation  files
+# get list of conversation files
 conv_files = list.files('./data/LIWC-results/RQA/Conversations-1', pattern = ".txt", full.names = TRUE)
-conv_dfs = plyr::ldply(conv_files, read.table, sep="\t", dec = ",", header=TRUE) #added decimal to get numbers instead of characters
+conv_dfs = plyr::ldply(conv_files, read.table, sep="\t", dec = ",", header=TRUE) 
 
 ```
 
 ```{r}
-#Still need to add the separate command
 
-#create new variable function_contrast with all 0 replaced by -1
-conv_dfs$function_contrast <- conv_dfs$function_words
-conv_dfs$function_contrast[conv_dfs$function_contrast == 0] <- -1
-
+# prepare conversations for RQA
+conv_dfs = conv_dfs %>% 
+  
+  # separate 'Filename' column into separate columns
+  tidyr::separate(Filename, 
+                  into = c("dyad_id", "dyad_position",  "speaker_code"), 
+                  sep = '_', 
+                  remove = FALSE, 
+                  extra = "drop", 
+                  fill = "warn") %>%
+  
+  # extract speaker number ID and conversation type from variable
+  mutate(cond = gsub("[[:digit:]]+","",dyad_id)) %>%
+  
+  # create new variable function_contrast with all 0 replaced by -1
+  dplyr::rename(function_words = function.) %>%
+  mutate(function_contrast = dplyr::if_else(function_words==0,
+                                            -1,
+                                            function_words))
+#add new variable specifying conversation type
+conv_dfs$conv.type <- c("C")
 
 # split dataframe by participant and conversation
 split_conv = split(conv_dfs, list(conv_dfs$Filename))
 
 # cycle through the individual monologues
-crqa_results = data.frame()
+crqa_results_conv = data.frame()
 for (next_conv in split_conv){
   
-  # run cross-recurrence
+  # run (auto-)recurrence
   rqa_for_conv = crqa(ts1=next_conv$function_words,
-                      ts2=next_conv$function_contrast,
-                      delay=1,
-                      embed=1,
-                      r=0.1,
-                      normalize=0, 
-                      rescale=0, 
-                      mindiagline=2,
-                      minvertline=2, 
-                      tw=0, 
-                      whiteline=FALSE,
-                      recpt=FALSE)
+                     ts2=next_conv$function_contrast,
+                     delay=1,
+                     embed=1,
+                     r=0.1,
+                     normalize=0, 
+                     rescale=0, 
+                     mindiagline=2,
+                     minvertline=2, 
+                     tw=1, # exclude line of identity
+                     whiteline=FALSE,
+                     recpt=FALSE)
   
   # save plot-level information to dataframe
-  
-  dyad_num = unique(next_conv$filename)
-  next_data_line = data.frame(c(dyad_num,                            
-                                unique(next_conv$filename),
-                                rqa_for_monologue[1:10]))   #had to change 1:9 to 1:10, because it produced an error
-  names(next_data_line) = c("filename","conv.type",names(rqa_for_monologue[1:10]))
+  dyad_id = unique(next_conv$dyad_id)
+  speaker_code = unique(next_conv$speaker_code)
+  conv.type = unique(next_conv$conv.type)
+  cond = unique(next_conv$cond)
+  next_data_line = data.frame(dyad_id,  
+                              speaker_code,
+                              conv.type,
+                              cond,
+                              rqa_for_conv[1:9])
   crqa_results_conv = rbind.data.frame(crqa_results_conv,next_data_line)
   
 }
+ colnames(crqa_results_conv) <- paste(colnames(crqa_results_conv), "C", sep = "_")
 
-
-#write.table(crqa_results,'./data/crqa_results-DCC.csv',sep=",") #change output folder
 
 ```
 
 ```{r}
 
 h1_data = cbind(crqa_results_mon, crqa_results_conv)
-
+#write.table(h1_data,'./data',sep=",") 
 
 ```
 
