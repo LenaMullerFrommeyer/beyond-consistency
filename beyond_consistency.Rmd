@@ -77,21 +77,18 @@ mon_dfs = mon_dfs %>%
   dplyr::rename(function_words = function.) %>%
   mutate(function_contrast = dplyr::if_else(function_words==0,
                                             -1,
-                                            function_words))
-
-#add new variable specifying conversation type
-mon_dfs$conv.type <- c("M")
-
-# split dataframe by participant and conversation
-split_mon = split(mon_dfs, list(mon_dfs$Filename))
+                                            function_words)) %>%
+  
+  #add new variable specifying conversation type
+  mutate(conv.type = "M")
 
 ```
 
-***
+```{r monologues-rqa}
 
-##Monologues - RQA
+# split dataframe by monologue
+split_mon = split(mon_dfs, list(mon_dfs$Filename))
 
-```{r}
 # cycle through the individual monologues
 crqa_results_mon = data.frame()
 for (next_mon in split_mon){
@@ -158,19 +155,17 @@ conv_dfs = conv_dfs %>%
   dplyr::rename(function_words = function.) %>%
   mutate(function_contrast = dplyr::if_else(function_words==0,
                                             -1,
-                                            function_words))
+                                            function_words)) %>%
+  
+  # add new variable specifying conversation type
+  mutate(conv.type = "C")
 
-#add new variable specifying conversation type
-conv_dfs$conv.type <- c("C")
-
-# split dataframe by participant and conversation
-split_conv = split(conv_dfs, list(conv_dfs$Filename))
 ```
 
-***
-##Conversations - RQA
+```{r conversations-crqa}
 
-```{r}
+# split dataframe by conversation
+split_conv = split(conv_dfs, list(conv_dfs$Filename))
 
 # cycle through the individual monologues
 crqa_results_conv = data.frame()
@@ -201,10 +196,10 @@ for (next_conv in split_conv){
                               cond,
                               rqa_for_conv[1:9])
   crqa_results_conv = rbind.data.frame(crqa_results_conv,next_data_line)
-  
 }
- colnames(crqa_results_conv) <- paste(colnames(crqa_results_conv), "C", sep = "_")
 
+# add column names
+colnames(crqa_results_conv) <- paste(colnames(crqa_results_conv), "C", sep = "_")
 
 ```
 
