@@ -45,7 +45,9 @@ source('./scripts/bc-libraries_and_functions.r')
 
 ***
 
-# Data preparation
+# Data preparation and analyses for Hypothesis 1 - RQA
+
+##Monologues - Data preparation
 
 ```{r load-data}
 
@@ -83,6 +85,13 @@ mon_dfs$conv.type <- c("M")
 # split dataframe by participant and conversation
 split_mon = split(mon_dfs, list(mon_dfs$Filename))
 
+```
+
+***
+
+##Monologues - RQA
+
+```{r}
 # cycle through the individual monologues
 crqa_results_mon = data.frame()
 for (next_mon in split_mon){
@@ -115,13 +124,11 @@ for (next_mon in split_mon){
 }
  colnames(crqa_results_mon) <- paste(colnames(crqa_results_mon), "M", sep = "_")
 
-#write.table(crqa_results,'./data/crqa_results-DCC.csv',sep=",") #change output folder
-
 ```
 
 ***
 
-#Repeat with conversation transcripts
+##Conversations - Data preparation
 
 ```{r load-data}
 
@@ -152,11 +159,18 @@ conv_dfs = conv_dfs %>%
   mutate(function_contrast = dplyr::if_else(function_words==0,
                                             -1,
                                             function_words))
+
 #add new variable specifying conversation type
 conv_dfs$conv.type <- c("C")
 
 # split dataframe by participant and conversation
 split_conv = split(conv_dfs, list(conv_dfs$Filename))
+```
+
+***
+##Conversations - RQA
+
+```{r}
 
 # cycle through the individual monologues
 crqa_results_conv = data.frame()
@@ -197,11 +211,69 @@ for (next_conv in split_conv){
 ```{r}
 
 h1_data = cbind(crqa_results_mon, crqa_results_conv)
-#write.table(h1_data,'./data',sep=",") 
+#write.table(h1_data, file = 'C:/Users/Lena/Desktop',sep=",") 
 
 ```
 
 ***
+## Analyses for H1
+```{r}
+
+```
+
+*** 
+#Data preparation and analyses for H2
+
+```{r}
+#I added subfolders for speaker A and B for data preparation
+
+# get list of Conversation files speaker A
+A_files = list.files('./data/LIWC-results/cRQA/SpeakerA', pattern = ".txt", full.names = TRUE)
+A_dfs = plyr::ldply(A_files, read.table, sep="\t", dec = ",", header=TRUE) #added decimal to get numbers instead of characters
+
+```
+
+```{r}
+
+# prepare conversations Speaker A for RQA
+A_dfs = A_dfs %>% 
+  
+  # separate 'Filename' column into separate columns
+  tidyr::separate(Filename, 
+                  into = c("dyad_id", "dyad_position",  "speaker_code"), 
+                  sep = '_', 
+                  remove = FALSE, 
+                  extra = "drop", 
+                  fill = "warn") %>%
+  
+  # extract speaker number ID and conversation type from variable
+  mutate(cond = gsub("[[:digit:]]+","",dyad_id)) %>%
+  
+  # rename function. to function_words
+  dplyr::rename(function_words = function.)
+  
+
+#recode fw into quantile
+x <- quantile(A_dfs$function_words, probs = seq(0,1,0.25))
+A_dfs$fw_quantcut <- quantcut(A_dfs$function_words, q=4, na.rm = TRUE)
+
+A_dfs %>%
+  select(fw_quantcut) %>%
+  mutate(
+    fw_quantile = case_when(
+      fw_quantcut == "[0,28.8]"  ~ "1",
+      fw_quantcut == "(28.8,53.6]" ~ "2",
+      fw_quantcut ==  "(53.6,65.2]" ~ "3",
+      fw_quantcut == "(65.2,100]" ~ "4",
+           )
+  )
+
+
+
+# split dataframe by participant and conversation
+split_mon = split(mon_dfs, list(mon_dfs$Filename))
+
+```
 
 
 # List of next steps
@@ -210,14 +282,16 @@ h1_data = cbind(crqa_results_mon, crqa_results_conv)
   * look over example of using categorical CRQA from emotion dynamics paper: 
 https://github.com/a-paxton/emotion-dynamics/blob/master/get_rqa_measures.R
   * another useful example will be continuous CRQA in dual conversation constraints paper: https://github.com/a-paxton/dual-conversation-constraints/blob/a167f004c71d9637ec30082de13a1ba6283846bb/dual-conversation-constraints.Rmd#L309 (direct link to line)
-* for RQA and CRQA, update so that we have all of the variables we need in the
+#for RQA and CRQA, update so that we have all of the variables we need in the
   eventual dataframes (compare with the `mon_dfs` and figure out which to 
   preserve)
-* fix CRQA based on fixes to RQA today
-* add variable to monologue and dialogue dataframes to specify monologue v.
+#fix CRQA based on fixes to RQA today
+#add variable to monologue and dialogue dataframes to specify monologue v.
   dialogue
 * add a step to save the eventual table
+
 * start doing categorical CRQA
   * create quartiles of function words -- function `quantile`
   * recode 0 appearances of function words as something else (e.g., 0 for one participant, -1 for the other)
   * run categorical CRQA with `tw=0` over all of these
+  * create baseline surrogate measures for H2
