@@ -121,9 +121,10 @@ for (next_mon in split_mon){
                               conv.type,
                               rqa_for_mon[1:9])
   crqa_results_mon = rbind.data.frame(crqa_results_mon,next_data_line)
-  
 }
- colnames(crqa_results_mon) <- paste(colnames(crqa_results_mon), "M", sep = "_")
+
+# add column names
+colnames(crqa_results_mon) <- paste(colnames(crqa_results_mon), "M", sep = "_")
 
 ```
 
