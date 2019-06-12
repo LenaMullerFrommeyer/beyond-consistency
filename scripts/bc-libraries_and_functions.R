@@ -22,7 +22,8 @@ required_packages = c(
   'tibble',
   'RCurl',
   'lmerTest',
-  'crqa'
+  'crqa',
+  'gtools'
 )
 
 # load required packages using pacman
