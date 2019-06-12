@@ -254,20 +254,11 @@ A_dfs = A_dfs %>%
   
 
 #recode fw into quantile
-x <- quantile(A_dfs$function_words, probs = seq(0,1,0.25))
-A_dfs$fw_quantcut <- quantcut(A_dfs$function_words, q=4, na.rm = TRUE)
+A_dfs$fw_quantiles <- quantcut(A_dfs$function_words, q=4, na.rm = TRUE)
 
-A_dfs %>%
-  select(fw_quantcut) %>%
-  mutate(
-    fw_quantile = case_when(
-      fw_quantcut == "[0,28.8]"  ~ "1",
-      fw_quantcut == "(28.8,53.6]" ~ "2",
-      fw_quantcut ==  "(53.6,65.2]" ~ "3",
-      fw_quantcut == "(65.2,100]" ~ "4",
-           )
-  )
-
+#recode fw into quantiles
+A_dfs$fw_quantiles <- quantcut(A_dfs$function_words, q=4, na.rm = TRUE)
+A_dfs$fw_quantiles <- ifelse(A_dfs$fw_quantiles == "[0,28.8]", 1, ifelse(A_dfs$fw_quantiles == "(28.8,53.6]", 2, ifelse(A_dfs$fw_quantiles == "(53.6,65.2]", 3, ifelse(A_dfs$fw_quantiles == "(65.2,100]", 4, 99))))
 
 
 # split dataframe by participant and conversation
