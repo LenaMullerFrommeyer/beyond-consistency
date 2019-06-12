@@ -214,7 +214,7 @@ colnames(crqa_results_conv) <- paste(colnames(crqa_results_conv), "C", sep = "_"
 
 ```
 
-### Combine monnologues and dialogues
+### Combine monologues and dialogues
 
 ```{r create-h1-dataframe}
 
@@ -255,7 +255,7 @@ A_dfs = plyr::ldply(A_files, read.table, sep="\t", dec = ",", header=TRUE) #adde
 ```{r}
 
 # prepare conversations Speaker A for RQA
-A_dfs = A_dfs %>% 
+A_dfs = A_dfs %>% ungroup() %>%
   
   # separate 'Filename' column into separate columns
   tidyr::separate(Filename, 
@@ -269,15 +269,17 @@ A_dfs = A_dfs %>%
   mutate(cond = gsub("[[:digit:]]+","",dyad_id)) %>%
   
   # rename function. to function_words
-  dplyr::rename(function_words = function.)
+  dplyr::rename(function_words = function.) %>%
   
-
-#recode fw into quantile
-A_dfs$fw_quantiles <- quantcut(A_dfs$function_words, q=4, na.rm = TRUE)
-
-#recode fw into quantiles
-A_dfs$fw_quantiles <- quantcut(A_dfs$function_words, q=4, na.rm = TRUE)
-A_dfs$fw_quantiles <- ifelse(A_dfs$fw_quantiles == "[0,28.8]", 1, ifelse(A_dfs$fw_quantiles == "(28.8,53.6]", 2, ifelse(A_dfs$fw_quantiles == "(53.6,65.2]", 3, ifelse(A_dfs$fw_quantiles == "(65.2,100]", 4, 99))))
+  # group by participant to cut quantiles
+  group_by(Filename) %>%
+  
+  # recode quartiles
+  mutate(fw_quantiles = as.numeric(
+    gtools::quantcut(function_words, 
+                     q=4, 
+                     na.rm = TRUE))
+  )
 
 
 # split dataframe by participant and conversation
