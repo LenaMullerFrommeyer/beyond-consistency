@@ -282,15 +282,97 @@ A_dfs = A_dfs %>% ungroup() %>%
                      na.rm = TRUE))
   ) %>% ungroup()
 
+colnames(A_dfs) <- paste(colnames(A_dfs), "A", sep = "_")
+```
 
-# # split dataframe by participant and conversation
-# split_mon = split(mon_dfs, list(mon_dfs$Filename))
+```{r}
+# get list of Conversation files speaker A
+B_files = list.files('./data/LIWC-results/cRQA/SpeakerB', 
+                     pattern = ".txt", full.names = TRUE)
+B_dfs = plyr::ldply(B_files, 
+                    read.table, sep="\t", dec = ",", header=TRUE) #added decimal to get numbers instead of characters
+
+```
+
+```{r}
+
+# prepare conversations Speaker A for RQA
+B_dfs = B_dfs %>% ungroup() %>%
+  
+  # separate 'Filename' column into separate columns
+  tidyr::separate(Filename, 
+                  into = c("dyad_id", "dyad_position",  "speaker_code"), 
+                  sep = '_', 
+                  remove = FALSE, 
+                  extra = "drop", 
+                  fill = "warn") %>%
+  
+  # extract speaker number ID and conversation type from variable
+  mutate(cond = gsub("[[:digit:]]+","",dyad_id)) %>%
+  
+  # rename function. to function_words
+  dplyr::rename(function_words = function.) %>%
+  
+  # group by participant to cut quantiles
+  group_by(Filename) %>%
+  
+  # recode quartiles
+  mutate(fw_quantiles = as.numeric(
+    gtools::quantcut(function_words, 
+                     q=4, 
+                     na.rm = TRUE))
+  ) %>% ungroup()
+
+colnames(B_dfs) <- paste(colnames(B_dfs), "B", sep = "_")
 
 ```
 
 Example code for how to trim the data
 
 ```{r}
+
+A_dfs$time <- as.numeric(ave(A_dfs$dyad_id_A, A_dfs$dyad_id_A, FUN=seq_along))
+B_dfs$time <- as.numeric(ave(B_dfs$dyad_id_B, B_dfs$dyad_id_B, FUN=seq_along))
+
+df_final <- merge(
+  A_dfs, B_dfs,
+  by.x=c("dyad_id_A","time"), by.y=c("dyad_id_B","time")
+)
+
+#make sure that temporal sequences are still intact
+
+```
+
+```{r}
+# split dataframe by conversation
+split_conv = split(df_final, list(df_final$dyad_id_A))
+
+# cycle through the individual conversations
+crqa_results = data.frame()
+for (next_conv in split_conv){
+  
+  # run cross-recurrence
+  rqa_for_conv = crqa(ts1=next_conv$fw_quantiles_a,
+                      ts2=next_conv$fw_quantiles_b,
+                      delay=1,
+                      embed=1,
+                      r=0.1,
+                      normalize=0, 
+                      rescale=0, 
+                      mindiagline=2,
+                      minvertline=2, 
+                      tw=1,
+                      whiteline=FALSE,
+                      recpt=FALSE)
+  
+  # save plot-level information to dataframe
+  dyad_id = unique(next_conv$dyad_id_A)
+  cond = unique(next_conv$cond_A)
+  next_data_line = data.frame(dyad_id,  
+                              cond,
+                              rqa_for_conv[1:9])
+  crqa_results = rbind.data.frame(crqa_results,next_data_line)
+}
 
 # this assumes that we're ONLY dealing with 1 conversation per dyad
 speaker_As = A_dfs %>% ungroup() %>%
@@ -301,16 +383,24 @@ speaker_As = A_dfs %>% ungroup() %>%
   ungroup() # side note: ALWAYS make sure that you call ungroup() if you group!
 
 # do the same thing for Speaker B
-speaker_Bs = ...
+speaker_Bs = B_dfs %>% ungroup() %>%
+  
+  # figure out how many turns each speaker B had
+  group_by(dyad_id) %>%
+  mutate(max_turns_cond = max(Segment)) %>%
+  ungroup() # side note: ALWAYS make sure that you call ungroup() if you group!
 
 # merge them together
-both_speakers = rbind.data.frame(speaker_As, speaker_Bs) %>%
+both_speakers = rbind.data.frame(speaker_As, speaker_Bs) 
+
+ungroup(both_speakers)
+both_speakers %>% 
   
   # group by dyad
   group_by(dyad_id) %>%
   
   # figure out how many the maximum is for each dyad
-  mutate(trim_turns = min(max_turns_cond)) %>%
+  mutate(trim_turns = min(max_turns_cond)) %>% #
   
   # trim each dyad's to the minimum
   slice(1:unique(trim_turns)) %>%
