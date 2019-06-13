@@ -338,14 +338,51 @@ df_final <- merge(
   A_dfs, B_dfs,
   by.x=c("dyad_id_A","time"), by.y=c("dyad_id_B","time")
 )
+#issue 1:sequences are correctly trimmed but the order of sequences is shuffled (1, 10,11,12,...2,20,21...) - is there a way to restore them to 1,2,3,4 etc.?
 
-#make sure that temporal sequences are still intact
+
+##your code - did not trim the data set, I marked the issues further down
+
+# this assumes that we're ONLY dealing with 1 conversation per dyad
+speaker_As = A_dfs %>% ungroup() %>%
+  
+  # figure out how many turns each speaker A had
+  group_by(dyad_id) %>%
+  mutate(max_turns_cond = max(Segment)) %>%
+  ungroup() # side note: ALWAYS make sure that you call ungroup() if you group!
+
+# do the same thing for Speaker B
+speaker_Bs = B_dfs %>% ungroup() %>%
+  
+  # figure out how many turns each speaker B had
+  group_by(dyad_id) %>%
+  mutate(max_turns_cond = max(Segment)) %>%
+  ungroup() # side note: ALWAYS make sure that you call ungroup() if you group!
+
+# merge them together
+both_speakers = rbind.data.frame(speaker_As, speaker_Bs)
+                                 
+#issue 2: I added this a a first step because otherweise the frames didn't bind
+
+both_speakers %>% ungroup() %>%
+  
+  # group by dyad
+  group_by(dyad_id) %>%
+  
+  # figure out how many the maximum is for each dyad
+  mutate(trim_turns = min(max_turns_cond)) %>% #
+  
+  # trim each dyad's to the minimum
+  slice(1:unique(trim_turns)) %>%
+  ungroup()
+
+#issue 3: now the trim turns variable is not calculated which leads to the data not being trimmed (when the frames are not binded, the trim_turns variable is calculated but useless as it trims A to the length of A)
 
 ```
 
 ```{r}
 # split dataframe by conversation
-split_conv = split(df_final, list(df_final$dyad_id_A))
+split_conv = split(df_final, list(df_final$Filename_A))
 
 # cycle through the individual conversations
 crqa_results = data.frame()
@@ -374,37 +411,7 @@ for (next_conv in split_conv){
   crqa_results = rbind.data.frame(crqa_results,next_data_line)
 }
 
-# this assumes that we're ONLY dealing with 1 conversation per dyad
-speaker_As = A_dfs %>% ungroup() %>%
-  
-  # figure out how many turns each speaker A had
-  group_by(dyad_id) %>%
-  mutate(max_turns_cond = max(Segment)) %>%
-  ungroup() # side note: ALWAYS make sure that you call ungroup() if you group!
 
-# do the same thing for Speaker B
-speaker_Bs = B_dfs %>% ungroup() %>%
-  
-  # figure out how many turns each speaker B had
-  group_by(dyad_id) %>%
-  mutate(max_turns_cond = max(Segment)) %>%
-  ungroup() # side note: ALWAYS make sure that you call ungroup() if you group!
-
-# merge them together
-both_speakers = rbind.data.frame(speaker_As, speaker_Bs) 
-
-ungroup(both_speakers)
-both_speakers %>% 
-  
-  # group by dyad
-  group_by(dyad_id) %>%
-  
-  # figure out how many the maximum is for each dyad
-  mutate(trim_turns = min(max_turns_cond)) %>% #
-  
-  # trim each dyad's to the minimum
-  slice(1:unique(trim_turns)) %>%
-  ungroup()
 
 # at the end, you should have equal turns per dyad!
 
