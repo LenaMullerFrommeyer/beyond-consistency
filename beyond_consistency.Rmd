@@ -280,13 +280,52 @@ A_dfs = A_dfs %>% ungroup() %>%
     gtools::quantcut(function_words, 
                      q=4, 
                      na.rm = TRUE))
-  )
+  ) %>% ungroup()
 
 
-# split dataframe by participant and conversation
-split_mon = split(mon_dfs, list(mon_dfs$Filename))
+# # split dataframe by participant and conversation
+# split_mon = split(mon_dfs, list(mon_dfs$Filename))
 
 ```
+
+Example code for how to trim the data
+
+```{r}
+
+# this assumes that we're ONLY dealing with 1 conversation per dyad
+speaker_As = A_dfs %>% ungroup() %>%
+  
+  # figure out how many turns each speaker A had
+  group_by(dyad_id) %>%
+  mutate(max_turns_cond = max(Segment)) %>%
+  ungroup() # side note: ALWAYS make sure that you call ungroup() if you group!
+
+# do the same thing for Speaker B
+speaker_Bs = ...
+
+# merge them together
+both_speakers = rbind.data.frame(speaker_As, speaker_Bs) %>%
+  
+  # group by dyad
+  group_by(dyad_id) %>%
+  
+  # figure out how many the maximum is for each dyad
+  mutate(trim_turns = min(max_turns_cond)) %>%
+  
+  # trim each dyad's to the minimum
+  slice(1:unique(trim_turns)) %>%
+  ungroup()
+
+# at the end, you should have equal turns per dyad!
+
+# Next, you'll separate speaker A and speaker B from the group dataframe first,
+# append the "_A" and "_B" to the relevant columns in each dataframe (function
+# words, speaker code, and dyad position), and then join the two together. 
+# That will give you everything identical but with two separate columns for 
+# each participant's function words.
+
+```
+
 
 ***
 
