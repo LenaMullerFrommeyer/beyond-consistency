@@ -282,8 +282,6 @@ A_dfs = A_dfs %>% ungroup() %>%
                      na.rm = TRUE))
   ) %>% ungroup()
 
-# we don't want to update their names QUITE yet -- this is partially why the pseudocode didn't work, sorry
-#colnames(A_dfs) <- paste(colnames(A_dfs), "A", sep = "_")
 ```
 
 ```{r}
@@ -324,19 +322,11 @@ B_dfs = B_dfs %>% ungroup() %>%
                      na.rm = TRUE))
   ) %>% ungroup()
 
-# we don't want to update their names QUITE yet -- this is partially why the pseudocode didn't work, sorry
-#colnames(B_dfs) <- paste(colnames(B_dfs), "B", sep = "_")
-
 ```
 
 Example code for how to trim the data
 
 ```{r}
-
-# # this is actually not necessary here--"Segment" gives us time, so we can rename "Segment" to "time" if you want
-# A_dfs$time <- as.numeric(ave(A_dfs$dyad_id_A, A_dfs$dyad_id_A, FUN=seq_along))
-# B_dfs$time <- as.numeric(ave(B_dfs$dyad_id_B, B_dfs$dyad_id_B, FUN=seq_along))
-
 
 # this assumes that we're ONLY dealing with 1 conversation per dyad
 speaker_As = A_dfs %>% ungroup() %>%
@@ -373,8 +363,9 @@ both_speakers = rbind.data.frame(speaker_As, speaker_Bs) %>%
 
 # we should be able to use dplyr::spread for this, but I'm not used to the code and am having trouble
 
+
 # so we'll split them manually
-speaker_A_tranformed = both_speakers %>% ungroup() %>%
+speaker_A_transformed = both_speakers %>% ungroup() %>%
   
   # grab only As
   dplyr::filter(dyad_position=="A") %>%
@@ -386,7 +377,8 @@ speaker_A_tranformed = both_speakers %>% ungroup() %>%
                 wc_A = WC) %>%
   
   # remove speaker position
-  select(-dyad_position, -max_turns_cond, -trim_turns, -Filename)
+  select(-dyad_position, -max_turns_cond, -trim_turns, -Filename)%>%
+  ungroup()
 
 # same for B
 speaker_B_transformed = both_speakers %>% ungroup() %>%
@@ -398,17 +390,8 @@ speaker_B_transformed = both_speakers %>% ungroup() %>%
   select(-dyad_position, -max_turns_cond, -trim_turns, -Filename)
 
 # and then merge them together
-df_final = full_join(speaker_A_tranformed, speaker_B_transformed)
+df_final = full_join(speaker_A_transformed, speaker_B_transformed)
   
-  
-
-df_final <- merge(
-  A_dfs, B_dfs,
-  by.x=c("dyad_id_A","time"), by.y=c("dyad_id_B","time")
-)
-#issue 1:sequences are correctly trimmed but the order of sequences is shuffled (1, 10,11,12,...2,20,21...) - is there a way to restore them to 1,2,3,4 etc.?
-# yes, you can---you can use arrange(time)
-
 ```
 
 ```{r}
@@ -439,7 +422,7 @@ dim(broken_lines)[1]
 
 ```{r}
 # split dataframe by conversation
-split_conv = split(df_final, list(df_final$Filename_A))
+split_conv = split(df_final, list(df_final$dyad_id))
 
 # cycle through the individual conversations
 crqa_results = data.frame()
@@ -455,28 +438,18 @@ for (next_conv in split_conv){
                       rescale=0, 
                       mindiagline=2,
                       minvertline=2, 
-                      tw=1,
+                      tw=1, #1 is correct for the drp, right?
                       whiteline=FALSE,
                       recpt=FALSE)
   
   # save plot-level information to dataframe
-  dyad_id = unique(next_conv$dyad_id_A)
-  cond = unique(next_conv$cond_A)
+  dyad_id = unique(next_conv$dyad_id)
+  cond = unique(next_conv$cond)
   next_data_line = data.frame(dyad_id,  
                               cond,
                               rqa_for_conv[1:9])
   crqa_results = rbind.data.frame(crqa_results,next_data_line)
 }
-
-
-
-# at the end, you should have equal turns per dyad!
-
-# Next, you'll separate speaker A and speaker B from the group dataframe first,
-# append the "_A" and "_B" to the relevant columns in each dataframe (function
-# words, speaker code, and dyad position), and then join the two together. 
-# That will give you everything identical but with two separate columns for 
-# each participant's function words.
 
 ```
 
