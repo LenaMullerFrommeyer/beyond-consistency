@@ -318,7 +318,11 @@ A_dfs = A_dfs %>% ungroup() %>%
     gtools::quantcut(function_words,
                      q=4,
                      na.rm = TRUE))
-  ) %>% ungroup() 
+  ) %>% ungroup()  %>%
+  
+  # specify these data are real
+  mutate(data_type = real)
+
 ```
 
 ***
@@ -362,28 +366,53 @@ B_dfs = B_dfs %>% ungroup() %>%
     gtools::quantcut(function_words,
                      q=4,
                      na.rm = TRUE))
-  ) %>% ungroup() 
+  ) %>% ungroup() %>%
+  
+  # specify these data are real
+  mutate(data_type = real)
 
 ```
 
+***
 
-#Create surrogate language data through phase-randomization
+## Create surrogate time series through shuffling time series
 
-```{r}
-#Create surrogate data for speaker A
+```{r speaker-a-create-surrogate}
 
-#split Speaker As by dyad_id
-split_As = split(A_dfs, list(A_Dfs$dyad_id))
-
-for (next_conv in split_conv)
-  mutate(sur_fw_quantiles = FFTsurrogate(next_conv$fw_quantiles))
-
-#Should we drop the non-necessary variables: function_words, fw_qunatiles, Segment etc.
+# split Speaker As by dyad_id
+split_As = split(A_dfs, list(A_dfs$dyad_id))
+surrogate_crqa = data.frame()
+for (next_conv in split_As){
+  
+  # preserve the original dataframe
+  next_conv_real = next_conv
+  
+  # permute 10 times for baseline
+  permuted_df = data.frame()
+  for (run in c(1:10)){
+    next_shuffle = next_conv_real %>%
+      
+      # shuffle each person's linguistic contributions
+      group_by(Filename) %>%
+      mutate(sur_fw_quantiles = gtools::permute(fw_quantiles)) %>%
+      ungroup() %>%
+      
+      # add a marker for what run we're on
+      mutate(run = run) %>%
+      mutate(data_type = surrogate)
+    
+    # add it to our dataframe
+    permuted_df = rbind.data.frame(permuted_df, next_shuffle)
+  }
+  
+  # bind the next surrogate's data to the dataframe
+  surrogate_crqa = rbind.data.frame(surrogate_crqa, permuted_df)
+}
 
 #Create surrogate data for speaker B
 ```
-***
 
+***
 
 ### Cross-recurrence quantification analysis
 
