@@ -23,7 +23,7 @@ required_packages = c(
   'lmerTest',
   'crqa',
   'gtools',
-  'devtools'
+  'tidyr'
 )
 
 # load required packages using pacman
