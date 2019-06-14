@@ -321,8 +321,20 @@ A_dfs = A_dfs %>% ungroup() %>%
                      na.rm = TRUE))
   ) %>% ungroup()  %>%
   
+  # recode anytime there is 0 function word use
+  mutate(fw_quantiles = dplyr::if_else(function_words==0,
+                                       0,
+                                       fw_quantiles)) %>%
+  
   # specify these data are real
-  mutate(data_type = 'real')
+  mutate(data_type = 'real') %>%
+
+  # rename to specify speaker A contributions
+  dplyr::rename(function_words_A = function_words,
+                fw_quantiles_A = fw_quantiles,
+                speaker_A = speaker_code,
+                wc_A = WC) %>%
+  dplyr::select(-Filename, -dyad_position)
 
 ```
 
@@ -403,13 +415,15 @@ for (next_conv in split_As){
       mutate(run = run) %>%
       mutate(data_type = surrogate)
     
-    # add it to our dataframe
-    permuted_df = rbind.data.frame(permuted_df, next_shuffle)
-  }
+  # specify these data are real
+  mutate(data_type = 'real') %>%
   
-  # bind the next surrogate's data to the dataframe
-  surrogate_crqa = rbind.data.frame(surrogate_crqa, permuted_df)
-}
+  # rename to specify speaker A contributions
+  dplyr::rename(function_words_B = function_words,
+                fw_quantiles_B = fw_quantiles,
+                speaker_B = speaker_code,
+                wc_B = WC) %>%
+  dplyr::select(-Filename, -dyad_position)
 
 #Create surrogate data for speaker B
 ```
