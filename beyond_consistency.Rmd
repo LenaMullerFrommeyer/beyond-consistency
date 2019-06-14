@@ -221,31 +221,53 @@ h1_data = rbind(crqa_results_mon, crqa_results_conv)
 #save results to file
 write.table(h1_data,'./data/h1_data.csv',sep=",")
 
-
 ```
 
 ***
 
 ## Data analysis
 
-```{r}
-#LMEM for Hypothesis 1
-#model with maximum random effects structure
-library(lme4)
-h1_analyses <- lmer(RR ~ conv.type + (1 + conv.type | speaker_code),
-                        data=h1_data,REML=FALSE)
+Here, we perform a linear mixed-effects model to analyze how conversation
+type---whether a monologue (M) or conversation (C)---changes a person's 
+language style, specifically looking at their use of function words (often a
+measure of syntactic complexity and structure).
 
-#has too many random effects - reduce to uncorrelated random intercept and random slope
+We attempted to analyze the data using maximal random effects structures and
+an uncorrelated random intercept within the random slope, but both models 
+failed to converge. As a result, we use only the random intercept in our model.
 
-h1_analyses <- lmer(RR ~ conv.type + (1|speaker_code) + (0+ conv.type | speaker_code), data = h1_data, REML = FALSE)
+```{r model-h1}
 
-#still has too many random effects - reduce to only random intercept
-
+# does linguistic style change based on the conversational context?
 h1_analyses <- lmer(RR ~ conv.type + (1|speaker_code), data = h1_data, REML = FALSE)
+
+```
+
+```{r silently-print-summary, eval=TRUE, echo=TRUE, include=FALSE}
+
+# print summary table
 summary(h1_analyses)
 
-#for now, model only uncludes the speaker (not condition of conversation), but condition was only varied in the conversations, not the monologues - so I figured it would be a nice post-hoc analyses to see how Language Style differs from the monologues in each of the conditions.
 ```
+
+```{r silently-print-table, eval=TRUE, echo=TRUE, include=FALSE}
+
+# neatly print output
+pander_lme(h1_analyses)
+
+```
+
+***
+
+### Post-hoc analysis: Changes by conversation type
+
+Next, we will do a post-hoc analysis to see how language style differs from the
+monologues based on each condition.
+
+```{r}
+
+```
+
 
 ***
 
