@@ -29,10 +29,6 @@ required_packages = c(
 # load required packages using pacman
 pacman::p_load(required_packages, character.only=TRUE)
 
-# intstall the developer's version of tidyr
-devtools::install_github("tidyverse/tidyr")
-library(tidyr)
-
 #### Global variables ####
 
 # set the seed
