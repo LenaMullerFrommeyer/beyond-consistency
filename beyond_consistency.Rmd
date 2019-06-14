@@ -19,7 +19,7 @@ creates new functions for our analyses.
 **Code written by**: L. C. Mueller-Frommeyer (Technische Universitaet
 Braunschweig) & A. Paxton (University of Connecticut)
 
-**Date last modified**: 12 June 2019
+**Date last modified**: 14 June 2019
 
 ```{r silent-setup, include=FALSE}
 
@@ -366,7 +366,24 @@ B_dfs = B_dfs %>% ungroup() %>%
 
 ```
 
+
+#Create surrogate language data through phase-randomization
+
+```{r}
+#Create surrogate data for speaker A
+
+#split Speaker As by dyad_id
+split_As = split(A_dfs, list(A_Dfs$dyad_id))
+
+for (next_conv in split_conv)
+  mutate(sur_fw_quantiles = FFTsurrogate(next_conv$fw_quantiles))
+
+#Should we drop the non-necessary variables: function_words, fw_qunatiles, Segment etc.
+
+#Create surrogate data for speaker B
+```
 ***
+
 
 ### Cross-recurrence quantification analysis
 
@@ -393,6 +410,8 @@ df_final = rbind.data.frame(A_dfs, B_dfs) %>%
   # because any missing values are filled with `NA`, 
   # we can truncate turns simply by dropping `NA`
   tidyr::drop_na()
+
+#repeat for surrogate body
 
 ```
 
@@ -428,16 +447,32 @@ for (next_conv in split_conv){
   crqa_results = rbind.data.frame(crqa_results,next_data_line)
 }
 
+#repeat for surrogate body
+
 ```
 
 ```{r}
 
-#calculate diagonal recurrence plots
+# cycle through all dyads
 drp_results = data.frame()
+for (next_conv in split_conv) {
+  
+   # calculate diagonal recurrence profile using categorical recurrence
+  drp_for_conv = drpdfromts(next_conv$fw_quantiles_A, next_conv$fw_quantiles_B, ws = wsz, datatype="categorical")
 
-drp_results = drpdfromts(fw_quantiles_A,fw_quantiles_B,
-                         ws=wsz, # this is the window size--in other words, how far the lead/lag window should be
-                         datatype="categorical")
+
+ # save plot-level information to dataframe
+  
+    dyad_id = unique(next_conv$dyad_id)
+    cond = unique(next_conv$cond)
+    drps = data.frame(dyad_id  = rep(dyad_id(length(raw))), cond = rep(cond(length(raw))), raw = timeVals$raw, ot1 = timeVals$ot1, ot2  = timeVals$ot2, rr = drp_for_conv$profile)
+    drp_results = rbind.data.frame(drp_results, drps)
+}
+
+#descriptives are still missing - didn't know what to do with this
+#output should still have several observations per dyad -- one per lag, is that correct?
+
+#repeat for surrogate body
 
 ```
 
@@ -446,14 +481,69 @@ drp_results = drpdfromts(fw_quantiles_A,fw_quantiles_B,
 ## Data analysis
 
 ```{r}
+
+# rename variables and center the binary variables
+drp_results = drp_results %>% ungroup() %>%
+  plyr::rename(.,
+               c("cond"="condition")) %>%
+    # first-order polynomials
+  mutate(condition.ot1 = condition * ot1) %>%
+
+  # second-order polynomials
+  mutate(condition.ot2 = condition * ot2) %>%
+
+  # polynomial interactions
+  mutate(ot1.ot2 = ot1 * ot2) %>%
+  mutate(condition.ot1.ot2 = condition * ot1 * ot2) 
+
+#repeat for surrogate body
+  
+```  
+
+***
+
+## Create standardized dataframe
+
+Let's create a new dataframe with all standardized variables. This allows us to interpret the resulting values as effect sizes (see Keith, 2005, *Multiple regression and beyond*).
+
+```{r standardized-dataframe, eval = FALSE}
+
+# standardize all variables
+drp_st = mutate_each(drp_results,funs(as.numeric(scale(.))))
+
+#repeat for surrogate body
 ```
 
 ***
 
+#Analyses H2
+
+We now create a linear mixed-effects model to gauge how linear lag (`ot1`) and quadratic lag (`ot2`) interact with condition (`condition`) to influence Language Style Matching (`rr`). We present both standardized and raw models below.
+
+```{r central-model, warning=FALSE, error=FALSE, message=FALSE}
+
+# standardized maximal random-effects model
+H2_st = lmer(rr ~ condition + ot1 + ot2 + ot1.ot2 + condition.ot1 + condition.ot2 + condition.ot1.ot2 +  
+               (1 condition.ot1.ot2 | dyad_id),
+                                        #what is the maximum random effects structure for this?
+                                      
+                                    data=drp_st, REML=FALSE)
+
+
+
+# raw maximal random-effects model
+H2_raw = lmer(rr ~ condition + ot1 + ot2 + ot1.ot2 + condition.ot1 + condition.ot2 + condition.ot1.ot2 + 
+                                        #random effects are still missing here
+                                      
+                                    data=drp_results, REML=FALSE)
+
+#repeat for surrogate body
+```
+
 # List of next steps
 * create baseline surrogate measures for H2
 * calculate diagonal recurrence plots for H2
-* start code for analyses for H1 and H2 add comments and questions for Alex
+* start code for analyses for H1 and H2 
 
 
 * previous examples

@@ -35,7 +35,18 @@ library(tidyr)
 
 #### Global variables ####
 
-wsz = 5
+wsz = 5 #width of the diagonal recurrence profile
+
+# create frame for data
+drps = data.frame()
+descriptives = data.frame()
+
+#create the values for the quadratic analyses
+raw = -wsz:wsz
+timeVals = data.frame(raw)
+t <- poly(1:(wsz*2+1), 2)
+timeVals[,paste("ot", 1:2, sep="")] <- t[timeVals$raw+(wsz+1), 1:2]
+
 
 #### Prevent scientific notation ####
 options(scipen=999)
