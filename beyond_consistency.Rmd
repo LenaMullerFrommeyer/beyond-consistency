@@ -16,7 +16,7 @@ To run this from scratch, you will need the following files:
 * `./scripts/bc-libraries_and_functions.r`: Loads in necessary libraries and
 creates new functions for our analyses.
 
-**Code written by**: L. C. Mueller-Frommeyer (Technische Universitaet 
+**Code written by**: L. C. Mueller-Frommeyer (Technische Universitaet
 Braunschweig) & A. Paxton (University of Connecticut)
 
 **Date last modified**: 12 June 2019
@@ -58,9 +58,9 @@ source('./scripts/bc-libraries_and_functions.r')
 ```{r monologue-load-data}
 
 # read in all monologue files
-mon_files = list.files('./data/LIWC-results/RQA/Monologues', 
+mon_files = list.files('./data/LIWC-results/RQA/Monologues',
                        pattern = ".txt", full.names = TRUE)
-mon_dfs = plyr::ldply(mon_files, 
+mon_dfs = plyr::ldply(mon_files,
                       read.table, sep="\t", dec = ",", header=TRUE) #added decimal to get numbers instead of characters
 
 ```
@@ -68,25 +68,25 @@ mon_dfs = plyr::ldply(mon_files,
 ```{r monologue-prepare-for-rqa}
 
 # prepare monologues for RQA
-mon_dfs = mon_dfs %>% 
-  
+mon_dfs = mon_dfs %>%
+
   # separate 'Filename' column into separate columns
-  tidyr::separate(Filename, 
-                  into = c("dyad_id", "dyad_position", "speaker_code"), 
-                  sep = '_', 
-                  remove = FALSE, 
-                  extra = "drop", 
+  tidyr::separate(Filename,
+                  into = c("dyad_id", "dyad_position", "speaker_code"),
+                  sep = '_',
+                  remove = FALSE,
+                  extra = "drop",
                   fill = "warn") %>%
-  
+
   # extract speaker number ID and conversation type from variable
   mutate(cond = gsub("[[:digit:]]+","",dyad_id)) %>%
-  
+
   # create new variable function_contrast with all 0 replaced by -1
   dplyr::rename(function_words = function.) %>%
   mutate(function_contrast = dplyr::if_else(function_words==0,
                                             -1,
                                             function_words)) %>%
-  
+
   #add new variable specifying conversation type
   mutate(conv.type = "M")
 
@@ -100,21 +100,21 @@ split_mon = split(mon_dfs, list(mon_dfs$Filename))
 # cycle through the individual monologues
 crqa_results_mon = data.frame()
 for (next_mon in split_mon){
-  
+
   # run (auto-)recurrence
   rqa_for_mon = crqa(ts1=next_mon$function_words,
                      ts2=next_mon$function_contrast,
                      delay=1,
                      embed=1,
                      r=0.1,
-                     normalize=0, 
-                     rescale=0, 
+                     normalize=0,
+                     rescale=0,
                      mindiagline=2,
-                     minvertline=2, 
+                     minvertline=2,
                      tw=1, # exclude line of identity
                      whiteline=FALSE,
                      recpt=FALSE)
-  
+
   # save plot-level information to dataframe
   dyad_id = unique(next_mon$dyad_id)
   speaker_code = unique(next_mon$speaker_code)
@@ -137,35 +137,35 @@ for (next_mon in split_mon){
 ```{r conversations-load-data}
 
 # read in all conversation files
-conv_files = list.files('./data/LIWC-results/RQA/Conversations-1', 
+conv_files = list.files('./data/LIWC-results/RQA/Conversations-1',
                         pattern = ".txt", full.names = TRUE)
-conv_dfs = plyr::ldply(conv_files, 
-                       read.table, sep="\t", dec = ",", header=TRUE) 
+conv_dfs = plyr::ldply(conv_files,
+                       read.table, sep="\t", dec = ",", header=TRUE)
 
 ```
 
 ```{r conversations-prepare-for-crqa}
 
 # prepare conversations for CRQA
-conv_dfs = conv_dfs %>% 
-  
+conv_dfs = conv_dfs %>%
+
   # separate 'Filename' column into separate columns
-  tidyr::separate(Filename, 
-                  into = c("dyad_id", "dyad_position", "speaker_code"), 
-                  sep = '_', 
-                  remove = FALSE, 
-                  extra = "drop", 
+  tidyr::separate(Filename,
+                  into = c("dyad_id", "dyad_position", "speaker_code"),
+                  sep = '_',
+                  remove = FALSE,
+                  extra = "drop",
                   fill = "warn") %>%
-  
+
   # extract speaker number ID and conversation type from variable
   mutate(cond = gsub("[[:digit:]]+","",dyad_id)) %>%
-  
+
   # create new variable function_contrast with all 0 replaced by -1
   dplyr::rename(function_words = function.) %>%
   mutate(function_contrast = dplyr::if_else(function_words==0,
                                             -1,
                                             function_words)) %>%
-  
+
   # add new variable specifying conversation type
   mutate(conv.type = "C")
 
@@ -179,21 +179,21 @@ split_conv = split(conv_dfs, list(conv_dfs$Filename))
 # cycle through the individual conversations
 crqa_results_conv = data.frame()
 for (next_conv in split_conv){
-  
+
   # run cross-recurrence
   rqa_for_conv = crqa(ts1=next_conv$function_words,
                       ts2=next_conv$function_contrast,
                       delay=1,
                       embed=1,
                       r=0.1,
-                      normalize=0, 
-                      rescale=0, 
+                      normalize=0,
+                      rescale=0,
                       mindiagline=2,
-                      minvertline=2, 
+                      minvertline=2,
                       tw=0,
                       whiteline=FALSE,
                       recpt=FALSE)
-  
+
   # save plot-level information to dataframe
   dyad_id = unique(next_conv$dyad_id)
   speaker_code = unique(next_conv$speaker_code)
@@ -218,6 +218,7 @@ h1_data = rbind(crqa_results_mon, crqa_results_conv)
 
 #save results to file
 write.table(h1_data,'./data/h1_data.csv',sep=",") 
+
 
 ```
 
@@ -245,7 +246,7 @@ summary(h1_analyses)
 #for now, model only uncludes the speaker (not condition of conversation), but condition was only varied in the conversations, not the monologues - so I figured it would be a nice post-hoc analyses to see how Language Style differs from the monologues in each of the conditions.
 ```
 
-*** 
+***
 
 # Hypothesis 2
 
@@ -256,9 +257,9 @@ summary(h1_analyses)
 ```{r}
 
 # get list of Conversation files speaker A
-A_files = list.files('./data/LIWC-results/cRQA/SpeakerA', 
+A_files = list.files('./data/LIWC-results/cRQA/SpeakerA',
                      pattern = ".txt", full.names = TRUE)
-A_dfs = plyr::ldply(A_files, 
+A_dfs = plyr::ldply(A_files,
                     read.table, sep="\t", dec = ",", header=TRUE) #added decimal to get numbers instead of characters
 
 ```
@@ -267,28 +268,28 @@ A_dfs = plyr::ldply(A_files,
 
 # prepare conversations Speaker A for CRQA
 A_dfs = A_dfs %>% ungroup() %>%
-  
+
   # separate 'Filename' column into separate columns
-  tidyr::separate(Filename, 
-                  into = c("dyad_id", "dyad_position",  "speaker_code"), 
-                  sep = '_', 
-                  remove = FALSE, 
-                  extra = "drop", 
+  tidyr::separate(Filename,
+                  into = c("dyad_id", "dyad_position",  "speaker_code"),
+                  sep = '_',
+                  remove = FALSE,
+                  extra = "drop",
                   fill = "warn") %>%
-  
+
   # extract speaker number ID and conversation type from variable
   mutate(cond = gsub("[[:digit:]]+","",dyad_id)) %>%
-  
+
   # rename function. to function_words
   dplyr::rename(function_words = function.) %>%
-  
+
   # group by participant to cut quantiles
   group_by(Filename) %>%
-  
+
   # recode quartiles
   mutate(fw_quantiles = as.numeric(
-    gtools::quantcut(function_words, 
-                     q=4, 
+    gtools::quantcut(function_words,
+                     q=4,
                      na.rm = TRUE))
   ) %>% ungroup()
 
@@ -296,9 +297,9 @@ A_dfs = A_dfs %>% ungroup() %>%
 
 ```{r}
 # get list of Conversation files speaker B
-B_files = list.files('./data/LIWC-results/cRQA/SpeakerB', 
+B_files = list.files('./data/LIWC-results/cRQA/SpeakerB',
                      pattern = ".txt", full.names = TRUE)
-B_dfs = plyr::ldply(B_files, 
+B_dfs = plyr::ldply(B_files,
                     read.table, sep="\t", dec = ",", header=TRUE) #added decimal to get numbers instead of characters
 
 ```
@@ -307,28 +308,28 @@ B_dfs = plyr::ldply(B_files,
 
 # prepare conversations Speaker B for CRQA
 B_dfs = B_dfs %>% ungroup() %>%
-  
+
   # separate 'Filename' column into separate columns
-  tidyr::separate(Filename, 
-                  into = c("dyad_id", "dyad_position",  "speaker_code"), 
-                  sep = '_', 
-                  remove = FALSE, 
-                  extra = "drop", 
+  tidyr::separate(Filename,
+                  into = c("dyad_id", "dyad_position",  "speaker_code"),
+                  sep = '_',
+                  remove = FALSE,
+                  extra = "drop",
                   fill = "warn") %>%
-  
+
   # extract speaker number ID and conversation type from variable
   mutate(cond = gsub("[[:digit:]]+","",dyad_id)) %>%
-  
+
   # rename function. to function_words
   dplyr::rename(function_words = function.) %>%
-  
+
   # group by participant to cut quantiles
   group_by(Filename) %>%
-  
+
   # recode quartiles
   mutate(fw_quantiles = as.numeric(
-    gtools::quantcut(function_words, 
-                     q=4, 
+    gtools::quantcut(function_words,
+                     q=4,
                      na.rm = TRUE))
   ) %>% ungroup()
 
@@ -342,7 +343,7 @@ B_dfs = B_dfs %>% ungroup() %>%
 
 # assume that we ONLY dealwith 1 conversation per dyad
 speaker_As = A_dfs %>% ungroup() %>%
-  
+
   # figure out how many turns each speaker A had
   group_by(dyad_id) %>%
   mutate(max_turns_cond = max(Segment)) %>%
@@ -350,7 +351,7 @@ speaker_As = A_dfs %>% ungroup() %>%
 
 # do the same thing for Speaker B
 speaker_Bs = B_dfs %>% ungroup() %>%
-  
+
   # figure out how many turns each speaker B had
   group_by(dyad_id) %>%
   mutate(max_turns_cond = max(Segment)) %>%
@@ -358,17 +359,17 @@ speaker_Bs = B_dfs %>% ungroup() %>%
 
 # merge them together
 both_speakers = rbind.data.frame(speaker_As, speaker_Bs) %>%
-  
+
   # group by dyad
   group_by(dyad_id) %>%
-  
+
   # figure out how many the maximum is for each dyad
-  mutate(trim_turns = min(max_turns_cond)) %>% 
-  
+  mutate(trim_turns = min(max_turns_cond)) %>%
+
   # groub by participants within dyads
   ungroup() %>%
   group_by(dyad_id, dyad_position) %>%
-  
+
   # trim each dyad's to the minimum
   slice(1:unique(trim_turns)) %>%
   ungroup()
@@ -378,16 +379,16 @@ both_speakers = rbind.data.frame(speaker_As, speaker_Bs) %>%
 
 # split data.frame by speaker
 speaker_A_transformed = both_speakers %>% ungroup() %>%
-  
+
   # grab only As
   dplyr::filter(dyad_position=="A") %>%
-  
+
   # rename the function words
   dplyr::rename(function_words_A = function_words,
                 fw_quantiles_A = fw_quantiles,
                 speaker_A = speaker_code,
                 wc_A = WC) %>%
-  
+
   # remove speaker position
   select(-dyad_position, -max_turns_cond, -trim_turns, -Filename)%>%
   ungroup()
@@ -403,23 +404,23 @@ speaker_B_transformed = both_speakers %>% ungroup() %>%
 
 # and then merge them together
 df_final = full_join(speaker_A_transformed, speaker_B_transformed)
-  
+
 ```
 
 ```{r}
 #issue 1: trimming test doesn't work
 
-#test the trimming
-testing_trimming = both_speakers %>% ungroup() %>% 
-  
+# let's test to make sure we've correctly trimmed them
+testing_trimming = both_speakers %>% ungroup() %>%
+
   # let's grab only the last segment line from each participant
-  group_by(dyad_id, dyad_position) %>% 
-  dplyr::filter(Segment == max(Segment)) %>% 
-  
+  group_by(dyad_id, dyad_position) %>%
+  dplyr::filter(Segment == max(Segment)) %>%
+
   # let's check to make sure that it equals the correct trim number
-  mutate(correct_length = Segment == trim_turns) %>% #
-  ungroup() %>% 
-  
+  mutate(correct_length = Segment == trim_turns) %>%
+  ungroup() %>%
+
   # drop variables that make it harder to read the table
   select(-fw_quantiles, -cond, -function_words, -WC)
 
@@ -440,21 +441,21 @@ split_conv = split(df_final, list(df_final$dyad_id))
 # cycle through the individual conversations
 crqa_results = data.frame()
 for (next_conv in split_conv){
-  
+
   # run cross-recurrence
   rqa_for_conv = crqa(ts1=next_conv$fw_quantiles_A,
                       ts2=next_conv$fw_quantiles_B,
                       delay=1,
                       embed=1,
                       r=0.1,
-                      normalize=0, 
-                      rescale=0, 
+                      normalize=0,
+                      rescale=0,
                       mindiagline=2,
-                      minvertline=2, 
-                      tw=0, 
+                      minvertline=2,
+                      tw=0,
                       whiteline=FALSE,
                       recpt=FALSE)
-  
+
   # save plot-level information to dataframe
   dyad_id = unique(next_conv$dyad_id)
   cond = unique(next_conv$cond)
@@ -470,7 +471,7 @@ for (next_conv in split_conv){
 #calculate diagonal recurrence plots
 drp_results = data.frame()
 
-drp_results = drpdfromts(fw_quantiles_A,fw_quantiles_B,ws=wsz,datatype="categorical") 
+drp_results = drpdfromts(fw_quantiles_A,fw_quantiles_B,ws=wsz,datatype="categorical")
 
 ```
 
@@ -486,11 +487,11 @@ drp_results = drpdfromts(fw_quantiles_A,fw_quantiles_B,ws=wsz,datatype="categori
 
 
 * previous examples
-* look over example of using categorical CRQA from emotion dynamics paper: 
+* look over example of using categorical CRQA from emotion dynamics paper:
 https://github.com/a-paxton/emotion-dynamics/blob/master/get_rqa_measures.R
 * another useful example will be continuous CRQA in dual conversation constraints paper: https://github.com/a-paxton/dual-conversation-constraints/blob/a167f004c71d9637ec30082de13a1ba6283846bb/dual-conversation-constraints.Rmd#L309 (direct link to line)
 #for RQA and CRQA, update so that we have all of the variables we need in the
-eventual dataframes (compare with the `mon_dfs` and figure out which to 
+eventual dataframes (compare with the `mon_dfs` and figure out which to
 preserve)
 #fix CRQA based on fixes to RQA today
 #add variable to monologue and dialogue dataframes to specify monologue v.
