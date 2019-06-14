@@ -296,14 +296,7 @@ A_dfs = A_dfs %>% ungroup() %>%
     gtools::quantcut(function_words,
                      q=4,
                      na.rm = TRUE))
-  ) %>%
-
-  # figure out how many turns each speaker A had
-  ungroup() %>%
-  group_by(dyad_id) %>%
-  mutate(max_turns_cond = max(Segment)) %>%
-  ungroup()
-
+  ) %>% ungroup() 
 ```
 
 ***
@@ -347,14 +340,7 @@ B_dfs = B_dfs %>% ungroup() %>%
     gtools::quantcut(function_words,
                      q=4,
                      na.rm = TRUE))
-  ) %>%
-
-  # figure out how many turns each speaker B had
-  ungroup() %>%
-  group_by(dyad_id) %>%
-  mutate(max_turns_cond = max(Segment)) %>%
-  ungroup()
-
+  ) %>% ungroup() 
 
 ```
 
@@ -374,27 +360,17 @@ Speaker B function words, and turn).
 # merge Speaker A and Speaker B together
 df_final = rbind.data.frame(A_dfs, B_dfs) %>%
 
-  # group by dyad
-  group_by(dyad_id) %>%
-
-  # figure out how many the maximum is for each dyad
-  mutate(trim_turns = min(max_turns_cond)) %>%
-
-  # groub by participants within dyads
-  ungroup() %>%
-  group_by(dyad_id, dyad_position) %>%
-
-  # trim each dyad's to the minimum
-  slice(1:unique(trim_turns)) %>%
-  ungroup() %>%
-
   # use the newest tidyr branch to widen by multiple variables
-  select(-Filename,-max_turns_cond, -trim_turns) %>%
+  select(-Filename)%>%
   tidyr::pivot_wider(names_from=dyad_position,
                      values_from=c("function_words",
                                    "fw_quantiles",
                                    "speaker_code",
-                                   "WC"))
+                                   "WC")) %>%
+  
+  # because any missing values are filled with `NA`, 
+  # we can truncate turns simply by dropping `NA`
+  tidyr::drop_na()
 
 ```
 
