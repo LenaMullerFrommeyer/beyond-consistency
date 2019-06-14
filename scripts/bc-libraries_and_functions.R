@@ -18,16 +18,24 @@ required_packages = c(
   'ggplot2',
   'pander',
   'viridis',
-  'tidyr',
   'tibble',
   'RCurl',
   'lmerTest',
   'crqa',
-  'gtools'
+  'gtools',
+  'devtools'
 )
 
 # load required packages using pacman
 pacman::p_load(required_packages, character.only=TRUE)
+
+# intstall the developer's version of tidyr
+devtools::install_github("tidyverse/tidyr")
+library(tidyr)
+
+#### Global variables ####
+
+wsz = 5
 
 #### Prevent scientific notation ####
 options(scipen=999)

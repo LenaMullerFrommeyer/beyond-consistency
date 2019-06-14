@@ -45,15 +45,15 @@ source('./scripts/bc-libraries_and_functions.r')
 
 ***
 
-# Hypothesis 1
+# Data preparation
 
 ***
 
-## Data preparation
+## Hypothesis 1
 
 ***
 
-### Monologues
+### Recurrence quantification analysis: Monologues
 
 ```{r monologue-load-data}
 
@@ -132,7 +132,7 @@ for (next_mon in split_mon){
 
 ***
 
-### Conversations
+### Recurrrence quantification analysis: Conversations
 
 ```{r conversations-load-data}
 
@@ -146,7 +146,7 @@ conv_dfs = plyr::ldply(conv_files,
 
 ```{r conversations-prepare-for-crqa}
 
-# prepare conversations for CRQA
+# prepare conversations for RQA
 conv_dfs = conv_dfs %>%
 
   # separate 'Filename' column into separate columns
@@ -209,7 +209,7 @@ for (next_conv in split_conv){
 
 ```
 
-### Combine monologues and dialogues
+### Create dataframe for H1
 
 ```{r create-h1-dataframe}
 
@@ -217,7 +217,7 @@ for (next_conv in split_conv){
 h1_data = rbind(crqa_results_mon, crqa_results_conv)
 
 #save results to file
-write.table(h1_data,'./data/h1_data.csv',sep=",") 
+write.table(h1_data,'./data/h1_data.csv',sep=",")
 
 
 ```
@@ -248,13 +248,13 @@ summary(h1_analyses)
 
 ***
 
-# Hypothesis 2
+## Hypothesis 2
 
 ***
 
 ## Data preparation
 
-```{r}
+```{r speaker-a-files}
 
 # get list of Conversation files speaker A
 A_files = list.files('./data/LIWC-results/cRQA/SpeakerA',
@@ -264,7 +264,7 @@ A_dfs = plyr::ldply(A_files,
 
 ```
 
-```{r}
+```{r speaker-a-prep-for-crqa}
 
 # prepare conversations Speaker A for CRQA
 A_dfs = A_dfs %>% ungroup() %>%
@@ -291,11 +291,22 @@ A_dfs = A_dfs %>% ungroup() %>%
     gtools::quantcut(function_words,
                      q=4,
                      na.rm = TRUE))
-  ) %>% ungroup()
+  ) %>%
+
+  # figure out how many turns each speaker A had
+  ungroup() %>%
+  group_by(dyad_id) %>%
+  mutate(max_turns_cond = max(Segment)) %>%
+  ungroup()
 
 ```
 
-```{r}
+***
+
+### Data cleaning: Speaker B
+
+```{r speaker-b-files}
+
 # get list of Conversation files speaker B
 B_files = list.files('./data/LIWC-results/cRQA/SpeakerB',
                      pattern = ".txt", full.names = TRUE)
@@ -304,7 +315,7 @@ B_dfs = plyr::ldply(B_files,
 
 ```
 
-```{r}
+```{r speaker-b-prep-for-crqa}
 
 # prepare conversations Speaker B for CRQA
 B_dfs = B_dfs %>% ungroup() %>%
@@ -331,34 +342,32 @@ B_dfs = B_dfs %>% ungroup() %>%
     gtools::quantcut(function_words,
                      q=4,
                      na.rm = TRUE))
-  ) %>% ungroup()
+  ) %>%
+
+  # figure out how many turns each speaker B had
+  ungroup() %>%
+  group_by(dyad_id) %>%
+  mutate(max_turns_cond = max(Segment)) %>%
+  ungroup()
+
 
 ```
 
+***
 
+### Cross-recurrence quantification analysis
 
-```{r}
+Before we run CRQA, we must first combine the Speaker A and Speaker B
+dataframes. This requires truncating the data so that both speakers have the
+same number of turns in each conversation and converting from longform data
+(i.e., creating columns for speaker identifier [A vs. B], function words, and
+turn) to wideform data (i.e., creating columns for Speaker A function words,
+Speaker B function words, and turn).
 
-#Trim the data so Speaker A and B have identical number of Segments (talk-turns)
+```{r merge-and-prepare-speaker-dataframes}
 
-# assume that we ONLY dealwith 1 conversation per dyad
-speaker_As = A_dfs %>% ungroup() %>%
-
-  # figure out how many turns each speaker A had
-  group_by(dyad_id) %>%
-  mutate(max_turns_cond = max(Segment)) %>%
-  ungroup() # side note: ALWAYS make sure that you call ungroup() if you group!
-
-# do the same thing for Speaker B
-speaker_Bs = B_dfs %>% ungroup() %>%
-
-  # figure out how many turns each speaker B had
-  group_by(dyad_id) %>%
-  mutate(max_turns_cond = max(Segment)) %>%
-  ungroup() # side note: ALWAYS make sure that you call ungroup() if you group!
-
-# merge them together
-both_speakers = rbind.data.frame(speaker_As, speaker_Bs) %>%
+# merge Speaker A and Speaker B together
+df_final = rbind.data.frame(A_dfs, B_dfs) %>%
 
   # group by dyad
   group_by(dyad_id) %>%
@@ -372,38 +381,15 @@ both_speakers = rbind.data.frame(speaker_As, speaker_Bs) %>%
 
   # trim each dyad's to the minimum
   slice(1:unique(trim_turns)) %>%
-  ungroup()
+  ungroup() %>%
 
-# we should be able to use dplyr::spread for this, but I'm not used to the code and am having trouble
-
-
-# split data.frame by speaker
-speaker_A_transformed = both_speakers %>% ungroup() %>%
-
-  # grab only As
-  dplyr::filter(dyad_position=="A") %>%
-
-  # rename the function words
-  dplyr::rename(function_words_A = function_words,
-                fw_quantiles_A = fw_quantiles,
-                speaker_A = speaker_code,
-                wc_A = WC) %>%
-
-  # remove speaker position
-  select(-dyad_position, -max_turns_cond, -trim_turns, -Filename)%>%
-  ungroup()
-
-# same for B
-speaker_B_transformed = both_speakers %>% ungroup() %>%
-  dplyr::filter(dyad_position=="B") %>%
-  dplyr::rename(function_words_B = function_words,
-                fw_quantiles_B = fw_quantiles,
-                speaker_B = speaker_code,
-                wc_B = WC) %>%
-  select(-dyad_position, -max_turns_cond, -trim_turns, -Filename)
-
-# and then merge them together
-df_final = full_join(speaker_A_transformed, speaker_B_transformed)
+  # use the newest tidyr branch to widen by multiple variables
+  select(-Filename,-max_turns_cond, -trim_turns) %>%
+  tidyr::pivot_wider(names_from=dyad_position,
+                     values_from=c("function_words",
+                                   "fw_quantiles",
+                                   "speaker_code",
+                                   "WC"))
 
 ```
 
@@ -468,17 +454,22 @@ for (next_conv in split_conv){
 ```
 
 ```{r}
+
 #calculate diagonal recurrence plots
 drp_results = data.frame()
 
-drp_results = drpdfromts(fw_quantiles_A,fw_quantiles_B,ws=wsz,datatype="categorical")
+drp_results = drpdfromts(fw_quantiles_A,fw_quantiles_B,
+                         ws=wsz, # this is the window size--in other words, how far the lead/lag window should be
+                         datatype="categorical")
 
 ```
 
 
 ## Hypothesis 2
 ```{r}
+```
 
+***
 
 # List of next steps
 * create baseline surrogate measures for H2
