@@ -45,13 +45,13 @@ source('./scripts/bc-libraries_and_functions.r')
 
 ***
 
-# Data preparation
+# Hypothesis 1
 
 ***
 
-## Hypothesis 1
+## Data preparation
 
-***
+*** 
 
 ### Recurrence quantification analysis: Monologues
 
@@ -209,6 +209,8 @@ for (next_conv in split_conv){
 
 ```
 
+***
+
 ### Create dataframe for H1
 
 ```{r create-h1-dataframe}
@@ -222,10 +224,9 @@ write.table(h1_data,'./data/h1_data.csv',sep=",")
 
 ```
 
-
 ***
 
-## Data analyses
+## Data analysis
 
 ```{r}
 #LMEM for Hypothesis 1
@@ -248,15 +249,19 @@ summary(h1_analyses)
 
 ***
 
-## Hypothesis 2
+# Hypothesis 2
 
 ***
 
 ## Data preparation
 
+***
+
+### Data cleaning: Speaker A
+
 ```{r speaker-a-files}
 
-# get list of Conversation files speaker A
+# get list of Conversation files for Speaker A
 A_files = list.files('./data/LIWC-results/cRQA/SpeakerA',
                      pattern = ".txt", full.names = TRUE)
 A_dfs = plyr::ldply(A_files,
@@ -307,7 +312,7 @@ A_dfs = A_dfs %>% ungroup() %>%
 
 ```{r speaker-b-files}
 
-# get list of Conversation files speaker B
+# get list of Conversation files for Speaker B
 B_files = list.files('./data/LIWC-results/cRQA/SpeakerB',
                      pattern = ".txt", full.names = TRUE)
 B_dfs = plyr::ldply(B_files,
@@ -464,8 +469,10 @@ drp_results = drpdfromts(fw_quantiles_A,fw_quantiles_B,
 
 ```
 
+***
 
-## Hypothesis 2
+## Data analysis
+
 ```{r}
 ```
 
