@@ -375,33 +375,7 @@ df_final = rbind.data.frame(A_dfs, B_dfs) %>%
 ```
 
 ```{r}
-#issue 1: trimming test doesn't work
 
-# let's test to make sure we've correctly trimmed them
-testing_trimming = both_speakers %>% ungroup() %>%
-
-  # let's grab only the last segment line from each participant
-  group_by(dyad_id, dyad_position) %>%
-  dplyr::filter(Segment == max(Segment)) %>%
-
-  # let's check to make sure that it equals the correct trim number
-  mutate(correct_length = Segment == trim_turns) %>%
-  ungroup() %>%
-
-  # drop variables that make it harder to read the table
-  select(-fw_quantiles, -cond, -function_words, -WC)
-
-# return only the participants whose data aren't properly trimmed
-broken_lines = testing_trimming %>% ungroup() %>%
-  dplyr::filter(correct_length == FALSE)
-
-# how many broken participants do we have?
-dim(broken_lines)[1]
-
-```
-
-
-```{r}
 # split dataframe by conversation
 split_conv = split(df_final, list(df_final$dyad_id))
 
