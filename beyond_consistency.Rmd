@@ -118,17 +118,15 @@ for (next_mon in split_mon){
   # save plot-level information to dataframe
   dyad_id = unique(next_mon$dyad_id)
   speaker_code = unique(next_mon$speaker_code)
-  cond = unique(next_mon$cond)
+  cond = NA   #changed it to NA as there was no condition in the monologue
   conv.type = unique(next_mon$conv.type)
   next_data_line = data.frame(dyad_id,  
                               speaker_code,
                               conv.type,
+                              cond,
                               rqa_for_mon[1:9])
   crqa_results_mon = rbind.data.frame(crqa_results_mon,next_data_line)
 }
-
-# add column names
-#colnames(crqa_results_mon) <- paste(colnames(crqa_results_mon), "M", sep = "_")
 
 ```
 
@@ -208,9 +206,6 @@ for (next_conv in split_conv){
                               rqa_for_conv[1:9])
   crqa_results_conv = rbind.data.frame(crqa_results_conv,next_data_line)
 }
-
-# add column names
-#colnames(crqa_results_conv) <- paste(colnames(crqa_results_conv), "C", sep = "_")
 
 ```
 
@@ -453,19 +448,41 @@ for (next_conv in split_conv){
 
 ```
 
+```{r}
 #calculate diagonal recurrence plots
+drp_results = data.frame()
 
 drp_results = drpdfromts(fw_quantiles_A,fw_quantiles_B,ws=wsz,datatype="categorical") 
 
-
-
+```
 ***
+#Data Analyses - LMEM
+***
+## Hypothesis 1
+```{r}
+#LMEM for Hypothesis 1
+#model with maximum random effects structure
+h1_analyses <- lmer(RR ~ conv.type + (1 + conv.type | speaker_code),
+                        data=h1_data,REML=FALSE)
+
+#has too many random effects - uncorrelated random intercept and random slope
+
+h1_analyses <- lmer(RR ~ conv.type + (1|speaker_code) + (0+ conv.type | speaker_code), data = h1_data, REML = FALSE)
+
+#still has too many random effects - only random intercept
+
+h1_analyses <- lmer(RR ~ conv.type + (1|speaker_code), data = h1_data, REML = FALSE)
+summary(h1_analyses)
+
+#for now, model doesn't include the cond, but there was only a condition for the conversations, the monologue was identital for all participants - so is it necessary to add it and if yes, where/how should we add it?
+
+
 
 # List of next steps
 * create baseline surrogate measures for H2
 * add a step to save the eventual table
-*calculate recurrence plots for H2
-*start code for analyses for H1 and H2 add comments and questions for Alex
+* calculate diagonal recurrence plots for H2
+* start code for analyses for H1 and H2 add comments and questions for Alex
 
 
 * previous examples
@@ -480,8 +497,8 @@ preserve)
 dialogue
 * add a step to save the eventual table
 
-#art doing categorical CRQA
-# create quartiles of function words -- function `quantile`
+#start doing categorical CRQA
+# create quartiles of function words -- function `quantile` - 'quantcut'
 # recode 0 appearances of function words as something else (e.g., 0 for one participant, -1 for the other)
 # run categorical CRQA with `tw=0` over all of these
 
