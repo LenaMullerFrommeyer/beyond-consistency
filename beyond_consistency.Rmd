@@ -321,7 +321,7 @@ A_dfs = A_dfs %>% ungroup() %>%
   ) %>% ungroup()  %>%
   
   # specify these data are real
-  mutate(data_type = real)
+  mutate(data_type = 'real')
 
 ```
 
@@ -369,7 +369,7 @@ B_dfs = B_dfs %>% ungroup() %>%
   ) %>% ungroup() %>%
   
   # specify these data are real
-  mutate(data_type = real)
+  mutate(data_type = 'real')
 
 ```
 
