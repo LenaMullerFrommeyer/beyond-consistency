@@ -215,7 +215,9 @@ for (next_conv in split_conv){
 
 # bring together the monologue and conversation data
 h1_data = rbind(crqa_results_mon, crqa_results_conv)
-#write.table(h1_data, file = 'C:/Users/Lena/Desktop',sep=",") 
+
+#save results to file
+write.table(h1_data,'./data/h1_data.csv',sep=",") 
 
 ```
 
@@ -225,7 +227,22 @@ h1_data = rbind(crqa_results_mon, crqa_results_conv)
 ## Data analyses
 
 ```{r}
+#LMEM for Hypothesis 1
+#model with maximum random effects structure
+library(lme4)
+h1_analyses <- lmer(RR ~ conv.type + (1 + conv.type | speaker_code),
+                        data=h1_data,REML=FALSE)
 
+#has too many random effects - reduce to uncorrelated random intercept and random slope
+
+h1_analyses <- lmer(RR ~ conv.type + (1|speaker_code) + (0+ conv.type | speaker_code), data = h1_data, REML = FALSE)
+
+#still has too many random effects - reduce to only random intercept
+
+h1_analyses <- lmer(RR ~ conv.type + (1|speaker_code), data = h1_data, REML = FALSE)
+summary(h1_analyses)
+
+#for now, model only uncludes the speaker (not condition of conversation), but condition was only varied in the conversations, not the monologues - so I figured it would be a nice post-hoc analyses to see how Language Style differs from the monologues in each of the conditions.
 ```
 
 *** 
@@ -235,8 +252,6 @@ h1_data = rbind(crqa_results_mon, crqa_results_conv)
 ***
 
 ## Data preparation
-
-### Speaker A
 
 ```{r}
 
@@ -250,7 +265,7 @@ A_dfs = plyr::ldply(A_files,
 
 ```{r}
 
-# prepare conversations Speaker A for RQA
+# prepare conversations Speaker A for CRQA
 A_dfs = A_dfs %>% ungroup() %>%
   
   # separate 'Filename' column into separate columns
@@ -290,7 +305,7 @@ B_dfs = plyr::ldply(B_files,
 
 ```{r}
 
-# prepare conversations Speaker B for RQA
+# prepare conversations Speaker B for CRQA
 B_dfs = B_dfs %>% ungroup() %>%
   
   # separate 'Filename' column into separate columns
@@ -319,11 +334,13 @@ B_dfs = B_dfs %>% ungroup() %>%
 
 ```
 
-Example code for how to trim the data
+
 
 ```{r}
 
-# this assumes that we're ONLY dealing with 1 conversation per dyad
+#Trim the data so Speaker A and B have identical number of Segments (talk-turns)
+
+# assume that we ONLY dealwith 1 conversation per dyad
 speaker_As = A_dfs %>% ungroup() %>%
   
   # figure out how many turns each speaker A had
@@ -359,7 +376,7 @@ both_speakers = rbind.data.frame(speaker_As, speaker_Bs) %>%
 # we should be able to use dplyr::spread for this, but I'm not used to the code and am having trouble
 
 
-# so we'll split them manually
+# split data.frame by speaker
 speaker_A_transformed = both_speakers %>% ungroup() %>%
   
   # grab only As
@@ -390,8 +407,9 @@ df_final = full_join(speaker_A_transformed, speaker_B_transformed)
 ```
 
 ```{r}
+#issue 1: trimming test doesn't work
 
-# let's test to make sure we've correctly trimmed them
+#test the trimming
 testing_trimming = both_speakers %>% ungroup() %>% 
   
   # let's grab only the last segment line from each participant
@@ -399,7 +417,7 @@ testing_trimming = both_speakers %>% ungroup() %>%
   dplyr::filter(Segment == max(Segment)) %>% 
   
   # let's check to make sure that it equals the correct trim number
-  mutate(correct_length = Segment == trim_turns) %>% 
+  mutate(correct_length = Segment == trim_turns) %>% #
   ungroup() %>% 
   
   # drop variables that make it harder to read the table
@@ -433,7 +451,7 @@ for (next_conv in split_conv){
                       rescale=0, 
                       mindiagline=2,
                       minvertline=2, 
-                      tw=0, #1 is correct for the drp, right?
+                      tw=0, 
                       whiteline=FALSE,
                       recpt=FALSE)
   
@@ -455,32 +473,14 @@ drp_results = data.frame()
 drp_results = drpdfromts(fw_quantiles_A,fw_quantiles_B,ws=wsz,datatype="categorical") 
 
 ```
-***
-#Data Analyses - LMEM
-***
-## Hypothesis 1
+
+
+## Hypothesis 2
 ```{r}
-#LMEM for Hypothesis 1
-#model with maximum random effects structure
-h1_analyses <- lmer(RR ~ conv.type + (1 + conv.type | speaker_code),
-                        data=h1_data,REML=FALSE)
-
-#has too many random effects - uncorrelated random intercept and random slope
-
-h1_analyses <- lmer(RR ~ conv.type + (1|speaker_code) + (0+ conv.type | speaker_code), data = h1_data, REML = FALSE)
-
-#still has too many random effects - only random intercept
-
-h1_analyses <- lmer(RR ~ conv.type + (1|speaker_code), data = h1_data, REML = FALSE)
-summary(h1_analyses)
-
-#for now, model doesn't include the cond, but there was only a condition for the conversations, the monologue was identital for all participants - so is it necessary to add it and if yes, where/how should we add it?
-
 
 
 # List of next steps
 * create baseline surrogate measures for H2
-* add a step to save the eventual table
 * calculate diagonal recurrence plots for H2
 * start code for analyses for H1 and H2 add comments and questions for Alex
 
@@ -494,10 +494,10 @@ eventual dataframes (compare with the `mon_dfs` and figure out which to
 preserve)
 #fix CRQA based on fixes to RQA today
 #add variable to monologue and dialogue dataframes to specify monologue v.
-dialogue
-* add a step to save the eventual table
-
-#start doing categorical CRQA
+#dialogue
+# add a step to save the eventual table
+# add a step to save the eventual table
+# start doing categorical CRQA
 # create quartiles of function words -- function `quantile` - 'quantcut'
 # recode 0 appearances of function words as something else (e.g., 0 for one participant, -1 for the other)
 # run categorical CRQA with `tw=0` over all of these
