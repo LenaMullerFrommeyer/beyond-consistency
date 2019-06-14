@@ -35,7 +35,11 @@ library(tidyr)
 
 #### Global variables ####
 
-wsz = 5 #width of the diagonal recurrence profile
+# set the seed
+set.seed(9)
+
+# specify width of the diagonal recurrence profile
+wsz = 5 
 
 # create frame for data
 drps = data.frame()
