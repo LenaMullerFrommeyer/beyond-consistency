@@ -382,38 +382,10 @@ B_dfs = B_dfs %>% ungroup() %>%
                      na.rm = TRUE))
   ) %>% ungroup() %>%
   
-  # specify these data are real
-  mutate(data_type = 'real')
-
-```
-
-***
-
-## Create surrogate time series through shuffling time series
-
-```{r speaker-a-create-surrogate}
-
-# split Speaker As by dyad_id
-split_As = split(A_dfs, list(A_dfs$dyad_id))
-surrogate_crqa = data.frame()
-for (next_conv in split_As){
-  
-  # preserve the original dataframe
-  next_conv_real = next_conv
-  
-  # permute 10 times for baseline
-  permuted_df = data.frame()
-  for (run in c(1:10)){
-    next_shuffle = next_conv_real %>%
-      
-      # shuffle each person's linguistic contributions
-      group_by(Filename) %>%
-      mutate(sur_fw_quantiles = gtools::permute(fw_quantiles)) %>%
-      ungroup() %>%
-      
-      # add a marker for what run we're on
-      mutate(run = run) %>%
-      mutate(data_type = surrogate)
+  # recode anytime there is 0 function word use
+  mutate(fw_quantiles = dplyr::if_else(function_words==0,
+                                       -1,
+                                       fw_quantiles)) %>%
     
   # specify these data are real
   mutate(data_type = 'real') %>%
@@ -425,12 +397,11 @@ for (next_conv in split_As){
                 wc_B = WC) %>%
   dplyr::select(-Filename, -dyad_position)
 
-#Create surrogate data for speaker B
 ```
 
 ***
 
-### Cross-recurrence quantification analysis
+### Create dataframe for H2
 
 Before we run CRQA, we must first combine the Speaker A and Speaker B
 dataframes. This requires truncating the data so that both speakers have the
@@ -439,79 +410,188 @@ same number of turns in each conversation and converting from longform data
 turn) to wideform data (i.e., creating columns for Speaker A function words,
 Speaker B function words, and turn).
 
-```{r merge-and-prepare-speaker-dataframes}
+```{r merge-and-prepare-speaker-dataframes-with-tidyr-dev, eval=FALSE, include=FALSE}
+
+# # This would be ideal, but we unfortunately can't figure out why it won't install on
+# # Lena's computer---moving back to the other way.
+# # When tidyr merges the new additions to their CRAN release, we'll need to remove
+# # the suffixes from the variables added above.
+
+# # merge Speaker A and Speaker B together
+# df_final = rbind.data.frame(A_dfs, B_dfs) %>%
+# 
+#   # use the newest tidyr branch to widen by multiple variables
+#   select(-Filename)%>%
+#   tidyr::pivot_wider(names_from=dyad_position,
+#                      values_from=c("function_words",
+#                                    "fw_quantiles",
+#                                    "speaker_code",
+#                                    "WC")) %>%
+#   
+#   # because any missing values are filled with `NA`, 
+#   # we can truncate turns simply by dropping `NA`
+#   tidyr::drop_na()
+
+```
+
+```{r merge-and-prepare-speaker-dataframes-with-tidyr-base}
 
 # merge Speaker A and Speaker B together
-df_final = rbind.data.frame(A_dfs, B_dfs) %>%
-
-  # use the newest tidyr branch to widen by multiple variables
-  select(-Filename)%>%
-  tidyr::pivot_wider(names_from=dyad_position,
-                     values_from=c("function_words",
-                                   "fw_quantiles",
-                                   "speaker_code",
-                                   "WC")) %>%
+h2_data = full_join(A_dfs, B_dfs) %>%
   
   # because any missing values are filled with `NA`, 
   # we can truncate turns simply by dropping `NA`
   tidyr::drop_na()
 
-#repeat for surrogate body
-
 ```
+
+***
+
+## Surrogate generation
+
+***
+
+### Partner-wise shuffled baseline
+
+This form of surrogate time series estimating overall RR (or %REC) that might 
+be expected by chance.
 
 ```{r}
 
-# split dataframe by conversation
-split_conv = split(df_final, list(df_final$dyad_id))
+# aiming for 10 partner-wise shuffled baselines for each dyad and conversation type
+
+```
+
+
+***
+
+### Sample-wise shuffled baseline
+
+This form of surrogate time series will be used for the DRPs, but it is not
+suitable for estimating overall RR (or %REC) that might be expected by chance.
+This is because the individual points are retained, meaning that the overall
+amount of recurrence will stay the same, although the exact structure of the
+recurrence (e.g., DRPs, mean line length, percent determinism) will be altered.
+
+```{r speaker-a-create-surrogate}
+
+# split all dyads by dyad ID and conversation
+split_h2 = split(h2_data, list(h2_data$dyad_id,
+                               h2_data$cond))
+sample_wise_baseline = data.frame()
+for (next_conv in split_h2){
+  
+  # only progress if we have data for this conversation type and dyad
+  if (dim(next_conv)[1] > 1){
+    
+    # preserve the original dataframe
+    next_conv_real = next_conv
+    
+    # permute 10 times for baseline
+    permuted_df = data.frame()
+    for (run in c(1:10)){
+      next_shuffle = next_conv_real %>%
+        
+        # shuffle each person's linguistic contributions
+        group_by(dyad_id) %>%
+        mutate(sur_fw_quantiles_A = gtools::permute(fw_quantiles_A)) %>%
+        mutate(sur_fw_quantiles_B = gtools::permute(fw_quantiles_B)) %>%
+        ungroup() %>%
+        
+        # drop unneeded variables 
+        select(-fw_quantiles_A, -fw_quantiles_B, 
+               -contains('wc_'), -contains('function_words')) %>%
+        
+        # add a marker for what run we're on and datatype
+        mutate(run = run) %>%
+        mutate(data_type = 'surrogate')
+      
+      # add it to our dataframe
+      permuted_df = rbind.data.frame(permuted_df, next_shuffle)
+    }
+    
+    # bind the next surrogate's data to the dataframe
+    sample_wise_baseline = rbind.data.frame(sample_wise_baseline, permuted_df)}
+}
+
+```
+
+***
+
+### Cross-recurrence quantification analysis
+
+
+```{r}
+
+# split dataframe by conversation and dyad ID
+split_conv = split(h2_data, list(h2_data$dyad_id,
+                                  h2_data$cond))
 
 # cycle through the individual conversations
 crqa_results = data.frame()
 for (next_conv in split_conv){
-
-  # run cross-recurrence
-  rqa_for_conv = crqa(ts1=next_conv$fw_quantiles_A,
-                      ts2=next_conv$fw_quantiles_B,
-                      delay=1,
-                      embed=1,
-                      r=0.1,
-                      normalize=0,
-                      rescale=0,
-                      mindiagline=2,
-                      minvertline=2,
-                      tw=0,
-                      whiteline=FALSE,
-                      recpt=FALSE)
-
-  # save plot-level information to dataframe
-  dyad_id = unique(next_conv$dyad_id)
-  cond = unique(next_conv$cond)
-  next_data_line = data.frame(dyad_id,  
-                              cond,
-                              rqa_for_conv[1:9])
-  crqa_results = rbind.data.frame(crqa_results,next_data_line)
+  
+  # only proceed if we have data for this conversation
+  if (dim(next_conv)[1]>1){ 
+    
+    # run cross-recurrence
+    rqa_for_conv = crqa(ts1=next_conv$fw_quantiles_A,
+                        ts2=next_conv$fw_quantiles_B,
+                        delay=1,
+                        embed=1,
+                        r=0.1,
+                        normalize=0,
+                        rescale=0,
+                        mindiagline=2,
+                        minvertline=2,
+                        tw=0,
+                        whiteline=FALSE,
+                        recpt=FALSE)
+    
+    # save plot-level information to dataframe -- confirm that we don't need anything else here
+    dyad_id = unique(next_conv$dyad_id)
+    cond = unique(next_conv$cond) 
+    next_data_line = data.frame(dyad_id,  
+                                cond,
+                                rqa_for_conv[1:9])
+    crqa_results = rbind.data.frame(crqa_results,next_data_line)}
 }
 
 #repeat for surrogate body
 
 ```
 
+Need to note in the manuscript that we dropped anyone with fewer than 10 
+talk-turns from the DRP analyses.
+
 ```{r}
+
+# split dataframe by conversation and dyad ID
+split_conv = split(h2_data, list(h2_data$dyad_id,
+                                  h2_data$cond))
 
 # cycle through all dyads
 drp_results = data.frame()
 for (next_conv in split_conv) {
   
-   # calculate diagonal recurrence profile using categorical recurrence
-  drp_for_conv = drpdfromts(next_conv$fw_quantiles_A, next_conv$fw_quantiles_B, ws = wsz, datatype="categorical")
-
-
- # save plot-level information to dataframe
-  
+  # only proceed if we have data for this conversation
+  if (dim(next_conv)[1]>9){
+    # calculate diagonal recurrence profile using categorical recurrence
+    drp_for_conv = drpdfromts(next_conv$fw_quantiles_A, next_conv$fw_quantiles_B, 
+                              ws = wsz, datatype="categorical")
+    
+    # save plot-level information to dataframe
     dyad_id = unique(next_conv$dyad_id)
     cond = unique(next_conv$cond)
-    drps = data.frame(dyad_id  = rep(dyad_id(length(raw))), cond = rep(cond(length(raw))), raw = timeVals$raw, ot1 = timeVals$ot1, ot2  = timeVals$ot2, rr = drp_for_conv$profile)
+    drps = data.frame(raw = timeVals$raw, 
+                      ot1 = timeVals$ot1, 
+                      ot2  = timeVals$ot2, 
+                      rr = drp_for_conv$profile) %>%
+      mutate(dyad_id = dyad_id,
+             cond = cond)
+    
     drp_results = rbind.data.frame(drp_results, drps)
+    }
 }
 
 #descriptives are still missing - didn't know what to do with this
