@@ -575,8 +575,13 @@ for (next_conv in split_conv) {
     }
 }
 ```
+
 ***
-## Creation of surrogate baselines
+
+## Creation of baselines
+
+***
+
 ### Partner-wise shuffled baseline
 
 ```{r}
@@ -607,10 +612,18 @@ for (next_conv in split_h2_b_sur){
     for (run in c(1:10)){
       next_shuffle = next_conv_real %>%
         
-        # shuffle each person's linguistic contributions
-        group_by(dyad_id) %>%
-        mutate(sur_fw_quantiles_B = gtools::permute(fw_quantiles_B))%>%
-        ungroup() %>%
+        # # shuffle each person's linguistic contributions
+        # group_by(dyad_id) %>%
+        # mutate(sur_fw_quantiles_B = gtools::permute(fw_quantiles_B))%>%
+        # ungroup() %>%
+        
+        ## AP: You don't want to permute the quantiles here; the structure of the
+        ## data should be EXACTLY how they appeared in the actual interaction.
+        ## Instead, you are just pairing 1 participant with the data that came from
+        ## someone else that they didn't interact with. For an example of how we
+        ## did this with base R (not dplyr), see the code from the emotion dynamics
+        ## project: 
+        ## https://github.com/a-paxton/emotion-dynamics/blob/badd2493e2ab979394c7eaeb7e0a59fcd77ee340/get_rqa_measures.R#L29
         
         # add a marker for what run we're on and datatype
         mutate(run_B = run) %>%
@@ -620,9 +633,13 @@ for (next_conv in split_h2_b_sur){
       permuted_df = rbind.data.frame(permuted_df, next_shuffle)
     }
     
-      #I want to add an identifier to full_join permuted datasets A and B randomly - I was thinking
-      #of a randomly assigned number between 1 and the maximum of permutation runs per condition
-      # I don't even know if that is the right way to do it, but I think it would work if I could just assign these         # identifiers (e.g. A11 and B29 (both with identifier 155) would be paired)
+    # I want to add an identifier to full_join permuted datasets A and B randomly - I was thinking
+    # of a randomly assigned number between 1 and the maximum of permutation runs per condition
+    # I don't even know if that is the right way to do it, but I think it would work if I could just assign these         
+    # identifiers (e.g. A11 and B29 (both with identifier 155) would be paired)
+    
+    ## AP: You can do that by creating a new variable; I'll make some sample code 
+    ## might help you get to where you want to go.
     
 
     # bind the next surrogate's data to the dataframe
@@ -630,10 +647,46 @@ for (next_conv in split_h2_b_sur){
 }
 
 
+```
 
+```{r}
+
+## AP: This will create 10 unique shuffled partners: Just pair
+## the data from Speaker A with the data from each Speaker B
+## specified in each of the `speaker_B_runs` 
+
+# specify random partners
+paired_partners = h2_data %>%
+  
+  # narrow down to only the variables we need
+  select(dyad_id, speaker_A, speaker_B) %>%
+  distinct() %>%
+  rename(dyad_id_real = dyad_id,
+         speaker_B_real = speaker_B)
+  
+# cycle through for 10 baselines
+for (runs in c(1:10)){
+  
+  # generate a potential paired set value
+  temp_df = paired_partners %>% 
+    mutate(!!paste0("speaker_B_run", runs) := permute(speaker_B_real))
+  
+  # keep resampling if we get any overlap from the real data
+  # or other pairs
+  while (length(unique(apply(temp_df,1,function(x) sum(!duplicated(x))))) != 1) {
+    temp_df = paired_partners %>% 
+      mutate(!!paste0("speaker_B_run", runs) := permute(speaker_B_real))
+  }
+  
+  # save the final option
+  paired_partners = temp_df
+}
 
 ```
+
+
 ***
+
 ###Sample-wise shuffled baseline
 
 ```{r-create-surrogate}
