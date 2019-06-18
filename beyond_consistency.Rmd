@@ -399,7 +399,6 @@ A_dfs = A_dfs %>% ungroup() %>%
 
   # extract speaker number ID and conversation type from variable
   mutate(cond = gsub("[[:digit:]]+","",dyad_id)) %>%
-  mutate(dyad_id = gsub("[K|P]","",dyad_id)) %>%
 
   # rename function. to function_words
   dplyr::rename(function_words = function.) %>%
@@ -460,7 +459,6 @@ B_dfs = B_dfs %>% ungroup() %>%
 
   # extract speaker number ID and conversation type from variable
   mutate(cond = gsub("[[:digit:]]+","",dyad_id)) %>%
-  mutate(dyad_id = gsub("[K|P]","",dyad_id)) %>%
 
   # rename function. to function_words
   dplyr::rename(function_words = function.) %>%
