@@ -265,7 +265,46 @@ Next, we will do a post-hoc analysis to see how language style differs from the
 monologues based on each condition.
 
 ```{r}
+#Preparing data for Post-hoc analyses - Bring data into wide format to calculate Diff_DET
+crqa_results_mon_post = crqa_results_mon %>%
+  dplyr::rename(conv.type_m = conv.type,
+                cond_m = cond,
+                RR_m = RR,
+                DET_m = DET,
+                NRLINE_m = NRLINE,
+                maxL_m = maxL,
+                L_m = L,
+                ENTR_m = ENTR,
+                rENTR_m = rENTR,
+                LAM_m = LAM,
+                TT_m = TT) 
+crqa_results_conv_post = crqa_results_conv  %>%
+  dplyr::rename(conv.type_c = conv.type,
+                cond_c = cond,
+                RR_c = RR,
+                DET_c = DET,
+                NRLINE_c = NRLINE,
+                maxL_c = maxL,
+                L_c = L,
+                ENTR_c = ENTR,
+                rENTR_c = rENTR,
+                LAM_c = LAM,
+                TT_c = TT) 
+h1_post = full_join(crqa_results_mon_post, crqa_results_conv_post)
+#Calculate Diff_DET
+h1_post_hoc = h1_post %>%
+  mutate(Diff_DET = DET_m - DET_c)
+h1_analyses_post = lm(Diff_DET ~ cond_c, data = h1_post_hoc)
+```
 
+```{r silently-print-summary, eval=TRUE, echo=TRUE, include=FALSE}
+# print summary table
+summary(h1_analyses_post)
+```
+
+```{r silently-print-table, eval=TRUE, echo=TRUE, include=FALSE}
+# neatly print output
+pander_lme(h1_analyses_post)
 ```
 
 
