@@ -620,7 +620,7 @@ for (next_conv in split_h2){
 
     # permute 10 times for baseline
     permuted_df = data.frame()
-    for (run in c(1:10)){
+    for (run in c(1:5)){
       next_shuffle = next_conv_real %>%
 
         # shuffle each person's linguistic contributions
@@ -649,12 +649,15 @@ for (next_conv in split_h2){
 
 ***
 
-### Cross-recurrence quantification analysis for surrogate bodies
+## Cross-recurrence quantification analysis
 
+***
+
+### For real data
 
 ```{r analysis-df-plot-level}
- #CRQA for real data
 
+# CRQA for real data
 
 # split dataframe by dyad ID
 split_conv = split(h2_data, list(h2_data$dyad_id))
@@ -662,13 +665,75 @@ split_conv = split(h2_data, list(h2_data$dyad_id))
 # cycle through the individual conversations
 crqa_results = data.frame()
 for (next_conv in split_conv){
-
+  
   # only proceed if we have data for this conversation
   if (dim(next_conv)[1]>1){
-
+    
     # run cross-recurrence
     crqa_for_conv = crqa(ts1=next_conv$fw_quantiles_A,
-                        ts2=next_conv$fw_quantiles_B,
+                         ts2=next_conv$fw_quantiles_B,
+                         delay=1,
+                         embed=1,
+                         r=0.1,
+                         normalize=0,
+                         rescale=0,
+                         mindiagline=2,
+                         minvertline=2,
+                         tw=0,
+                         whiteline=FALSE,
+                         recpt=FALSE)
+    
+    # save plot-level information to dataframe -- confirm that we don't need anything else here
+    dyad_id = unique(next_conv$dyad_id)
+    cond = unique(next_conv$cond)
+    next_data_line = data.frame(dyad_id,  
+                                cond,
+                                crqa_for_conv[1:9])
+    crqa_results = rbind.data.frame(crqa_results,next_data_line)}
+}
+
+```
+
+Need to note in the manuscript that we dropped anyone with fewer than 10
+talk-turns from the DRP analyses.
+
+```{r}
+
+# do the real DRP calculation here
+
+```
+
+***
+
+### For partner-wise shuffled baseline
+
+```{r}
+
+#CRQA for surrogate body
+crqa_results_sur = data.frame()
+
+# cycle through all the pseudopartners
+for (fake_dyad in 1:nrow(partner_wise_baseline)){ 
+  
+  # get next Speaker A data
+  temp_A = h2_data %>% ungroup() %>%
+    dplyr::filter(speaker_A==partner_wise_baseline$speaker_A[fake_dyad]) %>%
+    select(speaker_A, cond, fw_quantiles_A, Segment)
+  
+  # get only the data we need for Fake Partner B
+  temp_B = h2_data %>% ungroup() %>%
+    dplyr::filter(speaker_B==partner_wise_baseline$fake_speaker_B[fake_dyad]) %>%
+    select(speaker_B, cond, fw_quantiles_B, Segment)
+  
+  # join them together to make sure only compare equal turns
+  temp_data=full_join(temp_A, temp_B) %>%
+      tidyr::drop_na()
+  
+  # run CRQA as long as we have observed data
+  if(nrow(temp_data)>1){
+    
+    crqa_for_sur = crqa(ts1=temp_data$fw_quantiles_A,
+                        ts2=temp_data$fw_quantiles_B,
                         delay=1,
                         embed=1,
                         r=0.1,
@@ -679,71 +744,46 @@ for (next_conv in split_conv){
                         tw=0,
                         whiteline=FALSE,
                         recpt=FALSE)
-
-    # save plot-level information to dataframe -- confirm that we don't need anything else here
-    dyad_id = unique(next_conv$dyad_id)
-    cond = unique(next_conv$cond)
-    next_data_line = data.frame(dyad_id,  
-                                cond,
-                                crqa_for_conv[1:9])
-    crqa_results = rbind.data.frame(crqa_results,next_data_line)}
-}
-
-#CRQA for surrogate body
-
-crqa_results_sur = data.frame()
-
-
-for (fake_dyad in 1:nrow(pseudo_partners)){ 
-
-  sur_data = h2_data %>%     
- 
-  dplyr::filter(speaker_A==pseudo_partners$speaker_A[fake_dyad]) %>%
-      speaker_A = pseudo_partners$speaker_A[fake_dyad] %>%
-      fw_quantiles_A = fw_quantiles_A %>%
-      
-    temp_A = data.frame(speaker_A, fw_quantiles_A) %>%
-    mutate(ident = 1:nrow(temp_A)) %>%
-
-dplyr::filter(speakerB==pseudo_partner$next_fake_B[fake_dyad]) %>%
-    speaker_B = pseudo_partners$speaker_b[fake_dyad] %>%
-  
-    temp_B = data.frame(speaker_B, fw_quantiles_B) %>%
-    mutate(ident = 1:nrow(temp_B)) %>%
-  
-  temp_data=full_join(temp_A, temp_B) %>%
-
-    if(nrow(temp_data)>9){
-      
-      crqa_for_sur = crqa(ts1=temp_data$fw_quantiles_A,
-                      ts2=temp_data$fw_quantiles_B,
-                      delay=1,
-                      embed=1,
-                      r=0.1,
-                      normalize=0,
-                      rescale=0,
-                      mindiagline=2,
-                      minvertline=2,
-                      tw=0,
-                      whiteline=FALSE,
-                      recpt=FALSE)
-
-  # save plot-level information to dataframe
-  speaker_id_A = unique(temp_data$speaker_id_A)
-  speaker_id_B = unique(temp_data$speaker_id_B)
-  next_data_line = data.frame(speaker_id_A,
-                              speaker_id_B,
-                              crqa_for_sur[1:9])
-  crqa_results_sur = rbind.data.frame(crqa_results_sur,next_data_line)
-    }
-}
-      
     
+    # save plot-level information to dataframe
+    speaker_A = unique(temp_data$speaker_A)
+    speaker_B = unique(temp_data$speaker_B)
+    cond = unique(temp_data$cond)
+    next_data_line = data.frame(speaker_A,
+                                speaker_B,
+                                cond,
+                                crqa_for_sur[1:9])
+    crqa_results_sur = rbind.data.frame(crqa_results_sur,next_data_line)
+  }
+}
 
 ```
 
 Need to note in the manuscript that we dropped anyone with fewer than 10
 talk-turns from the DRP analyses.
+
+```{r}
+
+# do the partner-wise shuffled DRP here
+
+```
+
+
+***
+
+### For sample-wise shuffled baseline
+
+```{r}
+
+# do the sample-wise shuffled plot-level CRQA here
+
+```
+
+Need to note in the manuscript that we dropped baselines with fewer than 10
+talk-turns from any DRP analyses.
+
+**AP**: Don't forget to repeat this chunk for REAL data and for the
+partner-wise shuffled baseline data!
 
 ```{r analysis-df-drp}
 
@@ -754,14 +794,16 @@ split_sur = split(sample_wise_baseline,
 # cycle through all dyads
 drp_results_sur = data.frame()
 for (next_conv in split_sur) {
-
+  
   # only proceed if we have data for this conversation
   if (dim(next_conv)[1]>9){
-
+    
     # calculate diagonal recurrence profile using categorical recurrence
-    drp_for_sur = drpdfromts(next_conv$fw_quantiles_A, next_conv$fw_quantiles_B,
-                              ws = wsz, datatype="categorical")
-
+    drp_for_sur = drpdfromts(next_conv$fw_quantiles_A, 
+                             next_conv$fw_quantiles_B,
+                             ws = wsz, 
+                             datatype="categorical")
+    
     # save plot-level information to dataframe
     dyad_id = unique(next_conv$dyad_id)
     cond = unique(next_conv$cond)
@@ -773,12 +815,13 @@ for (next_conv in split_sur) {
       mutate(dyad_id = dyad_id,
              cond = cond,
              data_type = data_type)
-
+    
     drp_results_sur = rbind.data.frame(drp_results_sur, drps)
-    }
+  }
 }
 
 ```
+
 
 ***
 
