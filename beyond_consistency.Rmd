@@ -607,9 +607,8 @@ recurrence (e.g., DRPs, mean line length, percent determinism) will be altered.
 
 ```{r speaker-a-create-surrogate}
 
-# split all dyads by dyad ID and conversation
-split_h2 = split(h2_data, list(h2_data$dyad_id,
-                               h2_data$cond))
+# split all dyads by dyad ID
+split_h2 = split(h2_data, list(h2_data$dyad_id))
 sample_wise_baseline = data.frame()
 for (next_conv in split_h2){
 
@@ -657,9 +656,8 @@ for (next_conv in split_h2){
  #CRQA for real data
 
 
-# split dataframe by conversation and dyad ID
-split_conv = split(h2_data, list(h2_data$dyad_id,
-                                  h2_data$cond))
+# split dataframe by dyad ID
+split_conv = split(h2_data, list(h2_data$dyad_id))
 
 # cycle through the individual conversations
 crqa_results = data.frame()
@@ -749,9 +747,9 @@ talk-turns from the DRP analyses.
 
 ```{r analysis-df-drp}
 
-# split dataframe by conversation and dyad ID
-split_sur = split(sample_wise_baseline, list(sample_wise_baseline$dyad_id,
-                                  sample_wise_baseline$cond))
+# split dataframe by dyad ID
+split_sur = split(sample_wise_baseline, 
+                  list(sample_wise_baseline$dyad_id))
 
 # cycle through all dyads
 drp_results_sur = data.frame()
