@@ -225,6 +225,134 @@ write.table(h1_data,'./data/h1_data.csv',sep=",")
 
 ***
 
+## Baseline
+
+***
+
+### Create sample-wise shuffled baseline for monologues
+
+```{r monologue-h1-surrogate}
+
+# split all data by participant
+split_mon = split(mon_dfs, list(mon_dfs$speaker_code))
+monologue_baseline = data.frame()
+for (next_mon in split_mon){
+
+  # only progress if we have data for this conversation type
+  if (dim(next_mon)[1] > 1){
+
+    # preserve the original dataframe
+    next_mon_real = next_mon
+
+    # permute 10 times for baseline
+    permuted_mon_df = data.frame()
+    for (run in c(1:5)){
+      next_shuffle = next_mon_real %>%
+
+        # shuffle each person's linguistic contributions
+        mutate(sur_fw = gtools::permute(function_words),
+               sur_fw_contrast = gtools::permute(function_contrast)) %>%
+
+        # drop unneeded variables
+        select(-function_words, -function_contrast,
+               -WC) %>%
+
+        # add a marker for what run we're on and datatype
+        mutate(run = run) %>%
+        mutate(data_type = 'surrogate')
+
+      # add it to our dataframe
+      permuted_mon_df = rbind.data.frame(permuted_mon_df,
+                                     next_shuffle)
+    }
+
+    # bind the next surrogate's data to the dataframe
+    monologue_baseline = rbind.data.frame(monologue_baseline, permuted_mon_df)}
+}
+
+```
+
+***
+
+### Create sample-wise shuffled baseline for conversations
+
+```{r conversation-h1-surrogate}
+
+# split all data by participant
+split_conv = split(conv_dfs, list(conv_dfs$speaker_code))
+conversation_baseline = data.frame()
+for (next_conv in split_conv){
+
+  # only progress if we have data for this conversation type
+  if (dim(next_conv)[1] > 1){
+
+    # preserve the original dataframe
+    next_conv_real = next_conv
+
+    # permute 10 times for baseline
+    permuted_conv_df = data.frame()
+    for (run in c(1:5)){
+      next_shuffle = next_conv_real %>%
+
+        # shuffle each person's linguistic contributions
+        mutate(sur_fw = gtools::permute(function_words),
+               sur_fw_contrast = gtools::permute(function_contrast)) %>%
+
+        # drop unneeded variables
+        select(-function_words, -function_contrast,
+               -WC) %>%
+
+        # add a marker for what run we're on and datatype
+        mutate(run = run) %>%
+        mutate(data_type = 'surrogate')
+
+      # add it to our dataframe
+      permuted_conv_df = rbind.data.frame(permuted_conv_df,
+                                     next_shuffle)
+    }
+
+    # bind the next surrogate's data to the dataframe
+    conversation_baseline = rbind.data.frame(conversation_baseline, permuted_conv_df)}
+}
+
+```
+
+***
+
+### RQA: Surrogate monologue
+
+```{r}
+
+
+
+```
+
+***
+
+### RQA: Surrogate conversation
+
+```{r}
+
+```
+
+
+***
+
+### Create surrogate dataframe
+
+```{r}
+
+# bring together the monologue and conversation surrogate data
+
+
+#save results to file
+
+
+```
+
+
+***
+
 ## Data analysis
 
 Here, we perform a linear mixed-effects model to analyze how conversation
