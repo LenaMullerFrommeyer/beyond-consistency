@@ -460,77 +460,6 @@ be expected by chance.
 
 # aiming for 10 partner-wise shuffled baselines for each dyad and conversation type
 
-```
-
-```{r}
-# 
-# ###Aiming for 10 partner-wise shuffled baselines per dyads
-# 
-# #This form of surrogate time series estimating overall RR (or %REC) that might
-# #be expected by chance.
-# 
-# #preserve the original dataframe
-# h2_data_b_sur = h2_data %>%
-#   select(dyad_id, cond, fw_quantiles_B)
-# 
-# 
-# split_h2_b_sur = split(h2_data_b_sur, list(h2_data$dyad_id,
-#                                h2_data$cond))
-# 
-# h2_b_sur = data.frame()
-# for (next_conv in split_h2_b_sur){
-# 
-#   # only progress if we have data for this conversation type and dyad
-#   if (dim(next_conv)[1] > 1){
-# 
-#     # preserve the original dataframe
-#     next_conv_real = next_conv
-# 
-#     # permute 10 times for baseline
-#     permuted_df = data.frame()
-#     for (run in c(1:10)){
-#       next_shuffle = next_conv_real %>%
-# 
-#         # # shuffle each person's linguistic contributions
-#         # group_by(dyad_id) %>%
-#         # mutate(sur_fw_quantiles_B = gtools::permute(fw_quantiles_B))%>%
-#         # ungroup() %>%
-# 
-#         ## AP: You don't want to permute the quantiles here; the structure of the
-#         ## data should be EXACTLY how they appeared in the actual interaction.
-#         ## Instead, you are just pairing 1 participant with the data that came from
-#         ## someone else that they didn't interact with. For an example of how we
-#         ## did this with base R (not dplyr), see the code from the emotion dynamics
-#         ## project:
-#         ## https://github.com/a-paxton/emotion-dynamics/blob/badd2493e2ab979394c7eaeb7e0a59fcd77ee340/get_rqa_measures.R#L29
-# 
-#         # add a marker for what run we're on and datatype
-#         mutate(run_B = run) %>%
-#         mutate(data_type_B = 'surrogate')
-# 
-#       # add it to our dataframe
-#       permuted_df = rbind.data.frame(permuted_df, next_shuffle)
-#     }
-# 
-#     # I want to add an identifier to full_join permuted datasets A and B randomly - I was thinking
-#     # of a randomly assigned number between 1 and the maximum of permutation runs per condition
-#     # I don't even know if that is the right way to do it, but I think it would work if I could just assign these         
-#     # identifiers (e.g. A11 and B29 (both with identifier 155) would be paired)
-# 
-#     ## AP: You can do that by creating a new variable; I'll make some sample code
-#     ## might help you get to where you want to go.
-# 
-# }}
-# 
-
-```
-
-```{r}
-
-## AP: This will create 10 unique shuffled partners: Just pair
-## the data from Speaker A with the data from each Speaker B
-## specified in each of the `speaker_B_runs`
-
 # specify random partners
 pseudo_partners = h2_data %>%
 
@@ -544,13 +473,13 @@ pseudo_partners = h2_data %>%
 for (runs in c(1:10)){
 
   # generate a potential paired set value
-  temp_df = paired_partners %>%
+  temp_df = pseudo_partners %>%
     mutate(!!paste0("speaker_B_run", runs) := permute(speaker_B_real))
 
   # keep resampling if we get any overlap from the real data
   # or other pairs
   while (length(unique(apply(temp_df,1,function(x) sum(!duplicated(x))))) != 1) {
-    temp_df = paired_partners %>%
+    temp_df = pseudo_partners %>%
       mutate(!!paste0("speaker_B_run", runs) := permute(speaker_B_real))
   }
 
@@ -625,15 +554,12 @@ for (next_conv in split_h2){
 
 ***
 
-### Cross-recurrence quantification analysis
+### Cross-recurrence quantification analysis for surrogate bodies
 
 
 ```{r analysis-df-plot-level}
+ #CRQA for real data
 
-## AP: I started at the chunk below this (what I called
-## `analysis-df-drp`), so all of the comments that I made below
-## apply to this chunk, too. (Except for the number of rows---
-## each dyad in this chunk should only have 1 row)
 
 # split dataframe by conversation and dyad ID
 split_conv = split(h2_data, list(h2_data$dyad_id,
@@ -647,7 +573,7 @@ for (next_conv in split_conv){
   if (dim(next_conv)[1]>1){
 
     # run cross-recurrence
-    rqa_for_conv = crqa(ts1=next_conv$fw_quantiles_A,
+    crqa_for_conv = crqa(ts1=next_conv$fw_quantiles_A,
                         ts2=next_conv$fw_quantiles_B,
                         delay=1,
                         embed=1,
@@ -665,11 +591,58 @@ for (next_conv in split_conv){
     cond = unique(next_conv$cond)
     next_data_line = data.frame(dyad_id,  
                                 cond,
-                                rqa_for_conv[1:9])
+                                crqa_for_conv[1:9])
     crqa_results = rbind.data.frame(crqa_results,next_data_line)}
 }
 
-#repeat for surrogate body
+#CRQA for surrogate body
+
+##I think, I didn't use the for loop correctly, 
+
+crqa_results_sur = data.frame()
+
+for (fake_dyad in 1:nrow(pseudo_partners)){ 
+     
+  
+ h2_data %>% dplyr::filter(speaker_A==pseudo_partners$speaker_A[fake_dyad]) %>%
+  temp_A = data.frame(h2_data$fw_quantiles_A,pseudo_partners$speaker_A[fake_dyad]) %>%
+    mutate(ident = 1:nrow(temp_A)) 
+  
+  dplyr::filter(h2_data$speakerB==pseudo_partner$next_fake_B[fake_dyad]) %>%
+  temp_B = data.frame(h2_data$fw_quantiles_B,
+           pseudo_partners$fake_speaker_B) %>%
+    mutate(ident = 1:nrow(temp_B))
+  
+  temp_data=full_join(temp_A, temp_B) %>%
+    
+    if(nrow(temp_data)>9){
+      crqa_for_sur = crqa(ts1=temp_data$fw_quantiles_A,
+                      ts2=temp_data$fw_quantiles_B,
+                      delay=1,
+                      embed=1,
+                      r=0.1,
+                      normalize=0,
+                      rescale=0,
+                      mindiagline=2,
+                      minvertline=2,
+                      tw=0,
+                      whiteline=FALSE,
+                      recpt=FALSE)
+
+  # save plot-level information to dataframe
+  speaker_id_A = unique(temp_data$speaker_id_A)
+  speaker_id_B = unique(temp_data$speaker_id_B)
+  next_data_line = data.frame(speaker_id_A,
+                              speaker_id_B,
+                              crqa_for_sur[1:9])
+  crqa_results_sur = rbind.data.frame(crqa_results_sur,next_data_line)
+        }
+      }
+    
+  
+      
+
+
 
 ```
 
@@ -679,49 +652,35 @@ talk-turns from the DRP analyses.
 ```{r analysis-df-drp}
 
 # split dataframe by conversation and dyad ID
-split_conv = split(h2_data, list(h2_data$dyad_id,
-                                  h2_data$cond))
+split_sur = split(sample_wise_baseline, list(sample_wise_baseline$dyad_id,
+                                  sample_wise_baseline$cond))
 
 # cycle through all dyads
-drp_results = data.frame()
-for (next_conv in split_conv) {
+drp_results_sur = data.frame()
+for (next_conv in split_sur) {
 
   # only proceed if we have data for this conversation
   if (dim(next_conv)[1]>9){
 
     # calculate diagonal recurrence profile using categorical recurrence
-    drp_for_conv = drpdfromts(next_conv$fw_quantiles_A, next_conv$fw_quantiles_B,
+    drp_for_sur = drpdfromts(next_conv$fw_quantiles_A, next_conv$fw_quantiles_B,
                               ws = wsz, datatype="categorical")
 
     # save plot-level information to dataframe
     dyad_id = unique(next_conv$dyad_id)
     cond = unique(next_conv$cond)
+    data_type = unique(next_conv$data_type)
     drps = data.frame(raw = timeVals$raw,
                       ot1 = timeVals$ot1,
                       ot2  = timeVals$ot2,
-                      rr = drp_for_conv$profile) %>%
+                      rr = drp_for_sur$profile) %>%
       mutate(dyad_id = dyad_id,
-             cond = cond)
+             cond = cond,
+             data_type = data_type)
 
-    drp_results = rbind.data.frame(drp_results, drps)
+    drp_results_sur = rbind.data.frame(drp_results_sur, drps)
     }
 }
-
-#descriptives are still missing - didn't know what to do with this
-#output should still have several observations per dyad -- one per lag, is that correct?
-
-## AP: Yes, you should have n=wsz*2+1 observations per dyad. In
-## our case, each dyad should have 11 rows: 10 where p1 is leading,
-## 10 where p2 is leading, and 1 at perfect synchrony
-
-## AP: To get the descriptives, you'll need to do something similar
-## to the `dyad_id = unique(next_conv$dyad_id)` and
-## `cond = unique(next_conv$cond)` lines, and you'll attach them to
-## the dataframe like you did with both of those variables:
-##      mutate(dyad_id = dyad_id,
-##             cond = cond)
-
-#repeat for surrogate body
 
 ```
 
