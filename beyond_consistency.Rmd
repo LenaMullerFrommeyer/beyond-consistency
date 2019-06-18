@@ -845,55 +845,56 @@ for (fake_dyad in 1:nrow(partner_wise_baseline)){
 
 ***
 
-```{r}
+### For sample-wise shuffled baseline
 
+```{r drp-sample-wise-shuffle}
 
-#drp for partner-wise surrogate body
+# cycle through all the dyads
+dyad_list = unique(sample_wise_baseline$dyad_id)
 drp_sample = data.frame()
-dyad = unique(sample_wise_baseline$dyad_id)
-
-# cycle through all the pseudopartners
-for (i in 1:length(unique(sample_wise_baseline$dyad_id))){
+for (next_dyad in dyad_list){
   
-  for (run in 1:max(sample_wise_baseline$run)) {
+  # get the next participant's data
+  next_dyad_df = sample_wise_baseline %>%
+    dplyr::filter(dyad_id == next_dyad)
+  
+  # cycle through all sample-wise shuffle runs
+  for (run in 1:max(next_dyad_df$run)) {
     
     # get next Speaker A data
-  temp_AB = sample_wise_baseline %>% ungroup() %>%
-    dplyr::filter(dyad_id==dyad[i] && run == run) %>%
-    select(speaker_A, speaker_B, cond, sur_fw_quantiles_A, sur_fw_quantiles_B, run)
-  
-
-  #run DRP if we have enough talk-turns
-  if (dim(temp_AB)[1]>9){
+    temp_AB = next_dyad_df %>% ungroup() %>%
+      dplyr::filter(run == run) %>%
+      select(speaker_A, speaker_B, cond, sur_fw_quantiles_A, sur_fw_quantiles_B, run)
     
-    # calculate diagonal recurrence profile using categorical recurrence
-    drp_for_sample = drpdfromts(ts1= temp_AB$sur_fw_quantiles_A, 
-                             ts2= temp_AB$sur_fw_quantiles_B,
-                             ws = wsz, 
-                             datatype="categorical")
-    
-    # save plot-level information to dataframe
-    speaker_A = unique(temp_AB$speaker_A)
-    speaker_B = unique(temp_AB$speaker_B)
-    cond = unique(temp_AB$cond)
-    run_AB = unique(temp_AB$run)    
-    next_data = data.frame(raw = timeVals$raw,
-                      ot1 = timeVals$ot1,
-                      ot2  = timeVals$ot2,
-                      rr = drp_for_sample$profile) %>%
-      mutate(speaker_A = speaker_A,
-             speaker_B = speaker_B,
-             cond = cond,
-             run = run_AB)
-    
-    drp_sample = rbind.data.frame(drp_sample, next_data)
+    # run DRP if we have enough talk-turns
+    if (dim(temp_AB)[1]>9){
+      
+      # calculate diagonal recurrence profile using categorical recurrence
+      drp_for_sample = drpdfromts(ts1 = temp_AB$sur_fw_quantiles_A, 
+                                  ts2 = temp_AB$sur_fw_quantiles_B,
+                                  ws = wsz, 
+                                  datatype = "categorical")
+      
+      # save plot-level information to dataframe
+      speaker_A = unique(temp_AB$speaker_A)
+      speaker_B = unique(temp_AB$speaker_B)
+      cond = unique(temp_AB$cond)
+      next_data = data.frame(raw = timeVals$raw,
+                             ot1 = timeVals$ot1,
+                             ot2  = timeVals$ot2,
+                             rr = drp_for_sample$profile) %>%
+        mutate(speaker_A = speaker_A,
+               speaker_B = speaker_B,
+               cond = cond,
+               run = run,
+               dyad = next_dyad)
+      
+      drp_sample = rbind.data.frame(drp_sample, next_data)
     }
-
   }
-  
 }
-```
 
+```
 
 ***
 
