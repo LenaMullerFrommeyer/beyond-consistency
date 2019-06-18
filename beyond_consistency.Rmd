@@ -262,13 +262,13 @@ pander_lme(h1_analyses)
 ### Post-hoc analysis: Changes by conversation type
 
 Next, we will do a post-hoc analysis to see how language style differs from the
-monologues based on each condition.
+monologues based on each condition (i.e., cooperative versus conflict).
 
-```{r}
+```{r post-hoc-h1-prep}
+
 #Preparing data for Post-hoc analyses - Bring data into wide format to calculate Diff_DET
 crqa_results_mon_post = crqa_results_mon %>%
   dplyr::rename(conv.type_m = conv.type,
-                cond_m = cond,
                 RR_m = RR,
                 DET_m = DET,
                 NRLINE_m = NRLINE,
@@ -291,10 +291,19 @@ crqa_results_conv_post = crqa_results_conv  %>%
                 LAM_c = LAM,
                 TT_c = TT) 
 h1_post = full_join(crqa_results_mon_post, crqa_results_conv_post)
-#Calculate Diff_DET
+
+# Calculate Diff_DET
 h1_post_hoc = h1_post %>%
   mutate(Diff_DET = DET_m - DET_c)
+
+```
+
+```{r post-hoc-h1-model}
+
+# do changes in linguistic style between monologues and dialogues
+# differ by conversation type?
 h1_analyses_post = lm(Diff_DET ~ cond_c, data = h1_post_hoc)
+
 ```
 
 ```{r silently-print-summary, eval=TRUE, echo=TRUE, include=FALSE}
@@ -307,6 +316,51 @@ summary(h1_analyses_post)
 pander_lme(h1_analyses_post)
 ```
 
+We find a trend toward an effect of condition, but it does not 
+reach significance. Let's take a look at the data.
+
+```{r silently-plot-h1-post-trend-data, include=FALSE, echo=TRUE}
+
+qplot(data=h1_post_hoc, x=DET_m, y=DET_c, colour=cond_c) + 
+  geom_abline()
+
+```
+
+It looks as though there might be outliers in the data. Let's confirm with
+a boxplot.
+
+```{r silently-plot-h1-post-outliers, include=FALSE, echo=TRUE}
+
+qplot(data=h1_post_hoc, y=Diff_DET, geom="boxplot")
+
+```
+
+How might the model change if we remove the outliers?
+
+```{r post-hoc-h1-remove-outliers}
+
+h1_post_no_outliers = h1_post_hoc %>% 
+  dplyr::filter(Diff_DET > -40 & Diff_DET < 20)
+
+```
+
+```{r post-hoc-h1-model-without-outliers}
+
+# do changes in linguistic style between monologues and dialogues
+# differ by conversation type?
+h1_analyses_post_no_outliers = lm(Diff_DET ~ cond_c, data = h1_post_no_outliers)
+
+```
+
+```{r silently-print-h1-post-hoc-summary-without-outliers, eval=TRUE, echo=TRUE, include=FALSE}
+# print summary table
+summary(h1_analyses_post_no_outliers)
+```
+
+```{r silently-print-h1-post-hoc-table-without-outliers, eval=TRUE, echo=TRUE, include=FALSE}
+# neatly print output
+pander_lme(h1_analyses_post_no_outliers)
+```
 
 ***
 
