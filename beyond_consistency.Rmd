@@ -710,7 +710,7 @@ for (runs in c(1:5)){
   # generate a potential paired set value
   temp_df = partner_wise_baseline %>% ungroup() %>%
     group_by(cond) %>%
-    mutate(!!paste0("speaker_B_run", runs) := permute(speaker_B_real)) %>%
+    mutate(!!paste0("speaker_B_run", runs) := gtools::permute(speaker_B_real)) %>%
     ungroup()
   
   # keep resampling if we get any overlap from the real data
@@ -718,7 +718,7 @@ for (runs in c(1:5)){
   while (length(unique(apply(temp_df,1,function(x) sum(!duplicated(x))))) != 1) {
     temp_df = partner_wise_baseline %>% ungroup() %>%
       group_by(cond) %>%
-      mutate(!!paste0("speaker_B_run", runs) := permute(speaker_B_real)) %>%
+      mutate(!!paste0("speaker_B_run", runs) := gtools::permute(speaker_B_real)) %>%
       ungroup()
   }
   
