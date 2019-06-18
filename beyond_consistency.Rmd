@@ -675,7 +675,7 @@ h2_data = full_join(A_dfs, B_dfs) %>%
 This form of surrogate time series estimating overall RR (or %REC) that might
 be expected by chance.
 
-```{r}
+```{r partnerwise-h2-surrogate}
 
 # aiming for 10 partner-wise shuffled baselines for each dyad and conversation type
 
@@ -733,7 +733,7 @@ This is because the individual points are retained, meaning that the overall
 amount of recurrence will stay the same, although the exact structure of the
 recurrence (e.g., DRPs, mean line length, percent determinism) will be altered.
 
-```{r speaker-a-create-surrogate}
+```{r samplewise-h2-surrogate}
 
 # split all dyads by dyad ID
 split_h2 = split(h2_data, list(h2_data$dyad_id))
@@ -1079,7 +1079,7 @@ drp_st = mutate_each(drp_results,funs(as.numeric(scale(.))))
 
 ***
 
-# Analyses H2
+## Analyses H2
 
 We now create a linear mixed-effects model to gauge how linear lag (`ot1`) and quadratic lag (`ot2`) interact with condition (`condition`) to influence Language Style Matching (`rr`). We present both standardized and raw models below.
 
