@@ -19,7 +19,7 @@ creates new functions for our analyses.
 **Code written by**: L. C. Mueller-Frommeyer (Technische Universitaet
 Braunschweig) & A. Paxton (University of Connecticut)
 
-**Date last modified**: 14 June 2019
+**Date last modified**: 18 June 2019
 
 ```{r silent-setup, include=FALSE}
 
@@ -690,25 +690,30 @@ for (next_conv in split_conv){
 
 #CRQA for surrogate body
 
-##I think, I didn't use the for loop correctly, 
-
 crqa_results_sur = data.frame()
 
+
 for (fake_dyad in 1:nrow(pseudo_partners)){ 
-     
+
+  sur_data = h2_data %>%     
+ 
+  dplyr::filter(speaker_A==pseudo_partners$speaker_A[fake_dyad]) %>%
+      speaker_A = pseudo_partners$speaker_A[fake_dyad] %>%
+      fw_quantiles_A = fw_quantiles_A %>%
+      
+    temp_A = data.frame(speaker_A, fw_quantiles_A) %>%
+    mutate(ident = 1:nrow(temp_A)) %>%
+
+dplyr::filter(speakerB==pseudo_partner$next_fake_B[fake_dyad]) %>%
+    speaker_B = pseudo_partners$speaker_b[fake_dyad] %>%
   
- h2_data %>% dplyr::filter(speaker_A==pseudo_partners$speaker_A[fake_dyad]) %>%
-  temp_A = data.frame(h2_data$fw_quantiles_A,pseudo_partners$speaker_A[fake_dyad]) %>%
-    mutate(ident = 1:nrow(temp_A)) 
-  
-  dplyr::filter(h2_data$speakerB==pseudo_partner$next_fake_B[fake_dyad]) %>%
-  temp_B = data.frame(h2_data$fw_quantiles_B,
-           pseudo_partners$fake_speaker_B) %>%
-    mutate(ident = 1:nrow(temp_B))
+    temp_B = data.frame(speaker_B, fw_quantiles_B) %>%
+    mutate(ident = 1:nrow(temp_B)) %>%
   
   temp_data=full_join(temp_A, temp_B) %>%
-    
+
     if(nrow(temp_data)>9){
+      
       crqa_for_sur = crqa(ts1=temp_data$fw_quantiles_A,
                       ts2=temp_data$fw_quantiles_B,
                       delay=1,
@@ -729,13 +734,10 @@ for (fake_dyad in 1:nrow(pseudo_partners)){
                               speaker_id_B,
                               crqa_for_sur[1:9])
   crqa_results_sur = rbind.data.frame(crqa_results_sur,next_data_line)
-        }
-      }
-    
-  
+    }
+}
       
-
-
+    
 
 ```
 
