@@ -472,6 +472,7 @@ How might the model change if we remove the outliers?
 
 ```{r post-hoc-h1-remove-outliers}
 
+# remove outliers based on boxplot
 h1_post_no_outliers = h1_post_hoc %>% 
   dplyr::filter(Diff_DET > -40 & Diff_DET < 20)
 
@@ -486,14 +487,24 @@ h1_analyses_post_no_outliers = lm(Diff_DET ~ cond_c, data = h1_post_no_outliers)
 ```
 
 ```{r silently-print-h1-post-hoc-summary-without-outliers, eval=TRUE, echo=TRUE, include=FALSE}
+
 # print summary table
 summary(h1_analyses_post_no_outliers)
+
 ```
 
 ```{r silently-print-h1-post-hoc-table-without-outliers, eval=TRUE, echo=TRUE, include=FALSE}
+
 # neatly print output
 pander_lme(h1_analyses_post_no_outliers)
+
 ```
+
+It appears that---with 3 outlying datapoints removed---we now find an effect
+of conversation type. This suggests that there may, indeed, be systematic
+changes in speakers' linguistic styles from monologues to conversations
+based on the type of conversation that they're having. However, the results
+here are tentative and must be further investigated in future work.
 
 ***
 
