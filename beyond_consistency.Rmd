@@ -418,7 +418,8 @@ crqa_results_conv_post = crqa_results_conv  %>%
                 rENTR_c = rENTR,
                 LAM_c = LAM,
                 TT_c = TT) 
-h1_post = full_join(crqa_results_mon_post, crqa_results_conv_post)
+h1_post = full_join(crqa_results_mon_post, crqa_results_conv_post,
+                    by = c("dyad_id", "speaker_code"))
 
 # Calculate Diff_DET
 h1_post_hoc = h1_post %>%
@@ -890,8 +891,9 @@ for (fake_dyad in 1:nrow(partner_wise_baseline)){
     select(speaker_B, cond, fw_quantiles_B, Segment)
   
   # join them together to make sure only compare equal turns
-  temp_data=full_join(temp_A, temp_B) %>%
-      tidyr::drop_na()
+  temp_data=full_join(temp_A, temp_B,
+                      by = c("cond", "Segment")) %>%
+    tidyr::drop_na()
   
   # run CRQA as long as we have observed data
   if(nrow(temp_data)>1){
