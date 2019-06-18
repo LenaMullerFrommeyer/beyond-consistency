@@ -552,38 +552,43 @@ be expected by chance.
 # aiming for 10 partner-wise shuffled baselines for each dyad and conversation type
 
 # specify random partners
-pseudo_partners = h2_data %>%
+partner_wise_baseline = h2_data %>%
 
   # narrow down to only the variables we need
-  select(dyad_id, speaker_A, speaker_B) %>%
+  select(dyad_id, speaker_A, speaker_B, cond) %>%
   distinct() %>%
   rename(dyad_id_real = dyad_id,
          speaker_B_real = speaker_B)
 
 # cycle through for 10 baselines
-for (runs in c(1:10)){
+for (runs in c(1:5)){
 
   # generate a potential paired set value
-  temp_df = pseudo_partners %>%
-    mutate(!!paste0("speaker_B_run", runs) := permute(speaker_B_real))
+  temp_df = partner_wise_baseline %>% ungroup() %>%
+    group_by(cond) %>%
+    mutate(!!paste0("speaker_B_run", runs) := permute(speaker_B_real)) %>%
+    ungroup()
 
   # keep resampling if we get any overlap from the real data
   # or other pairs
   while (length(unique(apply(temp_df,1,function(x) sum(!duplicated(x))))) != 1) {
-    temp_df = pseudo_partners %>%
-      mutate(!!paste0("speaker_B_run", runs) := permute(speaker_B_real))
+    temp_df = partner_wise_baseline %>% ungroup() %>%
+    group_by(cond) %>%
+    mutate(!!paste0("speaker_B_run", runs) := permute(speaker_B_real)) %>%
+    ungroup()
   }
 
   # save the final option
-  pseudo_partners = temp_df
+  partner_wise_baseline = temp_df
 }
 
 # convert to wideform
-pseudo_partners = pseudo_partners %>%
+partner_wise_baseline = partner_wise_baseline %>%
   tidyr::gather(key = "shuffle_run",
                 value = "fake_speaker_B",
                 -speaker_A,
-                -dyad_id_real) %>%
+                -dyad_id_real,
+                -cond) %>%
   mutate(shuffle_run = gsub("speaker_B_","",shuffle_run)) %>%
   dplyr::filter(shuffle_run != "real")
 
