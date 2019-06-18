@@ -698,7 +698,7 @@ Need to note in the manuscript that we dropped anyone with fewer than 10
 talk-turns from the DRP analyses.
 
 ```{r}
-#DRP analyses for real data
+# DRP analyses for real data
 
 # split dataframe by dyad ID
 split_h2 = split(h2_data, 
@@ -737,12 +737,12 @@ for (next_conv in split_h2) {
 
 ***
 
-### For baseline
+### For partner-wise shuffled baseline
 
-```{r}
+```{r crqa-partner-wise-shuffle}
 
 #CRQA for partner-wise baseline
-crqa_partner = data.frame()
+crqa_partner_shuffle = data.frame()
 
 # cycle through all the pseudopartners
 for (fake_dyad in 1:nrow(partner_wise_baseline)){ 
@@ -785,7 +785,7 @@ for (fake_dyad in 1:nrow(partner_wise_baseline)){
                                 speaker_B,
                                 cond,
                                 crqa_for_sur[1:9])
-    crqa_partner = rbind.data.frame(crqa_partner,next_data_line)
+    crqa_partner_shuffle = rbind.data.frame(crqa_partner_shuffle,next_data_line)
   }
 }
 
@@ -795,14 +795,10 @@ for (fake_dyad in 1:nrow(partner_wise_baseline)){
 Need to note in the manuscript that we dropped anyone with fewer than 10
 talk-turns from the DRP analyses.
 
-```{r}
+```{r drp-partner-wise-shuffle}
 
-# do the partner-wise shuffled DRP here
-
-#drp for partner-wise surrogate body
-drp_partner = data.frame()
-
-# cycle through all the pseudopartners
+# cycle through all the shuffled partners
+drp_partner_shuffle = data.frame()
 for (fake_dyad in 1:nrow(partner_wise_baseline)){ 
   
   # get next Speaker A data
@@ -819,7 +815,7 @@ for (fake_dyad in 1:nrow(partner_wise_baseline)){
   temp_data=full_join(temp_A, temp_B) %>%
       tidyr::drop_na()
   
-  #run DRP if we have enough talk-turns
+  # run DRP if we have enough talk-turns
   if (dim(temp_data)[1]>9){
     
     # calculate diagonal recurrence profile using categorical recurrence
@@ -840,13 +836,14 @@ for (fake_dyad in 1:nrow(partner_wise_baseline)){
              speaker_B = speaker_B,
              cond = cond)
     
-    drp_partner = rbind.data.frame(drp_partner, next_data)
+    # save to overall dataframe
+    drp_partner_shuffle = rbind.data.frame(drp_partner_shuffle, next_data)
   }
 }
   
 ```
 
-DRP for sample-wise baseline
+***
 
 ```{r}
 
