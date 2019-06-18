@@ -69,7 +69,7 @@ mon_dfs = plyr::ldply(mon_files,
 
 # prepare monologues for RQA
 mon_dfs = mon_dfs %>%
-
+  
   # separate 'Filename' column into separate columns
   tidyr::separate(Filename,
                   into = c("dyad_id", "dyad_position", "speaker_code"),
@@ -77,16 +77,16 @@ mon_dfs = mon_dfs %>%
                   remove = FALSE,
                   extra = "drop",
                   fill = "warn") %>%
-
+  
   # extract speaker number ID and conversation type from variable
   mutate(cond = gsub("[[:digit:]]+","",dyad_id)) %>%
-
+  
   # create new variable function_contrast with all 0 replaced by -1
   dplyr::rename(function_words = function.) %>%
   mutate(function_contrast = dplyr::if_else(function_words==0,
                                             -1,
                                             function_words)) %>%
-
+  
   #add new variable specifying conversation type
   mutate(conv.type = "M")
 
@@ -100,7 +100,7 @@ split_mon = split(mon_dfs, list(mon_dfs$Filename))
 # cycle through the individual monologues
 crqa_results_mon = data.frame()
 for (next_mon in split_mon){
-
+  
   # run (auto-)recurrence
   rqa_for_mon = crqa(ts1=next_mon$function_words,
                      ts2=next_mon$function_contrast,
@@ -114,7 +114,7 @@ for (next_mon in split_mon){
                      tw=1, # exclude line of identity
                      whiteline=FALSE,
                      recpt=FALSE)
-
+  
   # save plot-level information to dataframe
   dyad_id = unique(next_mon$dyad_id)
   speaker_code = unique(next_mon$speaker_code)
@@ -148,7 +148,7 @@ conv_dfs = plyr::ldply(conv_files,
 
 # prepare conversations for RQA
 conv_dfs = conv_dfs %>%
-
+  
   # separate 'Filename' column into separate columns
   tidyr::separate(Filename,
                   into = c("dyad_id", "dyad_position", "speaker_code"),
@@ -156,16 +156,16 @@ conv_dfs = conv_dfs %>%
                   remove = FALSE,
                   extra = "drop",
                   fill = "warn") %>%
-
+  
   # extract speaker number ID and conversation type from variable
   mutate(cond = gsub("[[:digit:]]+","",dyad_id)) %>%
-
+  
   # create new variable function_contrast with all 0 replaced by -1
   dplyr::rename(function_words = function.) %>%
   mutate(function_contrast = dplyr::if_else(function_words==0,
                                             -1,
                                             function_words)) %>%
-
+  
   # add new variable specifying conversation type
   mutate(conv.type = "C")
 
@@ -179,7 +179,7 @@ split_conv = split(conv_dfs, list(conv_dfs$Filename))
 # cycle through the individual conversations
 crqa_results_conv = data.frame()
 for (next_conv in split_conv){
-
+  
   # run cross-recurrence
   rqa_for_conv = crqa(ts1=next_conv$function_words,
                       ts2=next_conv$function_contrast,
@@ -193,7 +193,7 @@ for (next_conv in split_conv){
                       tw=0,
                       whiteline=FALSE,
                       recpt=FALSE)
-
+  
   # save plot-level information to dataframe
   dyad_id = unique(next_conv$dyad_id)
   speaker_code = unique(next_conv$speaker_code)
@@ -237,35 +237,35 @@ write.table(h1_data,'./data/h1_data.csv',sep=",")
 split_mon = split(mon_dfs, list(mon_dfs$speaker_code))
 monologue_baseline = data.frame()
 for (next_mon in split_mon){
-
+  
   # only progress if we have data for this conversation type
   if (dim(next_mon)[1] > 1){
-
+    
     # preserve the original dataframe
     next_mon_real = next_mon
-
+    
     # permute 10 times for baseline
     permuted_mon_df = data.frame()
     for (run in c(1:5)){
       next_shuffle = next_mon_real %>%
-
+        
         # shuffle each person's linguistic contributions
         mutate(sur_fw = gtools::permute(function_words),
                sur_fw_contrast = gtools::permute(function_contrast)) %>%
-
+        
         # drop unneeded variables
         select(-function_words, -function_contrast,
                -WC) %>%
-
+        
         # add a marker for what run we're on and datatype
         mutate(run = run) %>%
         mutate(data_type = 'surrogate')
-
+      
       # add it to our dataframe
       permuted_mon_df = rbind.data.frame(permuted_mon_df,
-                                     next_shuffle)
+                                         next_shuffle)
     }
-
+    
     # bind the next surrogate's data to the dataframe
     monologue_baseline = rbind.data.frame(monologue_baseline, permuted_mon_df)}
 }
@@ -282,35 +282,35 @@ for (next_mon in split_mon){
 split_conv = split(conv_dfs, list(conv_dfs$speaker_code))
 conversation_baseline = data.frame()
 for (next_conv in split_conv){
-
+  
   # only progress if we have data for this conversation type
   if (dim(next_conv)[1] > 1){
-
+    
     # preserve the original dataframe
     next_conv_real = next_conv
-
+    
     # permute 10 times for baseline
     permuted_conv_df = data.frame()
     for (run in c(1:5)){
       next_shuffle = next_conv_real %>%
-
+        
         # shuffle each person's linguistic contributions
         mutate(sur_fw = gtools::permute(function_words),
                sur_fw_contrast = gtools::permute(function_contrast)) %>%
-
+        
         # drop unneeded variables
         select(-function_words, -function_contrast,
                -WC) %>%
-
+        
         # add a marker for what run we're on and datatype
         mutate(run = run) %>%
         mutate(data_type = 'surrogate')
-
+      
       # add it to our dataframe
       permuted_conv_df = rbind.data.frame(permuted_conv_df,
-                                     next_shuffle)
+                                          next_shuffle)
     }
-
+    
     # bind the next surrogate's data to the dataframe
     conversation_baseline = rbind.data.frame(conversation_baseline, permuted_conv_df)}
 }
@@ -394,7 +394,7 @@ monologues based on each condition (i.e., cooperative versus conflict).
 
 ```{r post-hoc-h1-prep}
 
-#Preparing data for Post-hoc analyses - Bring data into wide format to calculate Diff_DET
+# Preparing data for Post-hoc analyses - Bring data into wide format to calculate Diff_DET
 crqa_results_mon_post = crqa_results_mon %>%
   dplyr::rename(conv.type_m = conv.type,
                 RR_m = RR,
@@ -434,18 +434,22 @@ h1_analyses_post = lm(Diff_DET ~ cond_c, data = h1_post_hoc)
 
 ```
 
-```{r silently-print-summary, eval=TRUE, echo=TRUE, include=FALSE}
+```{r silently-print-posthoc-h1-summary, eval=TRUE, echo=TRUE, include=FALSE}
+
 # print summary table
 summary(h1_analyses_post)
+
 ```
 
-```{r silently-print-table, eval=TRUE, echo=TRUE, include=FALSE}
+```{r silently-print-posthoc-h1-table, eval=TRUE, echo=TRUE, include=FALSE}
+
 # neatly print output
 pander_lme(h1_analyses_post)
+
 ```
 
 We find a trend toward an effect of condition, but it does not 
-reach significance. Let's take a look at the data.
+reach statistical significance. Let's take a look at the data.
 
 ```{r silently-plot-h1-post-trend-data, include=FALSE, echo=TRUE}
 
@@ -516,7 +520,7 @@ A_dfs = plyr::ldply(A_files,
 
 # prepare conversations Speaker A for CRQA
 A_dfs = A_dfs %>% ungroup() %>%
-
+  
   # separate 'Filename' column into separate columns
   tidyr::separate(Filename,
                   into = c("dyad_id", "dyad_position",  "speaker_code"),
@@ -524,31 +528,31 @@ A_dfs = A_dfs %>% ungroup() %>%
                   remove = FALSE,
                   extra = "drop",
                   fill = "warn") %>%
-
+  
   # extract speaker number ID and conversation type from variable
   mutate(cond = gsub("[[:digit:]]+","",dyad_id)) %>%
-
+  
   # rename function. to function_words
   dplyr::rename(function_words = function.) %>%
-
+  
   # group by participant to cut quantiles
   group_by(Filename) %>%
-
+  
   # recode quartiles
   mutate(fw_quantiles = as.numeric(
     gtools::quantcut(function_words,
                      q=4,
                      na.rm = TRUE))
   ) %>% ungroup()  %>%
-
+  
   # recode anytime there is 0 function word use
   mutate(fw_quantiles = dplyr::if_else(function_words==0,
                                        0,
                                        fw_quantiles)) %>%
-
+  
   # specify these data are real
   mutate(data_type = 'real') %>%
-
+  
   # rename to specify speaker A contributions
   dplyr::rename(function_words_A = function_words,
                 fw_quantiles_A = fw_quantiles,
@@ -576,7 +580,7 @@ B_dfs = plyr::ldply(B_files,
 
 # prepare conversations Speaker B for CRQA
 B_dfs = B_dfs %>% ungroup() %>%
-
+  
   # separate 'Filename' column into separate columns
   tidyr::separate(Filename,
                   into = c("dyad_id", "dyad_position",  "speaker_code"),
@@ -584,31 +588,31 @@ B_dfs = B_dfs %>% ungroup() %>%
                   remove = FALSE,
                   extra = "drop",
                   fill = "warn") %>%
-
+  
   # extract speaker number ID and conversation type from variable
   mutate(cond = gsub("[[:digit:]]+","",dyad_id)) %>%
-
+  
   # rename function. to function_words
   dplyr::rename(function_words = function.) %>%
-
+  
   # group by participant to cut quantiles
   group_by(Filename) %>%
-
+  
   # recode quartiles
   mutate(fw_quantiles = as.numeric(
     gtools::quantcut(function_words,
                      q=4,
                      na.rm = TRUE))
   ) %>% ungroup() %>%
-
+  
   # recode anytime there is 0 function word use
   mutate(fw_quantiles = dplyr::if_else(function_words==0,
                                        -1,
                                        fw_quantiles)) %>%
-
+  
   # specify these data are real
   mutate(data_type = 'real') %>%
-
+  
   # rename to specify speaker A contributions
   dplyr::rename(function_words_B = function_words,
                 fw_quantiles_B = fw_quantiles,
@@ -657,7 +661,7 @@ Speaker B function words, and turn).
 
 # merge Speaker A and Speaker B together
 h2_data = full_join(A_dfs, B_dfs) %>%
-
+  
   # because any missing values are filled with `NA`,
   # we can truncate turns simply by dropping `NA`
   tidyr::drop_na()
@@ -681,7 +685,7 @@ be expected by chance.
 
 # specify random partners
 partner_wise_baseline = h2_data %>%
-
+  
   # narrow down to only the variables we need
   select(dyad_id, speaker_A, speaker_B, cond) %>%
   distinct() %>%
@@ -690,22 +694,22 @@ partner_wise_baseline = h2_data %>%
 
 # cycle through for 10 baselines
 for (runs in c(1:5)){
-
+  
   # generate a potential paired set value
   temp_df = partner_wise_baseline %>% ungroup() %>%
     group_by(cond) %>%
     mutate(!!paste0("speaker_B_run", runs) := permute(speaker_B_real)) %>%
     ungroup()
-
+  
   # keep resampling if we get any overlap from the real data
   # or other pairs
   while (length(unique(apply(temp_df,1,function(x) sum(!duplicated(x))))) != 1) {
     temp_df = partner_wise_baseline %>% ungroup() %>%
-    group_by(cond) %>%
-    mutate(!!paste0("speaker_B_run", runs) := permute(speaker_B_real)) %>%
-    ungroup()
+      group_by(cond) %>%
+      mutate(!!paste0("speaker_B_run", runs) := permute(speaker_B_real)) %>%
+      ungroup()
   }
-
+  
   # save the final option
   partner_wise_baseline = temp_df
 }
@@ -739,36 +743,36 @@ recurrence (e.g., DRPs, mean line length, percent determinism) will be altered.
 split_h2 = split(h2_data, list(h2_data$dyad_id))
 sample_wise_baseline = data.frame()
 for (next_conv in split_h2){
-
+  
   # only progress if we have data for this conversation type and dyad
   if (dim(next_conv)[1] > 1){
-
+    
     # preserve the original dataframe
     next_conv_real = next_conv
-
+    
     # permute 10 times for baseline
     permuted_df = data.frame()
     for (run in c(1:5)){
       next_shuffle = next_conv_real %>%
-
+        
         # shuffle each person's linguistic contributions
         group_by(dyad_id) %>%
         mutate(sur_fw_quantiles_A = gtools::permute(fw_quantiles_A)) %>%
         mutate(sur_fw_quantiles_B = gtools::permute(fw_quantiles_B)) %>%
         ungroup() %>%
-
+        
         # drop unneeded variables
         select(-fw_quantiles_A, -fw_quantiles_B,
                -contains('wc_'), -contains('function_words')) %>%
-
+        
         # add a marker for what run we're on and datatype
         mutate(run = run) %>%
         mutate(data_type = 'surrogate')
-
+      
       # add it to our dataframe
       permuted_df = rbind.data.frame(permuted_df, next_shuffle)
     }
-
+    
     # bind the next surrogate's data to the dataframe
     sample_wise_baseline = rbind.data.frame(sample_wise_baseline, permuted_df)}
 }
@@ -830,7 +834,7 @@ talk-turns from the DRP analyses.
 
 # split dataframe by dyad ID
 split_h2 = split(h2_data, 
-                  list(h2_data$dyad_id))
+                 list(h2_data$dyad_id))
 
 # cycle through all dyads
 drp_real = data.frame()
@@ -841,9 +845,9 @@ for (next_conv in split_h2) {
     
     # calculate diagonal recurrence profile using categorical recurrence
     drp_for_conv = drpdfromts(next_conv$fw_quantiles_A, 
-                             next_conv$fw_quantiles_B,
-                             ws = wsz, 
-                             datatype="categorical")
+                              next_conv$fw_quantiles_B,
+                              ws = wsz, 
+                              datatype="categorical")
     
     # save plot-level information to dataframe
     dyad_id = unique(next_conv$dyad_id)
@@ -919,7 +923,6 @@ for (fake_dyad in 1:nrow(partner_wise_baseline)){
 
 ```
 
-
 Need to note in the manuscript that we dropped anyone with fewer than 10
 talk-turns from the DRP analyses.
 
@@ -941,25 +944,25 @@ for (fake_dyad in 1:nrow(partner_wise_baseline)){
   
   # join them together to make sure only compare equal turns
   temp_data=full_join(temp_A, temp_B) %>%
-      tidyr::drop_na()
+    tidyr::drop_na()
   
   # run DRP if we have enough talk-turns
   if (dim(temp_data)[1]>9){
     
     # calculate diagonal recurrence profile using categorical recurrence
     drp_for_partner = drpdfromts(ts1= temp_data$fw_quantiles_A, 
-                             ts2= temp_data$fw_quantiles_B,
-                             ws = wsz, 
-                             datatype="categorical")
+                                 ts2= temp_data$fw_quantiles_B,
+                                 ws = wsz, 
+                                 datatype="categorical")
     
     # save plot-level information to dataframe
     speaker_A = unique(temp_data$speaker_A)
     speaker_B = unique(temp_data$speaker_B)
     cond = unique(temp_data$cond)
     next_data = data.frame(raw = timeVals$raw,
-                      ot1 = timeVals$ot1,
-                      ot2  = timeVals$ot2,
-                      rr = drp_for_partner$profile) %>%
+                           ot1 = timeVals$ot1,
+                           ot2  = timeVals$ot2,
+                           rr = drp_for_partner$profile) %>%
       mutate(speaker_A = speaker_A,
              speaker_B = speaker_B,
              cond = cond)
@@ -968,7 +971,7 @@ for (fake_dyad in 1:nrow(partner_wise_baseline)){
     drp_partner_shuffle = rbind.data.frame(drp_partner_shuffle, next_data)
   }
 }
-  
+
 ```
 
 ***
@@ -1039,15 +1042,15 @@ talk-turns from any DRP analyses.
 drp_results = drp_results %>% ungroup() %>%
   plyr::rename(.,
                c("cond"="condition")) %>%
-
+  
   ## AP: You need to recode "condition" values to be -.5 and +.5
-
+  
   # first-order polynomials
   mutate(condition.ot1 = condition * ot1) %>%
-
+  
   # second-order polynomials
   mutate(condition.ot2 = condition * ot2) %>%
-
+  
   # polynomial interactions
   mutate(ot1.ot2 = ot1 * ot2) %>%
   mutate(condition.ot1.ot2 = condition * ot1 * ot2)
@@ -1088,14 +1091,14 @@ We now create a linear mixed-effects model to gauge how linear lag (`ot1`) and q
 # standardized maximal random-effects model
 H2_st = lmer(rr ~ condition + ot1 + ot2 + ot1.ot2 + condition.ot1 + condition.ot2 + condition.ot1.ot2 +  
                (1 + condition.ot1.ot2 | dyad_id),
-
+             
              #what is the maximum random effects structure for this?
-
+             
              ## AP: TRULY maximal would be:
              ## (1 + condition + ot1 + ot2 + ot1.ot2 + condition.ot1 + condition.ot2 + condition.ot1.ot2 | dyad_id)
              ## but that will be too much. I think I sent you another paper that was
              ## about the random intercepts in it---that should help
-
+             
              data=drp_st, REML=FALSE)
 
 
@@ -1103,7 +1106,7 @@ H2_st = lmer(rr ~ condition + ot1 + ot2 + ot1.ot2 + condition.ot1 + condition.ot
 # raw maximal random-effects model
 H2_raw = lmer(rr ~ condition + ot1 + ot2 + ot1.ot2 + condition.ot1 + condition.ot2 + condition.ot1.ot2 +
                 #random effects are still missing here
-
+                
                 data=drp_results, REML=FALSE)
 
 #repeat for surrogate body
