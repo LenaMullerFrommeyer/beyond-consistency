@@ -1110,7 +1110,7 @@ Let's create a new dataframe with all standardized variables. This allows us to 
 ```{r standardized-dataframe, eval = FALSE}
 
 # standardize all variables
-drp_st = mutate_each(drp_results,funs(as.numeric(scale(.))))
+drp_st = mutate_each(drp_real,funs(as.numeric(scale(.))))
 
 ## AP: To make sure that you got the scaling correct, you should
 ## plot the values for several variables in `drp_results` against
@@ -1128,33 +1128,71 @@ drp_st = mutate_each(drp_results,funs(as.numeric(scale(.))))
 
 We now create a linear mixed-effects model to gauge how linear lag (`ot1`) and quadratic lag (`ot2`) interact with condition (`condition`) to influence Language Style Matching (`rr`). We present both standardized and raw models below.
 
-```{r central-model, warning=FALSE, error=FALSE, message=FALSE}
+```{r model-h2-drp-standardized, eval=FALSE, include=FALSE, echo=FALSE}
 
 # standardized maximal random-effects model
 H2_st = lmer(rr ~ condition + ot1 + ot2 + ot1.ot2 + condition.ot1 + condition.ot2 + condition.ot1.ot2 +  
-               (1 + condition.ot1.ot2 | dyad_id),
+               (1 | dyad_id),
              
              #what is the maximum random effects structure for this?
              
              ## AP: TRULY maximal would be:
              ## (1 + condition + ot1 + ot2 + ot1.ot2 + condition.ot1 + condition.ot2 + condition.ot1.ot2 | dyad_id)
              ## but that will be too much. I think I sent you another paper that was
-             ## about the random intercepts in it---that should help
+             ## about the random intercepts in it---that should help.
+             ## However, it wouldn't converge when I had any random slopes with the random intercept.
              
              data=drp_st, REML=FALSE)
 
+```
 
+```{r model-h2-drp-raw}
 
 # raw maximal random-effects model
 H2_raw = lmer(rr ~ condition + ot1 + ot2 + ot1.ot2 + condition.ot1 + condition.ot2 + condition.ot1.ot2 +
-                #random effects are still missing here
-                
-                data=drp_results, REML=FALSE)
+                (1 | dyad_id),
+              data=drp_real, REML=FALSE)
 
 #repeat for surrogate body
 ```
 
+```{r silently-print-h2-drp-summary, eval=TRUE, echo=FALSE}
+
+# print summary table
+summary(H2_raw)
+
+```
+
+```{r silently-print-h2-drp-table, eval=TRUE, echo=FALSE}
+
+# neatly print output
+pander_lme(H2_raw)
+
+```
+
+```{r plot-aggregate-drps, echo=FALSE}
+
+# what do these DRPs look like?
+ggplot(data=drp_real,
+       aes(y=rr, 
+           x=raw,
+          colour=as.factor(condition))) +
+  geom_smooth()
+
+```
+
+It looks like there might be some strong leader-follower effects, but those
+aren't anticipated by an experimental manipulation. What we could do is
+simply look for a leader (in either direction) and swap the positioning
+so that all "leaders" of the dyads (i.e., the person who has a higher mean RR 
+on their side of the DRP) are always on the left-hand side of the plot and 
+all "followers" of the dyads (i.e., the person who has a lower mean RR on
+their side of the DRP) are on the right-hand side of the plot.
+
+***
+
 # List of next steps
+
 * create baseline surrogate measures for H2
 * calculate diagonal recurrence plots for H2
 * start code for analyses for H1 and H2
