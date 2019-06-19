@@ -47,7 +47,6 @@ timeVals = data.frame(raw)
 t <- poly(1:(wsz*2+1), 2)
 timeVals[,paste("ot", 1:2, sep="")] <- t[timeVals$raw+(wsz+1), 1:2]
 
-
 #### Prevent scientific notation ####
 options(scipen=999)
 
