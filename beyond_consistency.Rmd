@@ -839,6 +839,36 @@ for (next_conv in split_conv){
 
 ```
 
+```{r eval=TRUE, echo=FALSE}
+
+ggplot(data=crqa_real,
+       aes(x=cond,
+           y=RR)) +
+  geom_boxplot() +
+  geom_point()
+
+```
+
+```{r eval=TRUE, echo=FALSE}
+
+ggplot(data=crqa_real,
+       aes(x=cond,
+           y=ENTR)) +
+  geom_boxplot() +
+  geom_point()
+
+```
+
+```{r eval=TRUE, echo=FALSE}
+
+ggplot(data=crqa_real,
+       aes(x=cond,
+           y=NRLINE)) +
+  geom_boxplot() +
+  geom_point()
+
+```
+
 Need to note in the manuscript that we dropped anyone with fewer than 10
 talk-turns from the DRP analyses.
 
@@ -1044,21 +1074,19 @@ for (next_dyad in dyad_list){
 
 ***
 
-Need to note in the manuscript that we dropped baselines with fewer than 10
-talk-turns from any DRP analyses.
-
-***
-
 ## Data analysis
 
 ```{r}
 
 # rename variables and center the binary variables
-drp_results = drp_results %>% ungroup() %>%
+drp_real = drp_real %>% ungroup() %>%
   plyr::rename(.,
                c("cond"="condition")) %>%
   
-  ## AP: You need to recode "condition" values to be -.5 and +.5
+  # recode "condition" values to be -.5 and +.5
+  mutate(condition = dplyr::if_else(condition=="K",
+                                    -.5,
+                                    .5))%>%
   
   # first-order polynomials
   mutate(condition.ot1 = condition * ot1) %>%
