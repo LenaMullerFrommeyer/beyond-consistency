@@ -1124,7 +1124,78 @@ drp_st = mutate_each(drp_real,funs(as.numeric(scale(.))))
 
 ***
 
-## Analyses H2
+### Analyses of plot-level CRQA metrics
+
+```{r model-h2-crqa-raw}
+
+# does linguistic style matching change based on the conversational context?
+h2_analyses <- lm(RR ~ cond, data = crqa_real)
+
+```
+
+```{r silently-print-h2-crqa-summary, eval=TRUE, echo=FALSE}
+
+# print summary table
+summary(h2_analyses)
+
+```
+
+```{r silently-print-h2-crqa-table, eval=TRUE, echo=FALSE}
+
+# neatly print output
+pander_lme(h2_analyses)
+
+```
+
+We don't see a difference by overall amounts of recurrence, but what about
+differences in the structure of the recurrence? Let's look at two metrics:
+the number of lines on the plot (`NRLINE`) and entropy (`ENTR`).
+
+```{r model-h2-crqa-nrline-raw}
+
+# does linguistic style matching change based on the conversational context?
+h2_analyses_nrline <- lm(NRLINE ~ cond, data = crqa_real)
+
+```
+
+```{r silently-print-h2-crqa-nrline-summary, eval=TRUE, echo=FALSE}
+
+# print summary table
+summary(h2_analyses_nrline)
+
+```
+
+```{r silently-print-h2-crqa-nrline-table, eval=TRUE, echo=FALSE}
+
+# neatly print output
+pander_lme(h2_analyses_nrline)
+
+```
+
+```{r model-h2-crqa-entr-raw}
+
+# does linguistic style matching change based on the conversational context?
+h2_analyses_entropy <- lm(ENTR ~ cond, data = crqa_real)
+
+```
+
+```{r silently-print-h2-crqa-entr-summary, eval=TRUE, echo=FALSE}
+
+# print summary table
+summary(h2_analyses_entropy)
+
+```
+
+```{r silently-print-h2-crqa-entr-table, eval=TRUE, echo=FALSE}
+
+# neatly print output
+pander_lme(h2_analyses_entropy)
+
+```
+
+***
+
+### Analyses of diagonal recurrence profiles
 
 We now create a linear mixed-effects model to gauge how linear lag (`ot1`) and quadratic lag (`ot2`) interact with condition (`condition`) to influence Language Style Matching (`rr`). We present both standardized and raw models below.
 
