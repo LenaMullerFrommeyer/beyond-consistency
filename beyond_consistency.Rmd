@@ -872,8 +872,7 @@ ggplot(data=crqa_real,
 Need to note in the manuscript that we dropped anyone with fewer than 10
 talk-turns from the DRP analyses.
 
-```{r}
-# DRP analyses for real data
+```{r analysis-df-drp}
 
 # split dataframe by dyad ID
 split_h2 = split(h2_data, 
@@ -916,7 +915,7 @@ for (next_conv in split_h2) {
 
 ```{r crqa-partner-wise-shuffle}
 
-#CRQA for partner-wise baseline
+# CRQA for partner-wise baseline
 crqa_partner_shuffle = data.frame()
 
 # cycle through all the pseudopartners
@@ -1104,7 +1103,7 @@ drp_real = drp_real %>% ungroup() %>%
 
 ***
 
-## Create standardized dataframe
+### Create standardized dataframe
 
 Let's create a new dataframe with all standardized variables. This allows us to interpret the resulting values as effect sizes (see Keith, 2005, *Multiple regression and beyond*).
 
