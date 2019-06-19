@@ -672,7 +672,8 @@ Speaker B function words, and turn).
 ```{r merge-and-prepare-speaker-dataframes-with-tidyr-base}
 
 # merge Speaker A and Speaker B together
-h2_data = full_join(A_dfs, B_dfs) %>%
+h2_data = full_join(A_dfs, B_dfs,
+                    by = c("dyad_id", "Segment", "cond", "data_type")) %>%
   
   # because any missing values are filled with `NA`,
   # we can truncate turns simply by dropping `NA`
@@ -701,8 +702,8 @@ partner_wise_baseline = h2_data %>%
   # narrow down to only the variables we need
   select(dyad_id, speaker_A, speaker_B, cond) %>%
   distinct() %>%
-  rename(dyad_id_real = dyad_id,
-         speaker_B_real = speaker_B)
+  dplyr::rename(dyad_id_real = dyad_id,
+                speaker_B_real = speaker_B)
 
 # cycle through for 10 baselines
 for (runs in c(1:5)){
@@ -956,7 +957,8 @@ for (fake_dyad in 1:nrow(partner_wise_baseline)){
     select(speaker_B, cond, fw_quantiles_B, Segment)
   
   # join them together to make sure only compare equal turns
-  temp_data=full_join(temp_A, temp_B) %>%
+  temp_data=full_join(temp_A, temp_B,
+                      by = c("cond", "Segment")) %>%
     tidyr::drop_na()
   
   # run DRP if we have enough talk-turns
