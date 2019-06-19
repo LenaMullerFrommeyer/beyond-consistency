@@ -98,7 +98,7 @@ mon_dfs = mon_dfs %>%
 split_mon = split(mon_dfs, list(mon_dfs$Filename))
 
 # cycle through the individual monologues
-crqa_results_mon = data.frame()
+crqa_mon = data.frame()
 for (next_mon in split_mon){
 
   # run (auto-)recurrence
@@ -125,7 +125,7 @@ for (next_mon in split_mon){
                               conv.type,
                               cond,
                               rqa_for_mon[1:9])
-  crqa_results_mon = rbind.data.frame(crqa_results_mon,next_data_line)
+  crqa_mon = rbind.data.frame(crqa_mon,next_data_line)
 }
 
 ```
@@ -177,7 +177,7 @@ conv_dfs = conv_dfs %>%
 split_conv = split(conv_dfs, list(conv_dfs$Filename))
 
 # cycle through the individual conversations
-crqa_results_conv = data.frame()
+crqa_conv = data.frame()
 for (next_conv in split_conv){
 
   # run cross-recurrence
@@ -204,7 +204,7 @@ for (next_conv in split_conv){
                               conv.type,
                               cond,
                               rqa_for_conv[1:9])
-  crqa_results_conv = rbind.data.frame(crqa_results_conv,next_data_line)
+  crqa_conv = rbind.data.frame(crqa_conv,next_data_line)
 }
 
 ```
@@ -216,7 +216,7 @@ for (next_conv in split_conv){
 ```{r create-h1-dataframe}
 
 # bring together the monologue and conversation data
-h1_data = rbind(crqa_results_mon, crqa_results_conv)
+h1_data = rbind(crqa_mon, crqa_conv)
 
 #save results to file
 write.table(h1_data,'./data/h1_data.csv',sep=",")
@@ -321,17 +321,112 @@ for (next_conv in split_conv){
 
 ### RQA: Surrogate monologue
 
-```{r}
+```{r monologues-rqa}
 
+# cycle through all the dyads
+speaker_list = unique(monologue_baseline$speaker_code)
+crqa_mon_sur = data.frame()
+for (next_speaker in speaker_list){
+  
+  # get the next participant's data
+  next_speaker_df = monologue_baseline %>%
+    dplyr::filter(speaker_code == next_speaker)
+  
+  # cycle through all sample-wise shuffle runs
+  for (run_no in 1:max(next_speaker_df$run)) {
+    
+    # get next Speaker A and B's data
+    temp_AB = next_speaker_df %>% ungroup() %>%
+      dplyr::filter(run == run_no) %>%
+      select(dyad_id, speaker_code, cond, conv.type, sur_fw, sur_fw_contrast, run)
+  
+    
+  # run (auto-)recurrence
+  rqa_sample_mon = crqa(ts1=temp_AB$sur_fw,
+                     ts2=temp_AB$sur_fw_contrast,
+                     delay=1,
+                     embed=1,
+                     r=0.1,
+                     normalize=0,
+                     rescale=0,
+                     mindiagline=2,
+                     minvertline=2,
+                     tw=1, # exclude line of identity
+                     whiteline=FALSE,
+                     recpt=FALSE)
 
+  # save plot-level information to dataframe
+  dyad_id = unique(temp_AB$dyad_id)
+  speaker_code = unique(temp_AB$speaker_code)
+  cond = unique(temp_AB$cond)   #changed it to NA as there was no condition in the monologue
+  conv.type = unique(temp_AB$conv.type)
+  run_id = unique(temp_AB$run)
+  next_data_line = data.frame(dyad_id,  
+                              speaker_code,
+                              conv.type,
+                              cond,
+                              run_id,
+                              rqa_sample_mon[1:9])
+  crqa_mon_sur = rbind.data.frame(crqa_mon_sur,next_data_line)
+}
+}
 
 ```
+
 
 ***
 
 ### RQA: Surrogate conversation
 
-```{r}
+```{r conversations-crqa}
+
+# cycle through all the dyads
+speaker_list = unique(conversation_baseline$speaker_code)
+crqa_conv_sur = data.frame()
+for (next_speaker in speaker_list){
+  
+  # get the next participant's data
+  next_speaker_df = conversation_baseline %>%
+    dplyr::filter(speaker_code == next_speaker)
+  
+  # cycle through all sample-wise shuffle runs
+  for (run_no in 1:max(next_speaker_df$run)) {
+    
+    # get next Speaker A and B's data
+    temp_AB = next_speaker_df %>% ungroup() %>%
+      dplyr::filter(run == run_no) %>%
+      select(dyad_id, speaker_code, cond, conv.type, sur_fw, sur_fw_contrast, run)
+  
+    
+  # run (auto-)recurrence
+  rqa_sample_con = crqa(ts1=temp_AB$sur_fw,
+                     ts2=temp_AB$sur_fw_contrast,
+                     delay=1,
+                     embed=1,
+                     r=0.1,
+                     normalize=0,
+                     rescale=0,
+                     mindiagline=2,
+                     minvertline=2,
+                     tw=1, # exclude line of identity
+                     whiteline=FALSE,
+                     recpt=FALSE)
+
+  # save plot-level information to dataframe
+  dyad_id = unique(temp_AB$dyad_id)
+  speaker_code = unique(temp_AB$speaker_code)
+  cond = unique(temp_AB$cond)   #changed it to NA as there was no condition in the monologue
+  conv.type = unique(temp_AB$conv.type)
+  run_id = unique(temp_AB$run)
+  next_data_line = data.frame(dyad_id,  
+                              speaker_code,
+                              conv.type,
+                              cond,
+                              run_id,
+                              rqa_sample_con[1:9])
+  crqa_conv_sur = rbind.data.frame(crqa_conv_sur,next_data_line)
+}
+}
 
 ```
 
@@ -342,11 +437,11 @@ for (next_conv in split_conv){
 
 ```{r}
 
-# bring together the monologue and conversation surrogate data
-
+# add surrogate DET to h1_data
+h1_sur_data = rbind(crqa_mon_sur, crqa_conv_sur)
 
 #save results to file
-
+write.table(h1_sur_data,'./data/h1_data.csv',sep=",")
 
 ```
 
@@ -395,7 +490,7 @@ monologues based on each condition (i.e., cooperative versus conflict).
 ```{r post-hoc-h1-prep}
 
 #Preparing data for Post-hoc analyses - Bring data into wide format to calculate Diff_DET
-crqa_results_mon_post = crqa_results_mon %>%
+crqa_mon_post = crqa_mon %>%
   dplyr::rename(conv.type_m = conv.type,
                 RR_m = RR,
                 DET_m = DET,
@@ -406,7 +501,7 @@ crqa_results_mon_post = crqa_results_mon %>%
                 rENTR_m = rENTR,
                 LAM_m = LAM,
                 TT_m = TT) 
-crqa_results_conv_post = crqa_results_conv  %>%
+crqa_conv_post = crqa_conv  %>%
   dplyr::rename(conv.type_c = conv.type,
                 cond_c = cond,
                 RR_c = RR,
@@ -418,7 +513,7 @@ crqa_results_conv_post = crqa_results_conv  %>%
                 rENTR_c = rENTR,
                 LAM_c = LAM,
                 TT_c = TT) 
-h1_post = full_join(crqa_results_mon_post, crqa_results_conv_post)
+h1_post = full_join(crqa_mon_post, crqa_conv_post)
 
 # Calculate Diff_DET
 h1_post_hoc = h1_post %>%
@@ -426,22 +521,61 @@ h1_post_hoc = h1_post %>%
 
 ```
 
+```{r-h1-post-sur-prep}
+#Preparing data for Post-hoc analyses - Bring data into wide format to calculate Diff_DET
+crqa_mon_sur_post = crqa_mon_sur %>%
+  dplyr::rename(conv.type_m = conv.type,
+                RR_m = RR,
+                DET_m = DET,
+                NRLINE_m = NRLINE,
+                maxL_m = maxL,
+                L_m = L,
+                ENTR_m = ENTR,
+                rENTR_m = rENTR,
+                LAM_m = LAM,
+                TT_m = TT) 
+crqa_conv_sur_post = crqa_conv_sur  %>%
+  dplyr::rename(conv.type_c = conv.type,
+                cond_c = cond,
+                RR_c = RR,
+                DET_c = DET,
+                NRLINE_c = NRLINE,
+                maxL_c = maxL,
+                L_c = L,
+                ENTR_c = ENTR,
+                rENTR_c = rENTR,
+                LAM_c = LAM,
+                TT_c = TT) 
+h1_post_sur = full_join(crqa_mon_sur_post, crqa_conv_sur_post)
+
+# Calculate Diff_DET
+h1_post_hoc_sur = h1_post_sur %>%
+  mutate(Diff_DET = DET_m - DET_c)
+
+
+
+```
+
+
 ```{r post-hoc-h1-model}
 
 # do changes in linguistic style between monologues and dialogues
 # differ by conversation type?
 h1_analyses_post = lm(Diff_DET ~ cond_c, data = h1_post_hoc)
+h1_analyses_post_sur = lm(Diff_DET ~ cond_c, data = h1_post_hoc_sur)
 
 ```
 
 ```{r silently-print-summary, eval=TRUE, echo=TRUE, include=FALSE}
 # print summary table
 summary(h1_analyses_post)
+summary(h1_analyses_post_sur)
 ```
 
 ```{r silently-print-table, eval=TRUE, echo=TRUE, include=FALSE}
 # neatly print output
 pander_lme(h1_analyses_post)
+pander_
 ```
 
 We find a trend toward an effect of condition, but it does not 
