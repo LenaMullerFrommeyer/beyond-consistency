@@ -339,36 +339,35 @@ for (next_speaker in speaker_list){
     temp_AB = next_speaker_df %>% ungroup() %>%
       dplyr::filter(run == run_no) %>%
       select(dyad_id, speaker_code, cond, conv.type, sur_fw, sur_fw_contrast, run)
-  
     
-  # run (auto-)recurrence
-  rqa_sample_mon = crqa(ts1=temp_AB$sur_fw,
-                     ts2=temp_AB$sur_fw_contrast,
-                     delay=1,
-                     embed=1,
-                     r=0.1,
-                     normalize=0,
-                     rescale=0,
-                     mindiagline=2,
-                     minvertline=2,
-                     tw=1, # exclude line of identity
-                     whiteline=FALSE,
-                     recpt=FALSE)
-
-  # save plot-level information to dataframe
-  dyad_id = unique(temp_AB$dyad_id)
-  speaker_code = unique(temp_AB$speaker_code)
-  cond = unique(temp_AB$cond)   #changed it to NA as there was no condition in the monologue
-  conv.type = unique(temp_AB$conv.type)
-  run_id = unique(temp_AB$run)
-  next_data_line = data.frame(dyad_id,  
-                              speaker_code,
-                              conv.type,
-                              cond,
-                              run_id,
-                              rqa_sample_mon[1:9])
-  crqa_mon_sur = rbind.data.frame(crqa_mon_sur,next_data_line)
-}
+    # run (auto-)recurrence
+    rqa_sample_mon = crqa(ts1=temp_AB$sur_fw,
+                          ts2=temp_AB$sur_fw_contrast,
+                          delay=1,
+                          embed=1,
+                          r=0.1,
+                          normalize=0,
+                          rescale=0,
+                          mindiagline=2,
+                          minvertline=2,
+                          tw=1, # exclude line of identity
+                          whiteline=FALSE,
+                          recpt=FALSE)
+    
+    # save plot-level information to dataframe
+    dyad_id = unique(temp_AB$dyad_id)
+    speaker_code = unique(temp_AB$speaker_code)
+    cond = unique(temp_AB$cond)   # changed it to NA as there was no condition in the monologue
+    conv.type = unique(temp_AB$conv.type)
+    run_id = unique(temp_AB$run)
+    next_data_line = data.frame(dyad_id,  
+                                speaker_code,
+                                conv.type,
+                                cond,
+                                run_id,
+                                rqa_sample_mon[1:9])
+    crqa_mon_sur = rbind.data.frame(crqa_mon_sur,next_data_line)
+  }
 }
 
 ```
@@ -396,40 +395,38 @@ for (next_speaker in speaker_list){
     temp_AB = next_speaker_df %>% ungroup() %>%
       dplyr::filter(run == run_no) %>%
       select(dyad_id, speaker_code, cond, conv.type, sur_fw, sur_fw_contrast, run)
-  
     
-  # run (auto-)recurrence
-  rqa_sample_con = crqa(ts1=temp_AB$sur_fw,
-                     ts2=temp_AB$sur_fw_contrast,
-                     delay=1,
-                     embed=1,
-                     r=0.1,
-                     normalize=0,
-                     rescale=0,
-                     mindiagline=2,
-                     minvertline=2,
-                     tw=1, # exclude line of identity
-                     whiteline=FALSE,
-                     recpt=FALSE)
-
-  # save plot-level information to dataframe
-  dyad_id = unique(temp_AB$dyad_id)
-  speaker_code = unique(temp_AB$speaker_code)
-  cond = unique(temp_AB$cond)   #changed it to NA as there was no condition in the monologue
-  conv.type = unique(temp_AB$conv.type)
-  run_id = unique(temp_AB$run)
-  next_data_line = data.frame(dyad_id,  
-                              speaker_code,
-                              conv.type,
-                              cond,
-                              run_id,
-                              rqa_sample_con[1:9])
-  crqa_conv_sur = rbind.data.frame(crqa_conv_sur,next_data_line)
-}
+    # run (auto-)recurrence
+    rqa_sample_con = crqa(ts1=temp_AB$sur_fw,
+                          ts2=temp_AB$sur_fw_contrast,
+                          delay=1,
+                          embed=1,
+                          r=0.1,
+                          normalize=0,
+                          rescale=0,
+                          mindiagline=2,
+                          minvertline=2,
+                          tw=1, # exclude line of identity
+                          whiteline=FALSE,
+                          recpt=FALSE)
+    
+    # save plot-level information to dataframe
+    dyad_id = unique(temp_AB$dyad_id)
+    speaker_code = unique(temp_AB$speaker_code)
+    cond = unique(temp_AB$cond)   # changed it to NA as there was no condition in the monologue
+    conv.type = unique(temp_AB$conv.type)
+    run_id = unique(temp_AB$run)
+    next_data_line = data.frame(dyad_id,  
+                                speaker_code,
+                                conv.type,
+                                cond,
+                                run_id,
+                                rqa_sample_con[1:9])
+    crqa_conv_sur = rbind.data.frame(crqa_conv_sur,next_data_line)
+  }
 }
 
 ```
-
 
 ***
 
@@ -674,7 +671,7 @@ A_dfs = A_dfs %>% ungroup() %>%
                   remove = FALSE,
                   extra = "drop",
                   fill = "warn") %>%
-
+  
   # extract conversation number from variable conver
   mutate(conv.no = gsub(".txt","",conver)) %>%
   
@@ -1069,54 +1066,54 @@ crqa_partner_shuffle = data.frame()
 # cycle through all the pseudopartners
 for (fake_dyad in 1:nrow(partner_wise_baseline)) {
   for (next_conv in 1:max(h2_data$conv.no)) {
-  
-  #double-check the no. of pairings
-  
-  # get next Speaker A data
-  temp_A = h2_data %>% ungroup() %>%
-    dplyr::filter(speaker_A==partner_wise_baseline$speaker_A[fake_dyad], conv.no = next_conv) %>% 
-    select(speaker_A, cond, fw_quantiles_A, Segment, conv.no)
-  
-  # get only the data we need for Fake Partner B
-  temp_B = h2_data %>% ungroup() %>%
-    dplyr::filter(speaker_B==partner_wise_baseline$fake_speaker_B[fake_dyad]) %>%
-    select(speaker_B, cond, fw_quantiles_B, Segment, conv.no)
-  
-  # join them together to make sure only compare equal turns
-  temp_data=full_join(temp_A, temp_B,
-                      by = c("cond", "Segment", "conv.no")) %>%
-    tidyr::drop_na()
-  
-  # run CRQA as long as we have observed data
-  if(nrow(temp_data)>1){
     
-    crqa_for_sur = crqa(ts1=temp_data$fw_quantiles_A,
-                        ts2=temp_data$fw_quantiles_B,
-                        delay=1,
-                        embed=1,
-                        r=0.1,
-                        normalize=0,
-                        rescale=0,
-                        mindiagline=2,
-                        minvertline=2,
-                        tw=0,
-                        whiteline=FALSE,
-                        recpt=FALSE)
+    #double-check the no. of pairings
     
-    # save plot-level information to dataframe
-    speaker_A = unique(temp_data$speaker_A)
-    speaker_B = unique(temp_data$speaker_B)
-    cond = unique(temp_data$cond)
-    conv.no = unique(temp_data$conv.no)
-    next_data_line = data.frame(speaker_A,
-                                speaker_B,
-                                cond,
-                                conv.no,
-                                crqa_for_sur[1:9])
-    crqa_partner_shuffle = rbind.data.frame(crqa_partner_shuffle,next_data_line)
+    # get next Speaker A data
+    temp_A = h2_data %>% ungroup() %>%
+      dplyr::filter(speaker_A==partner_wise_baseline$speaker_A[fake_dyad], conv.no = next_conv) %>% 
+      select(speaker_A, cond, fw_quantiles_A, Segment, conv.no)
+    
+    # get only the data we need for Fake Partner B
+    temp_B = h2_data %>% ungroup() %>%
+      dplyr::filter(speaker_B==partner_wise_baseline$fake_speaker_B[fake_dyad]) %>%
+      select(speaker_B, cond, fw_quantiles_B, Segment, conv.no)
+    
+    # join them together to make sure only compare equal turns
+    temp_data=full_join(temp_A, temp_B,
+                        by = c("cond", "Segment", "conv.no")) %>%
+      tidyr::drop_na()
+    
+    # run CRQA as long as we have observed data
+    if(nrow(temp_data)>1){
+      
+      crqa_for_sur = crqa(ts1=temp_data$fw_quantiles_A,
+                          ts2=temp_data$fw_quantiles_B,
+                          delay=1,
+                          embed=1,
+                          r=0.1,
+                          normalize=0,
+                          rescale=0,
+                          mindiagline=2,
+                          minvertline=2,
+                          tw=0,
+                          whiteline=FALSE,
+                          recpt=FALSE)
+      
+      # save plot-level information to dataframe
+      speaker_A = unique(temp_data$speaker_A)
+      speaker_B = unique(temp_data$speaker_B)
+      cond = unique(temp_data$cond)
+      conv.no = unique(temp_data$conv.no)
+      next_data_line = data.frame(speaker_A,
+                                  speaker_B,
+                                  cond,
+                                  conv.no,
+                                  crqa_for_sur[1:9])
+      crqa_partner_shuffle = rbind.data.frame(crqa_partner_shuffle,next_data_line)
     }
   }
-
+  
 }
 ```
 
@@ -1129,47 +1126,47 @@ talk-turns from the DRP analyses.
 drp_partner_shuffle = data.frame()
 for (fake_dyad in 1:nrow(partner_wise_baseline)){ 
   for (next_conv in 1:max(h2_data$conv.no)) {
-  
-  # get next Speaker A data
-  temp_A = h2_data %>% ungroup() %>%
-    dplyr::filter(speaker_A==partner_wise_baseline$speaker_A[fake_dyad], conv.no = next_conv) %>%
-    select(speaker_A, cond, fw_quantiles_A, Segment)
-  
-  # get only the data we need for Fake Partner B
-  temp_B = h2_data %>% ungroup() %>%
-    dplyr::filter(speaker_B==partner_wise_baseline$fake_speaker_B[fake_dyad]) %>%
-    select(speaker_B, cond, fw_quantiles_B, Segment)
-  
-  # join them together to make sure only compare equal turns
-  temp_data=full_join(temp_A, temp_B,
-                      by = c("cond", "Segment")) %>%
-    tidyr::drop_na()
-  
-  # run DRP if we have enough talk-turns
-  if (dim(temp_data)[1]>9){
     
-    # calculate diagonal recurrence profile using categorical recurrence
-    drp_for_partner = drpdfromts(ts1= temp_data$fw_quantiles_A, 
-                                 ts2= temp_data$fw_quantiles_B,
-                                 ws = wsz, 
-                                 datatype="categorical")
+    # get next Speaker A data
+    temp_A = h2_data %>% ungroup() %>%
+      dplyr::filter(speaker_A==partner_wise_baseline$speaker_A[fake_dyad], conv.no = next_conv) %>%
+      select(speaker_A, cond, fw_quantiles_A, Segment)
     
-    # save plot-level information to dataframe
-    speaker_A = unique(temp_data$speaker_A)
-    speaker_B = unique(temp_data$speaker_B)
-    cond = unique(temp_data$cond)
-    next_data = data.frame(raw = timeVals$raw,
-                           ot1 = timeVals$ot1,
-                           ot2  = timeVals$ot2,
-                           rr = drp_for_partner$profile) %>%
-      mutate(speaker_A = speaker_A,
-             speaker_B = speaker_B,
-             cond = cond,
-             conv.no = next_conv)
+    # get only the data we need for Fake Partner B
+    temp_B = h2_data %>% ungroup() %>%
+      dplyr::filter(speaker_B==partner_wise_baseline$fake_speaker_B[fake_dyad]) %>%
+      select(speaker_B, cond, fw_quantiles_B, Segment)
     
-    # save to overall dataframe
-    drp_partner_shuffle = rbind.data.frame(drp_partner_shuffle, next_data)
-  }
+    # join them together to make sure only compare equal turns
+    temp_data=full_join(temp_A, temp_B,
+                        by = c("cond", "Segment")) %>%
+      tidyr::drop_na()
+    
+    # run DRP if we have enough talk-turns
+    if (dim(temp_data)[1]>9){
+      
+      # calculate diagonal recurrence profile using categorical recurrence
+      drp_for_partner = drpdfromts(ts1= temp_data$fw_quantiles_A, 
+                                   ts2= temp_data$fw_quantiles_B,
+                                   ws = wsz, 
+                                   datatype="categorical")
+      
+      # save plot-level information to dataframe
+      speaker_A = unique(temp_data$speaker_A)
+      speaker_B = unique(temp_data$speaker_B)
+      cond = unique(temp_data$cond)
+      next_data = data.frame(raw = timeVals$raw,
+                             ot1 = timeVals$ot1,
+                             ot2  = timeVals$ot2,
+                             rr = drp_for_partner$profile) %>%
+        mutate(speaker_A = speaker_A,
+               speaker_B = speaker_B,
+               cond = cond,
+               conv.no = next_conv)
+      
+      # save to overall dataframe
+      drp_partner_shuffle = rbind.data.frame(drp_partner_shuffle, next_data)
+    }
   }
 }
 
@@ -1186,47 +1183,47 @@ dyad_list = unique(sample_wise_baseline$dyad_id)
 drp_sample = data.frame()
 for (next_dyad in dyad_list){
   for (next_conv in 1:max(h2_data$conv.no)) {
-  
-  # get the next participant's data
-  next_dyad_df = sample_wise_baseline %>%
-    dplyr::filter(dyad_id == next_dyad, conv.no == next_conv)
-  
-  # cycle through all sample-wise shuffle runs
-  for (run in 1:max(next_dyad_df$run)) {
     
-    # get next Speaker A data
-    temp_AB = next_dyad_df %>% ungroup() %>%
-      dplyr::filter(run == run) %>%
-      select(speaker_A, speaker_B, cond, sur_fw_quantiles_A, sur_fw_quantiles_B, run, conv.no)
+    # get the next participant's data
+    next_dyad_df = sample_wise_baseline %>%
+      dplyr::filter(dyad_id == next_dyad, conv.no == next_conv)
     
-    # run DRP if we have enough talk-turns
-    if (dim(temp_AB)[1]>9){
+    # cycle through all sample-wise shuffle runs
+    for (run in 1:max(next_dyad_df$run)) {
       
-      # calculate diagonal recurrence profile using categorical recurrence
-      drp_for_sample = drpdfromts(ts1 = temp_AB$sur_fw_quantiles_A, 
-                                  ts2 = temp_AB$sur_fw_quantiles_B,
-                                  ws = wsz, 
-                                  datatype = "categorical")
+      # get next Speaker A data
+      temp_AB = next_dyad_df %>% ungroup() %>%
+        dplyr::filter(run == run) %>%
+        select(speaker_A, speaker_B, cond, sur_fw_quantiles_A, sur_fw_quantiles_B, run, conv.no)
       
-      # save plot-level information to dataframe
-      speaker_A = unique(temp_AB$speaker_A)
-      speaker_B = unique(temp_AB$speaker_B)
-      cond = unique(temp_AB$cond)
-      next_data = data.frame(raw = timeVals$raw,
-                             ot1 = timeVals$ot1,
-                             ot2  = timeVals$ot2,
-                             rr = drp_for_sample$profile) %>%
-        mutate(speaker_A = speaker_A,
-               speaker_B = speaker_B,
-               cond = cond,
-               run = run,
-               conv.no = next_conv, 
-               dyad = next_dyad)
-      
-      drp_sample = rbind.data.frame(drp_sample, next_data)
+      # run DRP if we have enough talk-turns
+      if (dim(temp_AB)[1]>9){
+        
+        # calculate diagonal recurrence profile using categorical recurrence
+        drp_for_sample = drpdfromts(ts1 = temp_AB$sur_fw_quantiles_A, 
+                                    ts2 = temp_AB$sur_fw_quantiles_B,
+                                    ws = wsz, 
+                                    datatype = "categorical")
+        
+        # save plot-level information to dataframe
+        speaker_A = unique(temp_AB$speaker_A)
+        speaker_B = unique(temp_AB$speaker_B)
+        cond = unique(temp_AB$cond)
+        next_data = data.frame(raw = timeVals$raw,
+                               ot1 = timeVals$ot1,
+                               ot2  = timeVals$ot2,
+                               rr = drp_for_sample$profile) %>%
+          mutate(speaker_A = speaker_A,
+                 speaker_B = speaker_B,
+                 cond = cond,
+                 run = run,
+                 conv.no = next_conv, 
+                 dyad = next_dyad)
+        
+        drp_sample = rbind.data.frame(drp_sample, next_data)
+      }
     }
   }
-}
 }
 ```
 
