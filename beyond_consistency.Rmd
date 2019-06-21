@@ -731,7 +731,7 @@ B_dfs = B_dfs %>% ungroup() %>%
                   extra = "drop",
                   fill = "warn") %>%
   
-   # extract conversation number from variable conver
+  # extract conversation number from variable conver
   mutate(conv.no = gsub(".txt","",conver)) %>%
   
   # rename function. to function_words
@@ -825,22 +825,25 @@ be expected by chance.
 
 ```{r partnerwise-h2-surrogate}
 
-#choose only conversation 1 and variables that we need
+# choose only conversation 1 and variables that we need
 h2_c1_data = subset(h2_data, conv.no == 1)
 
 # aiming for 10 partner-wise shuffled baselines for each dyad and conversation type
 
-# specify random partners
+# specify real partners
 partner_wise_baseline = h2_c1_data %>%
   
-  #narrow down to only the variables we need
+  # narrow down to only the variables we need
   select(dyad_id, speaker_A, speaker_B, cond) %>%
   
   distinct() %>%
   dplyr::rename(dyad_id_real = dyad_id,
-                speaker_B_real = speaker_B) %>%
-  
-  # cycle through for 10 baselines
+                speaker_B_real = speaker_B)
+
+## AP: The issue here was that you had a pipe at the end of line 840,
+## which means it tried to read the "for" loop as part of your dplyr call
+
+# cycle through for 10 baselines
 for (runs in c(1:5)){
   
   # generate a potential paired set value
@@ -849,8 +852,7 @@ for (runs in c(1:5)){
     mutate(!!paste0("speaker_B_run", runs) := gtools::permute(speaker_B_real)) %>%
     ungroup()
   
-  # keep resampling if we get any overlap from the real data
-  # or other pairs
+  # keep resampling if we get any overlap from the real data or other pairs
   while (length(unique(apply(temp_df,1,function(x) sum(!duplicated(x))))) != 1) {
     temp_df = partner_wise_baseline %>% ungroup() %>%
       group_by(cond) %>%
@@ -869,16 +871,19 @@ partner_wise_baseline = partner_wise_baseline %>%
                 -speaker_A,
                 -dyad_id_real,
                 -cond) %>%
-  
 
-               
   mutate(shuffle_run = gsub("speaker_B_","",shuffle_run)) %>%
   dplyr::filter(shuffle_run != "real")
 
-  #save results to file
-write.table(partner_wise_baseline,'./data/partner_wise_baseline.csv',sep=",")
-```
+#save results to file
+write.table(partner_wise_baseline,'./data/partner_wise_baseline-partner_IDs.csv',sep=",")
 
+## AP: I updated this so that the name is clear that we're saving the 
+## shuffled partner codes rather than the actual baselines themselves.
+## By the way, is there a problem with sharing the codes? If not, we can 
+## go ahead and actually commit this file on GitHub so that you and I are
+## using the same pairs.
+```
 
 ***
 
