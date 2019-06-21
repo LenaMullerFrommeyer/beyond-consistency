@@ -950,7 +950,8 @@ for (next_conv in split_h2){
 # CRQA for real data
 
 # split dataframe by dyad ID
-split_conv = split(h2_data, list(h2_data$dyad_id, h2_data$conv.no)) #conv.no
+split_conv = split(h2_data, list(h2_data$dyad_id, 
+                                 h2_data$conv.no)) #conv.no
 
 # cycle through the individual conversations
 crqa_real = data.frame()
@@ -1270,7 +1271,7 @@ Let's create a new dataframe with all standardized variables. This allows us to 
 ```{r standardized-dataframe, eval = FALSE}
 
 # standardize all variables
-drp_st = mutate_each(drp_real,funs(as.numeric(scale(.))))
+drp_st = mutate_each(drp_real, funs(as.numeric(scale(.))))
 
 ## AP: To make sure that you got the scaling correct, you should
 ## plot the values for several variables in `drp_results` against
@@ -1407,7 +1408,7 @@ pander_lme(H2_raw)
 ggplot(data=drp_real,
        aes(y=rr, 
            x=raw,
-          colour=as.factor(condition))) +
+           colour=as.factor(condition))) +
   geom_smooth()
 
 ```
