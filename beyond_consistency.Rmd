@@ -837,6 +837,9 @@ h2_c1_data = subset(h2_data, conv.no == 1)
 # specify random partners
 partner_wise_baseline = h2_c1_data %>%
   
+  #narrow down to only the variables we need
+  select(dyad_id, speaker_A, speaker_B, cond) %>%
+  
   distinct() %>%
   dplyr::rename(dyad_id_real = dyad_id,
                 speaker_B_real = speaker_B) %>%
