@@ -509,7 +509,8 @@ crqa_conv_post = crqa_conv  %>%
                 rENTR_c = rENTR,
                 LAM_c = LAM,
                 TT_c = TT) 
-h1_post = full_join(crqa_mon_post, crqa_conv_post)
+h1_post = full_join(crqa_mon_post, crqa_conv_post,
+                    by=c("dyad_id", "speaker_code"))
 
 # Calculate Diff_DET
 h1_post_hoc = h1_post %>%
@@ -544,13 +545,12 @@ crqa_conv_sur_post = crqa_conv_sur  %>%
                 rENTR_c = rENTR,
                 LAM_c = LAM,
                 TT_c = TT) 
-h1_post_sur = full_join(crqa_mon_sur_post, crqa_conv_sur_post)
+h1_post_sur = full_join(crqa_mon_sur_post, crqa_conv_sur_post,
+                        by=c("dyad_id", "speaker_code"))
 
 # Calculate Diff_DET
 h1_post_hoc_sur = h1_post_sur %>%
   mutate(Diff_DET = DET_m - DET_c)
-
-
 
 ```
 
