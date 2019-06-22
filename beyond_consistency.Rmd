@@ -1070,16 +1070,47 @@ for (next_conv in split_h2) {
 drp_real_coll = drp_real
 
 #reverse the order for all dyads and conversations if mean RR negative lags < mean RR positive lags
-for (next_dyad in length(unique(h2_data$dyad_id))) {
-  for (next_conv in max(h2_data$conv.no)) {
+
+## AP: Slight error in first 'for' loop here -- just make sure 
+## that they are ranges or lists, not single values. In this
+## case, we can even go ahead and get them to print us the
+## whole list of unique IDs!
+
+for (next_dyad in unique(h2_data$dyad_id)) { 
+  
+  ## AP: Same with the second 'for' loop. Another tip is that you might
+  ## want to do to save time and processing speed by first filtering
+  ## by dyad the the outer 'for' loop and then filtering by conversation
+  ## in the inner 'for' loop
+  
+  # grab the next dyad's data
+  next_dyad_df =  drp_real_coll %>%
+      dplyr::filter(dyad_id==next_dyad) 
+  
+  # cycle through their conversations
+  
+  ## AP: We can again use the 'unique' list here!
+  
+  for (next_conv in unique(next_dyad_df$conv.no)) {
+    
+    ## AP: You've got the right idea! This would be a bit easier to go
+    ## and use the 'temp' variables directly as single values instead
+    ## of df -- like this:
     
     temp_1 = drp_real_coll %>%
       dplyr::filter(dyad_id==next_dyad, conv.no == next_conv, raw <0) %>% 
-      select(raw, rr)
+      select(rr) %>%
+      summarize(mean_rr = mean(rr)) %>%
+      .$mean_rr # this allows you to return only a single variable
     
     temp_2 = drp_real_coll %>%
       dplyr::filter(dyad_id==next_dyad, conv.no == next_conv, raw >0) %>% 
-      select(raw, rr)
+      select(rr) %>%
+      summarize(mean_rr = mean(rr)) %>%
+      .$mean_rr
+    
+    ## AP: Instead of doing an 'if_else' in dplyr, I would recommend doing
+    ## an 'if/else' statement that will do the 'rev' if temp_1 > temp_2
     
     drp_real_coll = drp_real_coll %>%
       dplyr::filter(dyad_id==next_dyad, conv.no == next_conv) %>%
