@@ -872,7 +872,7 @@ partner_wise_baseline = partner_wise_baseline %>%
                 -speaker_A,
                 -dyad_id_real,
                 -cond) %>%
-
+  
   mutate(shuffle_run = gsub("speaker_B_","",shuffle_run)) %>%
   dplyr::filter(shuffle_run != "real")
 
@@ -1068,27 +1068,27 @@ for (next_conv in split_h2) {
 
 #keep the old drp_real dataframe
 drp_real_coll = drp_real
-  
-#reverse the order for all dyads and conversations if mean RR negative lags < mean RR positive lags
-  for (next_dyad in length(unique(h2_data$dyad_id))) {
-    for (next_conv in max(h2_data$conv.no)) {
-      
-  temp_1 = drp_real_coll %>%
-    dplyr::filter(dyad_id==next_dyad, conv.no == next_conv, raw <0) %>% 
-      select(raw, rr)
 
-  temp_2 = drp_real_coll %>%
-    dplyr::filter(dyad_id==next_dyad, conv.no == next_conv, raw >0) %>% 
-      select(raw, rr)
-  
-  drp_real_coll = drp_real_coll %>%
-     dplyr::filter(dyad_id==next_dyad, conv.no == next_conv) %>%
-     if_else((mean(temp_1$rr))<(mean(temp_2$rr)), rev(drp_real_coll$rr), drp_real_coll$rr)
-  
-      }
-    }
-      
+#reverse the order for all dyads and conversations if mean RR negative lags < mean RR positive lags
+for (next_dyad in length(unique(h2_data$dyad_id))) {
+  for (next_conv in max(h2_data$conv.no)) {
     
+    temp_1 = drp_real_coll %>%
+      dplyr::filter(dyad_id==next_dyad, conv.no == next_conv, raw <0) %>% 
+      select(raw, rr)
+    
+    temp_2 = drp_real_coll %>%
+      dplyr::filter(dyad_id==next_dyad, conv.no == next_conv, raw >0) %>% 
+      select(raw, rr)
+    
+    drp_real_coll = drp_real_coll %>%
+      dplyr::filter(dyad_id==next_dyad, conv.no == next_conv) %>%
+      if_else((mean(temp_1$rr))<(mean(temp_2$rr)), rev(drp_real_coll$rr), drp_real_coll$rr)
+    
+  }
+}
+
+
 
 ```
 
