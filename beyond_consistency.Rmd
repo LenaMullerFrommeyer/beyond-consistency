@@ -1057,75 +1057,29 @@ for (next_conv in split_h2) {
              conv.no = conv.no,
              data_type = data_type)
     
-    drp_real = rbind.data.frame(drp_real, drps)
-  }
-}
-
-```
-
-
-##Switch leader-follower positions
-
-```{r}
-
-#keep the old drp_real dataframe
-drp_real_coll = drp_real
-
-split_drp_real = split(drp_real, list(drp_real$dyad_id))
-
-
-#reverse the order for all dyads and conversations if mean RR negative lags < mean RR positive lags
-
-## AP: Slight error in first 'for' loop here -- just make sure 
-## that they are ranges or lists, not single values. In this
-## case, we can even go ahead and get them to print us the
-## whole list of unique IDs!
-
-
-for (next_dyad in unique(split_drp_real)) { 
-  
-  ## AP: Same with the second 'for' loop. Another tip is that you might
-  ## want to do to save time and processing speed by first filtering
-  ## by dyad the the outer 'for' loop and then filtering by conversation
-  ## in the inner 'for' loop
-  
-  # grab the next dyad's data
-  next_dyad_df =  drp_real_coll %>%
-      dplyr::filter(dyad_id==next_dyad) 
-  
-  # cycle through their conversations
-  
-  ## AP: We can again use the 'unique' list here!
-  
-  for (next_conv in unique(next_dyad_df$conv.no)) {
-    
-    ## AP: You've got the right idea! This would be a bit easier to go
-    ## and use the 'temp' variables directly as single values instead
-    ## of df -- like this:
-    
-    temp_1 = drp_real_coll %>%
-      dplyr::filter(dyad_id==next_dyad, conv.no == next_conv, raw <0) %>% 
-      select(rr) %>%
-      summarize(mean_rr = mean(rr)) %>%
-      .$mean_rr # this allows you to return only a single variable
-    
-    temp_2 = drp_real_coll %>%
-      dplyr::filter(dyad_id==next_dyad, conv.no == next_conv, raw >0) %>% 
-      select(rr) %>%
+    # get the mean RR for the left side of the plot
+    mean_left_rr = drps %>%
+      dplyr::filter(raw < 0) %>% 
       summarize(mean_rr = mean(rr)) %>%
       .$mean_rr
     
-    ## AP: Instead of doing an 'if_else' in dplyr, I would recommend doing
-    ## an 'if/else' statement that will do the 'rev' if temp_1 > temp_2
+    # get the mean RR for the right side of the plot
+    mean_right_rr = drps %>%
+      dplyr::filter(raw > 0) %>% 
+      summarize(mean_rr = mean(rr)) %>%
+      .$mean_rr
     
-    drp_real_coll = drp_real_coll %>%
-      dplyr::filter(dyad_id==next_dyad, conv.no == next_conv) %>%
-      if_else((mean(temp_1$rr))<(mean(temp_2$rr)), rev(drp_real_coll$rr), drp_real_coll$rr)
+    # flip arrangement if leader is not on left
+    if (mean_left_rr < mean_right_rr) {
+      drps = drps %>%
+        mutate(rr = rev(rr))
+    }
+    
+    # append to dataframe
+    drp_real = rbind.data.frame(drp_real, drps)
     
   }
 }
-
-
 
 ```
 
@@ -1188,7 +1142,6 @@ for (fake_dyad in 1:nrow(partner_wise_baseline)) {
       crqa_partner_shuffle = rbind.data.frame(crqa_partner_shuffle,next_data_line)
     }
   }
-  
 }
 ```
 
@@ -1238,6 +1191,24 @@ for (fake_dyad in 1:nrow(partner_wise_baseline)){
                speaker_B = speaker_B,
                cond = cond,
                conv.no = next_conv)
+      
+      # get the mean RR for the left side of the plot
+      mean_left_rr = next_data %>%
+        dplyr::filter(raw < 0) %>% 
+        summarize(mean_rr = mean(rr)) %>%
+        .$mean_rr
+      
+      # get the mean RR for the right side of the plot
+      mean_right_rr = next_data %>%
+        dplyr::filter(raw > 0) %>% 
+        summarize(mean_rr = mean(rr)) %>%
+        .$mean_rr
+      
+      # flip arrangement if leader is not on left
+      if (mean_left_rr < mean_right_rr) {
+        next_data = next_data %>%
+          mutate(rr = rev(rr))
+      }
       
       # save to overall dataframe
       drp_partner = rbind.data.frame(drp_partner, next_data)
@@ -1546,7 +1517,7 @@ ggplot(data=drp_real,
 # raw maximal random-effects model
 H2_partner_st = lmer(rr ~ condition + conv.no + ot1 + ot2 + ot1.ot2 + condition.ot1 + condition.ot2 + condition.ot1.ot2 + (1 | speaker_A) + (1 | speaker_B), data=drp_partner_st, REML=FALSE)
 
-    #LMF: I added speaker_A  and speaker_B instead of dyad_id as random effect, but wasn't     sure about it.     
+#LMF: I added speaker_A  and speaker_B instead of dyad_id as random effect, but wasn't     sure about it.     
 
 ```
 
