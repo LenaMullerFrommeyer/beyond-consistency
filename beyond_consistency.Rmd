@@ -321,7 +321,7 @@ for (next_conv in split_conv){
 
 ### RQA: Surrogate monologue
 
-```{r monologues-rqa}
+```{r surrogate-monologues-rqa}
 
 # cycle through all the dyads
 speaker_list = unique(monologue_baseline$speaker_code)
@@ -377,7 +377,7 @@ for (next_speaker in speaker_list){
 
 ### RQA: Surrogate conversation
 
-```{r conversations-crqa}
+```{r surrogate-conversations-crqa}
 
 # cycle through all the dyads
 speaker_list = unique(conversation_baseline$speaker_code)
@@ -904,7 +904,7 @@ for (next_conv in split_h2){
     # preserve the original dataframe
     next_conv_real = next_conv
     
-    # permute 10 times for baseline
+    # permute 5 times for baseline
     permuted_df = data.frame()
     for (run in c(1:5)){
       next_shuffle = next_conv_real %>%
@@ -1047,23 +1047,23 @@ for (next_conv in split_h2) {
              conv.no = conv.no,
              data_type = data_type)
     
-    # get the mean RR for the left side of the plot
-    mean_left_rr = drps %>%
-      dplyr::filter(raw < 0) %>% 
-      summarize(mean_rr = mean(rr)) %>%
-      .$mean_rr
-    
-    # get the mean RR for the right side of the plot
-    mean_right_rr = drps %>%
-      dplyr::filter(raw > 0) %>% 
-      summarize(mean_rr = mean(rr)) %>%
-      .$mean_rr
-    
-    # flip arrangement if leader is not on left
-    if (mean_left_rr < mean_right_rr) {
-      drps = drps %>%
-        mutate(rr = rev(rr))
-    }
+    # # get the mean RR for the left side of the plot
+    # mean_left_rr = drps %>%
+    #   dplyr::filter(raw < 0) %>% 
+    #   summarize(mean_rr = mean(rr)) %>%
+    #   .$mean_rr
+    # 
+    # # get the mean RR for the right side of the plot
+    # mean_right_rr = drps %>%
+    #   dplyr::filter(raw > 0) %>% 
+    #   summarize(mean_rr = mean(rr)) %>%
+    #   .$mean_rr
+    # 
+    # # flip arrangement if leader is not on left
+    # if (mean_left_rr < mean_right_rr) {
+    #   drps = drps %>%
+    #     mutate(rr = rev(rr))
+    # }
     
     # append to dataframe
     drp_real = rbind.data.frame(drp_real, drps)
@@ -1182,23 +1182,23 @@ for (fake_dyad in 1:nrow(partner_wise_baseline)){
                cond = cond,
                conv.no = next_conv)
       
-      # get the mean RR for the left side of the plot
-      mean_left_rr = next_data %>%
-        dplyr::filter(raw < 0) %>% 
-        summarize(mean_rr = mean(rr)) %>%
-        .$mean_rr
-      
-      # get the mean RR for the right side of the plot
-      mean_right_rr = next_data %>%
-        dplyr::filter(raw > 0) %>% 
-        summarize(mean_rr = mean(rr)) %>%
-        .$mean_rr
-      
-      # flip arrangement if leader is not on left
-      if (mean_left_rr < mean_right_rr) {
-        next_data = next_data %>%
-          mutate(rr = rev(rr))
-      }
+      # # get the mean RR for the left side of the plot
+      # mean_left_rr = next_data %>%
+      #   dplyr::filter(raw < 0) %>% 
+      #   summarize(mean_rr = mean(rr)) %>%
+      #   .$mean_rr
+      # 
+      # # get the mean RR for the right side of the plot
+      # mean_right_rr = next_data %>%
+      #   dplyr::filter(raw > 0) %>% 
+      #   summarize(mean_rr = mean(rr)) %>%
+      #   .$mean_rr
+      # 
+      # # flip arrangement if leader is not on left
+      # if (mean_left_rr < mean_right_rr) {
+      #   next_data = next_data %>%
+      #     mutate(rr = rev(rr))
+      # }
       
       # save to overall dataframe
       drp_partner = rbind.data.frame(drp_partner, next_data)
@@ -1230,7 +1230,8 @@ for (next_dyad in dyad_list){
       # get next Speaker A data
       temp_AB = next_dyad_df %>% ungroup() %>%
         dplyr::filter(run == run) %>%
-        select(speaker_A, speaker_B, cond, sur_fw_quantiles_A, sur_fw_quantiles_B, run, conv.no)
+        select(speaker_A, speaker_B, cond, 
+               sur_fw_quantiles_A, sur_fw_quantiles_B, run, conv.no)
       
       # run DRP if we have enough talk-turns
       if (dim(temp_AB)[1]>9){
@@ -1242,37 +1243,33 @@ for (next_dyad in dyad_list){
                                     datatype = "categorical")
         
         # save plot-level information to dataframe
-        speaker_A = unique(temp_AB$speaker_A)
-        speaker_B = unique(temp_AB$speaker_B)
         cond = unique(temp_AB$cond)
         next_data = data.frame(raw = timeVals$raw,
                                ot1 = timeVals$ot1,
                                ot2  = timeVals$ot2,
                                rr = drp_for_sample$profile) %>%
-          mutate(speaker_A = speaker_A,
-                 speaker_B = speaker_B,
-                 cond = cond,
+          mutate(cond = cond,
                  run = run,
                  conv.no = next_conv, 
                  dyad = next_dyad)
         
-        # get the mean RR for the left side of the plot
-        mean_left_rr = next_data %>%
-          dplyr::filter(raw < 0) %>% 
-          summarize(mean_rr = mean(rr)) %>%
-          .$mean_rr
-        
-        # get the mean RR for the right side of the plot
-        mean_right_rr = next_data %>%
-          dplyr::filter(raw > 0) %>% 
-          summarize(mean_rr = mean(rr)) %>%
-          .$mean_rr
-        
-        # flip arrangement if leader is not on left
-        if (mean_left_rr < mean_right_rr) {
-          next_data = next_data %>%
-            mutate(rr = rev(rr))
-        }
+        # # get the mean RR for the left side of the plot
+        # mean_left_rr = next_data %>%
+        #   dplyr::filter(raw < 0) %>% 
+        #   summarize(mean_rr = mean(rr)) %>%
+        #   .$mean_rr
+        # 
+        # # get the mean RR for the right side of the plot
+        # mean_right_rr = next_data %>%
+        #   dplyr::filter(raw > 0) %>% 
+        #   summarize(mean_rr = mean(rr)) %>%
+        #   .$mean_rr
+        # 
+        # # flip arrangement if leader is not on left
+        # if (mean_left_rr < mean_right_rr) {
+        #   next_data = next_data %>%
+        #     mutate(rr = rev(rr))
+        # }
         
         # save to overall dataframe
         drp_sample = rbind.data.frame(drp_sample, next_data)
@@ -1286,10 +1283,13 @@ for (next_dyad in dyad_list){
 
 ## Data analysis
 
-```{r}
+***
 
-#drp_real
-# rename variables and center the binary variables
+### Prepare binary and categorical variables
+
+```{r prepare-variables-real}
+
+# prepare real data dataframe
 drp_real = drp_real %>% ungroup() %>%
   plyr::rename(.,
                c("cond"="condition")) %>%
@@ -1309,8 +1309,11 @@ drp_real = drp_real %>% ungroup() %>%
   mutate(ot1.ot2 = ot1 * ot2) %>%
   mutate(condition.ot1.ot2 = condition * ot1 * ot2)
 
+```
 
-#drp partner-wise
+```{r prepare-variables-partnerwise}
+
+# prepare partner-wise baseline dataframe
 drp_partner = drp_partner %>% ungroup() %>%
   plyr::rename(.,
                c("cond"="condition")) %>%
@@ -1328,10 +1331,17 @@ drp_partner = drp_partner %>% ungroup() %>%
   
   # polynomial interactions
   mutate(ot1.ot2 = ot1 * ot2) %>%
-  mutate(condition.ot1.ot2 = condition * ot1 * ot2)
+  mutate(condition.ot1.ot2 = condition * ot1 * ot2) %>%
+  
+  # convert to speakers to factors for appropriate numeric transform
+  mutate(speaker_A = as.numeric(as.factor(speaker_A))) %>%
+  mutate(speaker_B = as.numeric(as.factor(speaker_B)))
 
+```  
 
-#drp sample-wise
+```{r prepare-variables-samplewise}
+
+# prepare sample-wise baseline dataframe
 drp_sample = drp_sample %>% ungroup() %>%
   plyr::rename(.,
                c("cond"="condition")) %>%
@@ -1350,32 +1360,32 @@ drp_sample = drp_sample %>% ungroup() %>%
   # polynomial interactions
   mutate(ot1.ot2 = ot1 * ot2) %>%
   mutate(condition.ot1.ot2 = condition * ot1 * ot2)
-```  
+
+```
 
 ***
 
-### Create standardized dataframe
+### Create standardized dataframes
 
-Let's create a new dataframe with all standardized variables. This allows us to interpret the resulting values as effect sizes (see Keith, 2005, *Multiple regression and beyond*).
+Let's create new dataframe with all standardized variables. This allows us 
+to interpret the resulting model estimates as effect sizes (see Keith, 2005, 
+*Multiple regression and beyond*).
 
-```{r standardized-dataframe, eval = FALSE}
-
-#check each column if it is a factor - if yes, convert to numeric
+```{r standardized-dataframe}
 
 # standardize all variables
-drp_real_st = mutate_each(drp_real, funs(as.numeric(scale(.))))
+drp_real_st = mutate_each(drp_real, 
+                          funs(as.numeric(scale(as.numeric(.))))) %>%
+  mutate(dyad_id = as.factor(dyad_id))
 
-drp_partner_st = mutate_each(drp_partner, funs(as.numeric(scale(.))))
+drp_partner_st = mutate_each(drp_partner, 
+                             funs(as.numeric(scale(as.numeric(.))))) %>%
+  mutate(speaker_A = as.factor(speaker_A),
+         speaker_B = as.factor(speaker_B))
 
-drp_sample_st = mutate_each(drp_sample, funs(as.numeric(scale(.))))
-
-
-## AP: To make sure that you got the scaling correct, you should
-## plot the values for several variables in `drp_results` against
-## the newly scaled versions in `drp_st` --- if you got the scaling
-## right, you'll see a perfect diagonal line with a slope of 1.
-## If you didn't, it means that your scaling was off.
-## e.g.: plot(drp_st$condition, drp_results$condition)
+drp_sample_st = mutate_each(drp_sample,
+                            funs(as.numeric(scale(as.numeric(.))))) %>%
+  mutate(dyad_id = as.factor(dyad_id))
 
 ```
 
@@ -1406,7 +1416,7 @@ pander_lme(h2_analyses)
 
 We don't see a difference by overall amounts of recurrence, but what about
 differences in the structure of the recurrence? Let's look at two metrics:
-the number of lines on the plot (`NRLINE`) and entropy (`ENTR`).
+the number of lines on the plot (`NRLINE`) and determinism (`DET`).
 
 ```{r model-h2-crqa-nrline-raw}
 
@@ -1432,21 +1442,21 @@ pander_lme(h2_analyses_nrline)
 ```{r model-h2-crqa-entr-raw}
 
 # does linguistic style matching change based on the conversational context?
-h2_analyses_entropy <- lm(ENTR ~ cond, data = crqa_real)
+h2_analyses_determinism <- lm(DET ~ cond, data = crqa_real)
 
 ```
 
-```{r silently-print-h2-crqa-entr-summary, eval=TRUE, echo=FALSE}
+```{r silently-print-h2-crqa-det-summary, eval=TRUE, echo=FALSE}
 
 # print summary table
-summary(h2_analyses_entropy)
+summary(h2_analyses_determinism)
 
 ```
 
 ```{r silently-print-h2-crqa-entr-table, eval=TRUE, echo=FALSE}
 
 # neatly print output
-pander_lme(h2_analyses_entropy)
+pander_lme(h2_analyses_determinism)
 
 ```
 
@@ -1456,28 +1466,31 @@ pander_lme(h2_analyses_entropy)
 
 We now create a linear mixed-effects model to gauge how linear lag (`ot1`) and quadratic lag (`ot2`) interact with condition (`condition`) to influence Language Style Matching (`rr`). We present both standardized and raw models below.
 
-```{r model-h2-drp-standardized, eval=FALSE, include=FALSE, echo=FALSE}
+```{r model-h2-drp-standardized}
 
 # standardized maximal random-effects model
-H2_st = lmer(rr ~ condition + conv.no + ot1 + ot2 + ot1.ot2 + condition.ot1 + condition.ot2 + condition.ot1.ot2 + (1 | dyad_id), data=drp_st, REML=FALSE)
+H2_st = lmer(
+  rr ~ condition + conv.no + ot1 + ot2 + 
+    ot1.ot2 + condition.ot1 + condition.ot2 + condition.ot1.ot2 + 
+    (1 | dyad_id), data=drp_real_st, REML=FALSE)
 
 ```
 
-```{r silently-print-h2-drp-summary, eval=TRUE, echo=FALSE}
+```{r silently-print-h2-st-drp-summary, eval=TRUE, echo=FALSE}
 
 # print summary table
 summary(H2_st)
 
 ```
 
-```{r silently-print-h2-drp-table, eval=TRUE, echo=FALSE}
+```{r silently-print-h2-st-real-drp-table, eval=TRUE, echo=FALSE}
 
 # neatly print output
 pander_lme(H2_st)
 
 ```
 
-```{r plot-aggregate-drps, echo=FALSE}
+```{r plot-aggregate-real-st-drps, echo=FALSE}
 
 # what do these DRPs look like?
 ggplot(data=drp_real_st,
@@ -1488,7 +1501,7 @@ ggplot(data=drp_real_st,
 
 ```
 
-```{r model-h2-drp-raw}
+```{r model-h2-drp-raw-real}
 
 # raw maximal random-effects model
 H2_raw = lmer(rr ~ condition + conv.no + ot1 + ot2 + ot1.ot2 + condition.ot1 + condition.ot2 + condition.ot1.ot2 + (1 | dyad_id), data=drp_real, REML=FALSE)
@@ -1496,21 +1509,21 @@ H2_raw = lmer(rr ~ condition + conv.no + ot1 + ot2 + ot1.ot2 + condition.ot1 + c
 ```
 
 
-```{r silently-print-h2-drp-summary, eval=TRUE, echo=FALSE}
+```{r silently-print-h2-real-raw-drp-summary, eval=TRUE, echo=FALSE}
 
 # print summary table
 summary(H2_raw)
 
 ```
 
-```{r silently-print-h2-drp-table, eval=TRUE, echo=FALSE}
+```{r silently-print-h2-raw-drp-table, eval=TRUE, echo=FALSE}
 
 # neatly print output
 pander_lme(H2_raw)
 
 ```
 
-```{r plot-aggregate-drps, echo=FALSE}
+```{r plot-aggregate-real-raw-drps, echo=FALSE}
 
 # what do these DRPs look like?
 ggplot(data=drp_real,
@@ -1521,7 +1534,7 @@ ggplot(data=drp_real,
 
 ```
 
-```{r model-h2-drp-raw}
+```{r model-h2-drp-st-partnerwise}
 
 # raw maximal random-effects model
 H2_partner_st = lmer(rr ~ condition + conv.no + ot1 + ot2 + ot1.ot2 + condition.ot1 + condition.ot2 + condition.ot1.ot2 + (1 | speaker_A) + (1 | speaker_B), data=drp_partner_st, REML=FALSE)
@@ -1530,21 +1543,21 @@ H2_partner_st = lmer(rr ~ condition + conv.no + ot1 + ot2 + ot1.ot2 + condition.
 
 ```
 
-```{r silently-print-h2-drp-summary, eval=TRUE, echo=FALSE}
+```{r silently-print-h2-partnerwise-st-drp-summary, eval=TRUE, echo=FALSE}
 
 # print summary table
 summary(H2_partner_st)
 
 ```
 
-```{r silently-print-h2-drp-table, eval=TRUE, echo=FALSE}
+```{r silently-print-h2-partnerwise-st-drp-table, eval=TRUE, echo=FALSE}
 
 # neatly print output
 pander_lme(H2_partner_st)
 
 ```
 
-```{r plot-aggregate-drps, echo=FALSE}
+```{r plot-aggregate-partnerwise-st-drps, echo=FALSE}
 
 # what do these DRPs look like?
 ggplot(data=drp_partner_st,
@@ -1555,28 +1568,28 @@ ggplot(data=drp_partner_st,
 
 ```
 
-```{r model-h2-drp-raw}
+```{r model-h2-drp-raw-partnerwise}
 
 # raw maximal random-effects model
 H2_partner = lmer(rr ~ condition + conv.no + ot1 + ot2 + ot1.ot2 + condition.ot1 + condition.ot2 + condition.ot1.ot2 + (1 | speaker_A) + (1 | speaker_B), data=drp_partner, REML=FALSE)
 
 ```
 
-```{r silently-print-h2-drp-summary, eval=TRUE, echo=FALSE}
+```{r silently-print-h2-partnerwise-raw-drp-summary, eval=TRUE, echo=FALSE}
 
 # print summary table
 summary(H2_partner)
 
 ```
 
-```{r silently-print-h2-drp-table, eval=TRUE, echo=FALSE}
+```{r silently-print-h2-partnerwise-real-drp-table, eval=TRUE, echo=FALSE}
 
 # neatly print output
 pander_lme(H2_partner)
 
 ```
 
-```{r plot-aggregate-drps, echo=FALSE}
+```{r plot-aggregate-partnerwise-real-drps, echo=FALSE}
 
 # what do these DRPs look like?
 ggplot(data=drp_partner,
@@ -1587,29 +1600,33 @@ ggplot(data=drp_partner,
 
 ```
 
-```{r model-h2-drp-raw}
+```{r model-h2-drp-st-samplewise, eval=FALSE}
 
 # raw maximal random-effects model
-H2_sample_st = lmer(rr ~ condition + conv.no + ot1 + ot2 + ot1.ot2 + condition.ot1 + condition.ot2 + condition.ot1.ot2 + (1 | speaker_A) + (1 | speaker_B), data=drp_sample_st, REML=FALSE)
+H2_sample_st = lmer(
+  rr ~ condition + conv.no + ot1 + ot2 + 
+    ot1.ot2 + condition.ot1 + condition.ot2 + condition.ot1.ot2 + 
+    (1 | dyad_id), data=drp_sample_st, REML=FALSE
+  )
 
 ```
 
 
-```{r silently-print-h2-drp-summary, eval=TRUE, echo=FALSE}
+```{r silently-print-h2-samplewise-st-drp-summary, eval=FALSE, echo=FALSE}
 
 # print summary table
 summary(H2_sample_st)
 
 ```
 
-```{r silently-print-h2-drp-table, eval=TRUE, echo=FALSE}
+```{r silently-print-h2-samplewise-st-drp-table, eval=FALSE, echo=FALSE}
 
 # neatly print output
 pander_lme(H2_sample_st)
 
 ```
 
-```{r plot-aggregate-drps, echo=FALSE}
+```{r plot-aggregate-samplewise-st-drps, echo=FALSE}
 
 # what do these DRPs look like?
 ggplot(data=drp_sample_st,
@@ -1620,28 +1637,28 @@ ggplot(data=drp_sample_st,
 
 ```
 
-```{r model-h2-drp-raw}
+```{r model-h2-drp-raw-samplewise, eval=FALSE}
 
 # raw maximal random-effects model
 H2_sample = lmer(rr ~ condition + conv.no + ot1 + ot2 + ot1.ot2 + condition.ot1 + condition.ot2 + condition.ot1.ot2 + (1 | speaker_A) + (1 | speaker_B), data=drp_sample, REML=FALSE)
 
 ```
 
-```{r silently-print-h2-drp-summary, eval=TRUE, echo=FALSE}
+```{r silently-print-h2-samplewise-raw-drp-summary, eval=FALSE, echo=FALSE}
 
 # print summary table
 summary(H2_sample)
 
 ```
 
-```{r silently-print-h2-drp-table, eval=TRUE, echo=FALSE}
+```{r silently-print-h2-samplewise-real-drp-table, eval=FALSE, echo=FALSE}
 
 # neatly print output
 pander_lme(H2_sample)
 
 ```
 
-```{r plot-aggregate-drps, echo=FALSE}
+```{r plot-aggregate-samplewise-real-drps, echo=FALSE}
 
 # what do these DRPs look like?
 ggplot(data=drp_sample,
