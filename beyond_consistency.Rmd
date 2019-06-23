@@ -518,7 +518,6 @@ h1_post_hoc = h1_post %>%
 
 ```
 
-
 ```{r h1-post-sur-prep}
 
 #Preparing data for Post-hoc analyses - Bring data into wide format to calculate Diff_DET
@@ -553,7 +552,6 @@ h1_post_hoc_sur = h1_post_sur %>%
   mutate(Diff_DET = DET_m - DET_c)
 
 ```
-
 
 ```{r post-hoc-h1-model}
 
@@ -700,8 +698,8 @@ A_dfs = A_dfs %>% ungroup() %>%
                 fw_quantiles_A = fw_quantiles,
                 speaker_A = speaker_code,
                 wc_A = WC) %>%
-  #dplyr::select(-Filename, -dyad_position, -conver)
-  dplyr::select(dyad_id, speaker_A, Segment, cond, function_words_A, fw_quantiles_A, wc_A, conv.no, data_type )
+  dplyr::select(dyad_id, speaker_A, Segment, cond, 
+                function_words_A, fw_quantiles_A, wc_A, conv.no, data_type )
 ```
 
 ***
@@ -760,8 +758,8 @@ B_dfs = B_dfs %>% ungroup() %>%
                 fw_quantiles_B = fw_quantiles,
                 speaker_B = speaker_code,
                 wc_B = WC) %>%
-  #dplyr::select(-Filename, -dyad_position,-conver)
-  dplyr::select(dyad_id, speaker_B, Segment, cond, function_words_B, fw_quantiles_B, wc_B, conv.no, data_type )
+  dplyr::select(dyad_id, speaker_B, Segment, cond, 
+                function_words_B, fw_quantiles_B, wc_B, conv.no, data_type)
 
 ```
 
@@ -822,29 +820,22 @@ h2_data = full_join(A_dfs, B_dfs,
 ### Partner-wise shuffled baseline
 
 This form of surrogate time series estimating overall RR (or %REC) that might
-be expected by chance.
+be expected by chance. Due to how time-intensive this process is, we keep this
+as `eval=FALSE` and read in a CSV of the file.
 
 ```{r partnerwise-h2-surrogate, eval = FALSE}
 
-# choose only conversation 1 and variables that we need
-h2_c1_data = subset(h2_data, conv.no == 1)
-
-# aiming for 10 partner-wise shuffled baselines for each dyad and conversation type
-
 # specify real partners
-partner_wise_baseline = h2_c1_data %>%
+partner_wise_baseline = h2_data %>% 
   
-  # narrow down to only the variables we need
+  # choose only conversation 1 and variables that we need
+  dplyr::filter(conv.no == 1) %>%
   select(dyad_id, speaker_A, speaker_B, cond) %>%
-  
   distinct() %>%
   dplyr::rename(dyad_id_real = dyad_id,
                 speaker_B_real = speaker_B)
 
-## AP: The issue here was that you had a pipe at the end of line 840,
-## which means it tried to read the "for" loop as part of your dplyr call
-
-# cycle through for 10 baselines
+# cycle through for 5 baselines
 for (runs in c(1:5)){
   
   # generate a potential paired set value
@@ -876,18 +867,20 @@ partner_wise_baseline = partner_wise_baseline %>%
   mutate(shuffle_run = gsub("speaker_B_","",shuffle_run)) %>%
   dplyr::filter(shuffle_run != "real")
 
-#save results to file
-write.table(partner_wise_baseline,'./data/partner_wise_baseline-partner_IDs.csv',sep=",")
+# save results to file
+write.table(partner_wise_baseline, 
+            './scripts/partner_wise_baseline-partner_IDs.csv', sep=",")
 
 ```
 
+```{r read-in partner-wise-baseline-ids}
 
-
-```{r read-in partner-wise-baseline}
-
-partner-wise-baseline = read.csv('./data/partner_wise_baseline-partner_IDs.csv', header = TRUE, sep=",")
+# read in the shuffled pairings that we've already created
+partner_wise_baseline = read.csv('./scripts/partner_wise_baseline-partner_IDs.csv', 
+                                 header = TRUE, sep=",")
 
 ```
+
 ***
 
 ### Sample-wise shuffled baseline
@@ -901,7 +894,7 @@ recurrence (e.g., DRPs, mean line length, percent determinism) will be altered.
 ```{r samplewise-h2-surrogate}
 
 # split all dyads by dyad ID
-split_h2 = split(h2_data, list(h2_data$dyad_id,h2_data$conv.no)) 
+split_h2 = split(h2_data, list(h2_data$dyad_id, h2_data$conv.no)) 
 sample_wise_baseline = data.frame()
 for (next_conv in split_h2){
   
@@ -949,8 +942,6 @@ for (next_conv in split_h2){
 ### For real data
 
 ```{r analysis-df-plot-level}
-
-# CRQA for real data
 
 # split dataframe by dyad ID
 split_conv = split(h2_data, list(h2_data$dyad_id, 
@@ -1024,7 +1015,6 @@ Need to note in the manuscript that we dropped anyone with fewer than 10
 talk-turns from the DRP analyses.
 
 ```{r analysis-df-drp}
-
 
 # split dataframe by dyad ID
 split_h2 = split(h2_data, 
