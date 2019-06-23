@@ -1266,6 +1266,25 @@ for (next_dyad in dyad_list){
                  conv.no = next_conv, 
                  dyad = next_dyad)
         
+        # get the mean RR for the left side of the plot
+        mean_left_rr = next_data %>%
+          dplyr::filter(raw < 0) %>% 
+          summarize(mean_rr = mean(rr)) %>%
+          .$mean_rr
+        
+        # get the mean RR for the right side of the plot
+        mean_right_rr = next_data %>%
+          dplyr::filter(raw > 0) %>% 
+          summarize(mean_rr = mean(rr)) %>%
+          .$mean_rr
+        
+        # flip arrangement if leader is not on left
+        if (mean_left_rr < mean_right_rr) {
+          next_data = next_data %>%
+            mutate(rr = rev(rr))
+        }
+        
+        # save to overall dataframe
         drp_sample = rbind.data.frame(drp_sample, next_data)
       }
     }
