@@ -476,14 +476,14 @@ h1_analyses <- lmer(RR ~ conv.type + (1|speaker_code), data = h1_data, REML = FA
 
 ```
 
-```{r silently-print-summary, eval=TRUE, echo=TRUE, include=FALSE}
+```{r silently-print-summary, eval=TRUE, echo=FALSE}
 
 # print summary table
 summary(h1_analyses)
 
 ```
 
-```{r silently-print-table, eval=TRUE, echo=TRUE, include=FALSE}
+```{r silently-print-table, eval=TRUE, echo=FALSE}
 
 # neatly print output
 pander_lme(h1_analyses)
@@ -576,7 +576,7 @@ h1_analyses_post_sur = lm(Diff_DET ~ cond_c, data = h1_post_hoc_sur)
 
 ```
 
-```{r silently-print-posthoc-h1-summary, eval=TRUE, echo=TRUE, include=FALSE}
+```{r silently-print-posthoc-h1-summary, eval=TRUE, echo=FALSE}
 
 # print summary table
 summary(h1_analyses_post)
@@ -584,7 +584,7 @@ summary(h1_analyses_post_sur)
 
 ```
 
-```{r silently-print-posthoc-h1-table, eval=TRUE, echo=TRUE, include=FALSE}
+```{r silently-print-posthoc-h1-table, eval=FALSE}
 
 # neatly print output
 pander_lme(h1_analyses_post)
@@ -594,7 +594,7 @@ pander_lme(h1_analyses_post_sur)
 We find a trend toward an effect of condition, but it does not 
 reach statistical significance. Let's take a look at the data.
 
-```{r silently-plot-h1-post-trend-data, include=FALSE, echo=TRUE}
+```{r silently-plot-h1-post-trend-data, echo=FALSE}
 
 qplot(data=h1_post_hoc, x=DET_m, y=DET_c, colour=cond_c) + 
   geom_abline()
@@ -604,7 +604,7 @@ qplot(data=h1_post_hoc, x=DET_m, y=DET_c, colour=cond_c) +
 It looks as though there might be outliers in the data. Let's confirm with
 a boxplot.
 
-```{r silently-plot-h1-post-outliers, include=FALSE, echo=TRUE}
+```{r silently-plot-h1-post-outliers, echo=FALSE}
 
 qplot(data=h1_post_hoc, y=Diff_DET, geom="boxplot")
 
@@ -628,14 +628,14 @@ h1_analyses_post_no_outliers = lm(Diff_DET ~ cond_c, data = h1_post_no_outliers)
 
 ```
 
-```{r silently-print-h1-post-hoc-summary-without-outliers, eval=TRUE, echo=TRUE, include=FALSE}
+```{r silently-print-h1-post-hoc-summary-without-outliers, eval=TRUE, echo=FALSE}
 
 # print summary table
 summary(h1_analyses_post_no_outliers)
 
 ```
 
-```{r silently-print-h1-post-hoc-table-without-outliers, eval=TRUE, echo=TRUE, include=FALSE}
+```{r silently-print-h1-post-hoc-table-without-outliers, eval=TRUE, echo=FALSE}
 
 # neatly print output
 pander_lme(h1_analyses_post_no_outliers)
