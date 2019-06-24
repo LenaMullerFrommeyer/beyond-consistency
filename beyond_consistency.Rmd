@@ -833,7 +833,6 @@ for (next_conv in split_conv){
                                 speaker_B,
                                 cond,
                                 conv.no,
-                                turns,
                                 crqa_for_conv[1:9]) %>%
       mutate(NRLINE_norm = NRLINE / dim(next_conv)[1]) # normalize NRLINE by number of turns 
     crqa_real = rbind.data.frame(crqa_real,next_data_line)
@@ -851,36 +850,6 @@ for (next_conv in split_conv){
 # clean up what we don't need
 rm(next_conv, crqa_for_conv, 
    dyad_id, speaker_A, speaker_B, cond, conv.no, next_data_line)
-
-```
-
-```{r eval=TRUE, echo=FALSE}
-
-ggplot(data=crqa_real,
-       aes(x=cond,
-           y=RR)) +
-  geom_boxplot() +
-  geom_point()
-
-```
-
-```{r eval=TRUE, echo=FALSE}
-
-ggplot(data=crqa_real,
-       aes(x=cond,
-           y=rENTR)) +
-  geom_boxplot() +
-  geom_point()
-
-```
-
-```{r eval=TRUE, echo=FALSE}
-
-ggplot(data=crqa_real,
-       aes(x=cond,
-           y=NRLINE_norm)) +
-  geom_boxplot() +
-  geom_point()
 
 ```
 
@@ -939,7 +908,8 @@ for (fake_dyad in 1:nrow(partner_wise_baseline)) {
                                   speaker_B,
                                   cond,
                                   conv.no,
-                                  crqa_for_sur[1:9])
+                                  crqa_for_sur[1:9]) %>%
+        mutate(NRLINE_norm = NRLINE / dim(temp_data)[1]) # normalize NRLINE by number of turns 
       crqa_partner_shuffle = rbind.data.frame(crqa_partner_shuffle,next_data_line)
     }
   }
@@ -1061,7 +1031,7 @@ for (next_dyad in dyad_list){
           mutate(cond = cond,
                  run = run,
                  conv.no = next_conv, 
-                 dyad = next_dyad)
+                 dyad_id = next_dyad)
         
         # get the mean RR for the left side of the plot
         mean_left_rr = next_data %>%
@@ -1100,7 +1070,7 @@ for (next_dyad in dyad_list){
 We'll need to do some recoding of variables before running the models using
 CRQA metrics.
 
-```{r prepare-crqa-variables-real}
+```{r prepare-crqa-variables}
 
 # prepare real data dataframe
 crqa_real = crqa_real %>% ungroup() %>%
@@ -1114,13 +1084,10 @@ crqa_real = crqa_real %>% ungroup() %>%
   # convert variables to factor
   mutate(condition = as.factor(condition),
          dyad_id = as.factor(dyad_id),
-         conv.no = as.factor(conv.no))
+         conv.no = as.factor(conv.no),
+         data = "real")
 
-```
-
-```{r prepare-crqa-variables-baseline}
-
-# prepare real data dataframe
+# prepare baseline dataframe
 crqa_partner_shuffle = crqa_partner_shuffle %>% ungroup() %>%
   
   # recode "condition" values to be -.5 and +.5
