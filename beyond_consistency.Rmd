@@ -287,13 +287,10 @@ for (next_mon in split_mon){
   # only progress if we have data for this conversation type
   if (dim(next_mon)[1] > 1){
     
-    # preserve the original dataframe
-    next_mon_real = next_mon
-    
     # permute 10 times for baseline
     permuted_mon_df = data.frame()
     for (run in c(1:5)){
-      next_shuffle = next_mon_real %>%
+      next_shuffle = next_mon %>%
         
         # shuffle each person's linguistic contributions
         mutate(sur_fw = gtools::permute(function_words),
@@ -336,13 +333,10 @@ for (next_conv in split_conv){
   # only progress if we have data for this conversation type
   if (dim(next_conv)[1] > 1){
     
-    # preserve the original dataframe
-    next_conv_real = next_conv
-    
     # permute 10 times for baseline
     permuted_conv_df = data.frame()
     for (run in c(1:5)){
-      next_shuffle = next_conv_real %>%
+      next_shuffle = next_conv %>%
         
         # shuffle each person's linguistic contributions
         mutate(sur_fw = gtools::permute(function_words),
@@ -973,13 +967,10 @@ for (next_conv in split_h2){
   # only progress if we have data for this conversation type and dyad
   if (dim(next_conv)[1] > 1){
     
-    # preserve the original dataframe
-    next_conv_real = next_conv
-    
     # permute 5 times for baseline
     permuted_df = data.frame()
     for (run in c(1:5)){
-      next_shuffle = next_conv_real %>%
+      next_shuffle = next_conv %>%
         
         # shuffle each person's linguistic contributions
         group_by(dyad_id) %>%
