@@ -1308,7 +1308,9 @@ for (next_dyad in dyad_list){
 
 ***
 
-### Prepare binary and categorical variables
+### Data preparation for models
+
+First, we'll do some slight recoding of the variables.
 
 ```{r prepare-variables-real}
 
@@ -1395,11 +1397,7 @@ drp_sample = drp_sample %>% ungroup() %>%
 
 ```
 
-***
-
-### Create standardized dataframes
-
-Let's create new dataframe with all standardized variables. This allows us 
+Next, we'll create new dataframe with all standardized variables. This allows us 
 to interpret the resulting model estimates as effect sizes (see Keith, 2005, 
 *Multiple regression and beyond*).
 
@@ -1431,22 +1429,22 @@ based on conversational context (when accounting for conversation number)?
 ```{r model-h2-crqa-raw}
 
 # does linguistic style matching change based on the conversational context?
-h2_analyses <- lm(RR ~ cond + conv.no, 
-                  data = crqa_real)
+h2_analyses_rr <- lm(RR ~ cond + conv.no, 
+                     data = crqa_real)
 
 ```
 
 ```{r silently-print-h2-crqa-summary, eval=TRUE, echo=FALSE}
 
 # print summary table
-summary(h2_analyses)
+summary(h2_analyses_rr)
 
 ```
 
 ```{r silently-print-h2-crqa-table, eval=TRUE, echo=FALSE}
 
 # neatly print output
-pander_lme(h2_analyses)
+pander_lme(h2_analyses_rr)
 
 ```
 
