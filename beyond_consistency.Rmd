@@ -1342,18 +1342,16 @@ crqa_partner_shuffle = crqa_partner_shuffle %>% ungroup() %>%
   
   # convert variables to factor
   mutate(condition = as.factor(condition),
-         speaker_A = as.factor(speaker_A),
-         speaker_B = as.factor(speaker_B),
+         dyad_id = paste0(speaker_A, '_', speaker_B),
          conv.no = as.factor(conv.no))
 
 ```
 
-
 ***
-  
-  ### Data preparation: DRP models
-  
-  We'll also need prepare for the models using diagonal recurrence profiles.
+
+### Data preparation: DRP models
+
+We'll also need prepare for the models using diagonal recurrence profiles.
 
 ```{r prepare-drp-variables-real}
 
