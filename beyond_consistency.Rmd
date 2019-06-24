@@ -98,7 +98,7 @@ mon_dfs = mon_dfs %>%
 split_mon = split(mon_dfs, list(mon_dfs$Filename))
 
 # cycle through the individual monologues
-crqa_mon = data.frame()
+rqa_mon = data.frame()
 for (next_mon in split_mon){
   
   # run (auto-)recurrence
@@ -125,7 +125,7 @@ for (next_mon in split_mon){
                               conv.type,
                               cond,
                               rqa_for_mon[1:9])
-  crqa_mon = rbind.data.frame(crqa_mon,next_data_line)
+  rqa_mon = rbind.data.frame(rqa_mon,next_data_line)
   
   # save the RPs
   png(filename = paste0('./figures/h1-rqa/rp-speaker_',speaker_code,'-monologue.png'))
@@ -184,10 +184,10 @@ conv_dfs = conv_dfs %>%
 split_conv = split(conv_dfs, list(conv_dfs$Filename))
 
 # cycle through the individual conversations
-crqa_conv = data.frame()
+rqa_conv = data.frame()
 for (next_conv in split_conv){
   
-  # run cross-recurrence
+  # run recurrence
   rqa_for_conv = crqa(ts1=next_conv$function_words,
                       ts2=next_conv$function_contrast,
                       delay=1,
@@ -211,7 +211,7 @@ for (next_conv in split_conv){
                               conv.type,
                               cond,
                               rqa_for_conv[1:9])
-  crqa_conv = rbind.data.frame(crqa_conv,next_data_line)
+  rqa_conv = rbind.data.frame(rqa_conv,next_data_line)
   
   # save the RPs
   png(filename = paste0('./figures/h1-rqa/rp-speaker_',speaker_code,'-conversation.png'))
@@ -230,7 +230,7 @@ for (next_conv in split_conv){
 ```{r create-h1-dataframe}
 
 # bring together the monologue and conversation data
-h1_data = rbind(crqa_mon, crqa_conv)
+h1_data = rbind(rqa_mon, rqa_conv)
 
 #save results to file
 write.table(h1_data,'./data/h1_data.csv',sep=",")
@@ -339,7 +339,7 @@ for (next_conv in split_conv){
 
 # cycle through all the dyads
 speaker_list = unique(monologue_baseline$speaker_code)
-crqa_mon_sur = data.frame()
+rqa_mon_sur = data.frame()
 for (next_speaker in speaker_list){
   
   # get the next participant's data
@@ -380,7 +380,7 @@ for (next_speaker in speaker_list){
                                 cond,
                                 run_id,
                                 rqa_sample_mon[1:9])
-    crqa_mon_sur = rbind.data.frame(crqa_mon_sur,next_data_line)
+    rqa_mon_sur = rbind.data.frame(rqa_mon_sur,next_data_line)
   }
 }
 
@@ -395,7 +395,7 @@ for (next_speaker in speaker_list){
 
 # cycle through all the dyads
 speaker_list = unique(conversation_baseline$speaker_code)
-crqa_conv_sur = data.frame()
+rqa_conv_sur = data.frame()
 for (next_speaker in speaker_list){
   
   # get the next participant's data
@@ -436,7 +436,7 @@ for (next_speaker in speaker_list){
                                 cond,
                                 run_id,
                                 rqa_sample_con[1:9])
-    crqa_conv_sur = rbind.data.frame(crqa_conv_sur,next_data_line)
+    rqa_conv_sur = rbind.data.frame(rqa_conv_sur,next_data_line)
   }
 }
 
@@ -449,7 +449,7 @@ for (next_speaker in speaker_list){
 ```{r}
 
 # add surrogate DET to h1_data
-h1_data_sur = rbind(crqa_mon_sur, crqa_conv_sur)
+h1_data_sur = rbind(rqa_mon_sur, rqa_conv_sur)
 
 #save results to file
 write.table(h1_data_sur,'./data/h1_data-surrogate.csv',sep=",")
@@ -495,12 +495,13 @@ pander_lme(h1_analyses)
 ### Post-hoc analysis: Changes by conversation type
 
 Next, we will do a post-hoc analysis to see how language style differs from the
-monologues based on each condition (i.e., cooperative versus conflict).
+monologues based on each condition (i.e., cooperative versus conflict). To do 
+that, we need to do some additional data preparation.
 
 ```{r post-hoc-h1-prep}
 
-#Preparing data for Post-hoc analyses - Bring data into wide format to calculate Diff_DET
-crqa_mon_post = crqa_mon %>%
+# Preparing data for Post-hoc analyses - Bring data into wide format to calculate Diff_DET
+rqa_mon_post = rqa_mon %>%
   dplyr::rename(conv.type_m = conv.type,
                 RR_m = RR,
                 DET_m = DET,
@@ -511,7 +512,7 @@ crqa_mon_post = crqa_mon %>%
                 rENTR_m = rENTR,
                 LAM_m = LAM,
                 TT_m = TT) 
-crqa_conv_post = crqa_conv  %>%
+rqa_conv_post = rqa_conv  %>%
   dplyr::rename(conv.type_c = conv.type,
                 cond_c = cond,
                 RR_c = RR,
@@ -523,19 +524,21 @@ crqa_conv_post = crqa_conv  %>%
                 rENTR_c = rENTR,
                 LAM_c = LAM,
                 TT_c = TT) 
-h1_post = full_join(crqa_mon_post, crqa_conv_post,
-                    by=c("dyad_id", "speaker_code"))
 
 # Calculate Diff_DET
-h1_post_hoc = h1_post %>%
+h1_post = full_join(rqa_mon_post, rqa_conv_post,
+                    by=c("dyad_id", "speaker_code")) %>%
   mutate(Diff_DET = DET_m - DET_c)
+
+# clean up what we don't need
+rm(rqa_mon_post, rqa_conv_post)
 
 ```
 
 ```{r h1-post-sur-prep}
 
 #Preparing data for Post-hoc analyses - Bring data into wide format to calculate Diff_DET
-crqa_mon_sur_post = crqa_mon_sur %>%
+rqa_mon_sur_post = rqa_mon_sur %>%
   dplyr::rename(conv.type_m = conv.type,
                 RR_m = RR,
                 DET_m = DET,
@@ -546,7 +549,7 @@ crqa_mon_sur_post = crqa_mon_sur %>%
                 rENTR_m = rENTR,
                 LAM_m = LAM,
                 TT_m = TT) 
-crqa_conv_sur_post = crqa_conv_sur  %>%
+rqa_conv_sur_post = rqa_conv_sur  %>%
   dplyr::rename(conv.type_c = conv.type,
                 cond_c = cond,
                 RR_c = RR,
