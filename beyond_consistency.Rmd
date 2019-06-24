@@ -948,7 +948,7 @@ partner_wise_baseline = read.csv('./scripts/partner_wise_baseline-partner_IDs.cs
 
 ***
 
-### DRPs: Sample-wise shuffled baseline
+### DRP: Sample-wise shuffled baseline
 
 This form of surrogate time series will be used for the DRPs, but it is not
 suitable for estimating overall RR (or %REC) that might be expected by chance.
@@ -1323,7 +1323,7 @@ crqa_real = crqa_real %>% ungroup() %>%
 
 ```
 
-```{r}
+```{r prepare-crqa-variables-baseline}
 
 # prepare real data dataframe
 crqa_partner_shuffle = crqa_partner_shuffle %>% ungroup() %>%
@@ -1344,10 +1344,10 @@ crqa_partner_shuffle = crqa_partner_shuffle %>% ungroup() %>%
 
 
 ***
-
-### Data preparation: DRP models
-
-We'll also need prepare for the models using diagonal recurrence profiles.
+  
+  ### Data preparation: DRP models
+  
+  We'll also need prepare for the models using diagonal recurrence profiles.
 
 ```{r prepare-drp-variables-real}
 
@@ -1387,7 +1387,7 @@ drp_sample = drp_sample %>% ungroup() %>%
 
 ***
 
-### Analyses of plot-level CRQA metrics
+### CRQA: Analyses of system-level dynamics
 
 First, do we see differences in the overall amount of recurrence in the plot
 based on conversational context (when accounting for conversation number)?
@@ -1420,7 +1420,7 @@ cross-recurrence plots, there are vastly different visual "textures" by
 conversation. To quantify these differences, let's look at three metrics:
 the number of lines on the plot (`NRLINE`), normalized entropy (`rENTR`,
 which accounts for the number of lines in the plot), and percent determinism 
-(`DET`).
+(`DET`, which accounts for the structure of the points in the plot).
 
 ```{r model-h2-crqa-nrline-raw}
 
@@ -1490,11 +1490,6 @@ pander_lme(h2_analyses_det)
 
 ***
 
-### Analyses of diagonal recurrence profiles
-
-We now create a linear mixed-effects model to gauge how linear lag (`ot1`) and
-quadratic lag (`ot2`) interact with condition (`condition`) to influence 
-Language Style Matching (`rr`). We present both standardized and raw models below.
 
 ```{r model-h2-drp-standardized}
 
@@ -1521,7 +1516,7 @@ pander_lme(H2_st)
 
 ```
 
-```{r plot-aggregate-real-st-drps, echo=FALSE}
+### DRP: Analyses of moment-to-moment dynamics
 
 # what do these DRPs look like?
 ggplot(data=drp_real,
@@ -1532,29 +1527,29 @@ ggplot(data=drp_real,
 
 ```
 
-```{r model-h2-drp-raw-real}
+```{r model-h2-drp-real}
 
-# raw maximal random-effects model
-H2_raw = lmer(rr ~ conv.no + condition * ot1 * ot2 + (1 | dyad_id), 
+# maximal random-effects model
+H2_drp = lmer(rr ~ conv.no + condition * ot1 * ot2 + (1 | dyad_id), 
               data=drp_real, REML=FALSE)
 
 ```
 
-```{r silently-print-h2-real-raw-drp-summary, echo=FALSE}
+```{r silently-print-h2-real-drp-summary, echo=FALSE}
 
 # print summary table
-summary(H2_raw)
+summary(H2_drp)
 
 ```
 
-```{r silently-print-h2-raw-drp-table, echo=FALSE}
+```{r silently-print-h2-real-drp-table, echo=FALSE}
 
 # neatly print output
-pander_lme(H2_raw)
+pander_lme(H2_drp)
 
 ```
 
-```{r plot-aggregate-real-raw-drps, echo=FALSE}
+```{r plot-aggregate-h2-real-drps, echo=FALSE}
 
 # what do these DRPs look like?
 ggplot(data=drp_real,
@@ -1679,35 +1674,35 @@ ggplot(data=drp_sample,
 
 ```{r model-h2-drp-raw-samplewise, eval=FALSE}
 
-# raw maximal random-effects model
-H2_sample_raw = lmer(
+# maximal random-effects model
+H2_drp_baseline = lmer(
   rr ~ conv.no + condition * ot1 * ot2 + 
     (1 | dyad_id), 
-  data=drp_sample, REML=FALSE
+  data=drp_sample_shuffle, REML=FALSE
 )
 
 ## AP: Getting `lengths differ` error for `dyad_id`
 
 ```
 
-```{r silently-print-h2-samplewise-raw-drp-summary, eval=FALSE, echo=FALSE}
+```{r silently-print-h2-samplewise-drp-summary, eval=FALSE, echo=FALSE}
 
 # print summary table
-summary(H2_sample_raw)
+summary(H2_drp_baseline)
 
 ```
 
-```{r silently-print-h2-samplewise-real-drp-table, eval=FALSE, echo=FALSE}
+```{r silently-print-h2-samplewise-drp-table, eval=FALSE, echo=FALSE}
 
 # neatly print output
-pander_lme(H2_sample_raw)
+pander_lme(H2_drp_baseline)
 
 ```
 
-```{r plot-aggregate-samplewise-real-drps, echo=FALSE}
+```{r plot-aggregate-samplewise-drps, echo=FALSE}
 
 # what do these DRPs look like?
-ggplot(data=drp_sample,
+ggplot(data=drp_sample_shuffle,
        aes(y=rr, 
            x=raw,
            colour=as.factor(condition))) +
