@@ -308,17 +308,23 @@ pander_lme(h1_analyses)
 
 ```
 
+As predicted, we do see a difference in linguistic style between conversations
+and monologues. Specifically, we find that conversations tend to have more
+structure in their use of function words than monologues do.
+
+Next, we'll do some post-hoc analyses to explore whether these changes depend
+on the kind of conversation that participants have (i.e., personal 
+versus conflict).
+
 ***
 
-### Post-hoc analysis: Changes by conversation type
+### Post-hoc analyses: Data preparation
 
-Next, we will do a post-hoc analysis to see how language style differs from the
-monologues based on each condition (i.e., cooperative versus conflict). To do 
-that, we need to do some additional data preparation.
+First, we'll need to prepare the data by converting it from long- to wide-form.
 
 ```{r post-hoc-h1-prep}
 
-# Preparing data for Post-hoc analyses - Bring data into wide format to calculate Diff_DET
+# Preparing data for Post-hoc analyses - Bring data into wide format
 rqa_mon_post = rqa_mon %>%
   dplyr::rename(conv.type_m = conv.type,
                 RR_m = RR,
@@ -343,91 +349,141 @@ rqa_conv_post = rqa_conv  %>%
                 LAM_c = LAM,
                 TT_c = TT) 
 
-# Calculate Diff_DET
-h1_post = full_join(rqa_mon_post, rqa_conv_post,
+# Calculate difference scores
+h1_post_hoc = full_join(rqa_mon_post, rqa_conv_post,
                     by=c("dyad_id", "speaker_code")) %>%
-  mutate(Diff_DET = DET_m - DET_c)
+  mutate(Diff_RR = RR_m - RR_c,           # positive means higher RR in mon
+         Diff_DET = DET_m - DET_c,        # positive means more DET in mon
+         Diff_rENTR = rENTR_m - rENTR_c)  # positive means more line diversity in mon 
 
 # clean up what we don't need
 rm(rqa_mon_post, rqa_conv_post)
 
 ```
 
-```{r post-hoc-h1-model}
+***
 
-# do changes in linguistic style between monologues and dialogues
-# differ by conversation type?
-h1_analyses_post = lm(Diff_DET ~ cond_c, data = h1_post_hoc)
+### Post-hoc analysis: Recurrence rate
+
+```{r post-hoc-h1-rr-model}
+
+# do changes in linguistic style between monologues and dialogues differ by 
+# conversation type?
+h1_analyses_post_RR = lm(Diff_RR ~ cond_c, 
+                      data = h1_post_hoc)
 
 ```
 
-```{r silently-print-posthoc-h1-summary, eval=TRUE, echo=FALSE}
+```{r silently-print-post-hoc-h1-rr-summary, eval=TRUE, echo=FALSE}
 
 # print summary table
-summary(h1_analyses_post)
+summary(h1_analyses_post_RR)
 
 ```
 
-```{r silently-print-posthoc-h1-table, eval=FALSE}
+```{r silently-print-posthoc-h1-rr-table, eval=FALSE}
 
 # neatly print output
-pander_lme(h1_analyses_post)
+pander_lme(h1_analyses_post_RR)
+
 ```
 
+We do see that there are significant effects in the change in the overall
+amount of recurrence (RR) by conversation: The change in language style from
+monologues to conversation is significantly *greater* when having a friendly
+conversation about personal topics (compared to having a conflict conversation
+about political topics). In other words, people are *more likely* to change their
+langauge style when having a friendly conversation as compared to an argument.
 
-```{r silently-plot-h1-post-trend-data, echo=FALSE}
+```{r silently-plot-h1-post-rr-data, echo=FALSE}
 
-qplot(data=h1_post_hoc, x=DET_m, y=DET_c, colour=cond_c) + 
+qplot(data=h1_post_hoc, x=RR_m, y=RR_c, colour=cond_c) +
   geom_abline()
 
 ```
 
-It looks as though there might be outliers in the data. Let's confirm with
-a boxplot.
+***
 
-```{r silently-plot-h1-post-outliers, echo=FALSE}
+### Post-hoc analysis: Determinism
 
-qplot(data=h1_post_hoc, y=Diff_DET, geom="boxplot")
+```{r post-hoc-h1-det-model}
 
-```
-
-How might the model change if we remove the outliers?
-
-```{r post-hoc-h1-remove-outliers}
-
-# remove outliers based on boxplot
-h1_post_no_outliers = h1_post_hoc %>% 
-  dplyr::filter(Diff_DET > -40 & Diff_DET < 20)
-
-```
-
-```{r post-hoc-h1-model-without-outliers}
-
-# do changes in linguistic style between monologues and dialogues
+# do changes in structure of linguistic style between monologues and dialogues 
 # differ by conversation type?
-h1_analyses_post_no_outliers = lm(Diff_DET ~ cond_c, data = h1_post_no_outliers)
+h1_analyses_post_DET = lm(Diff_DET ~ cond_c, 
+                      data = h1_post_hoc)
 
 ```
 
-```{r silently-print-h1-post-hoc-summary-without-outliers, eval=TRUE, echo=FALSE}
+```{r silently-print-post-hoc-h1-det-summary, eval=TRUE, echo=FALSE}
 
 # print summary table
-summary(h1_analyses_post_no_outliers)
+summary(h1_analyses_post_DET)
 
 ```
 
-```{r silently-print-h1-post-hoc-table-without-outliers, eval=TRUE, echo=FALSE}
+```{r silently-print-posthoc-h1-det-table, eval=FALSE}
 
 # neatly print output
-pander_lme(h1_analyses_post_no_outliers)
+pander_lme(h1_analyses_post_DET)
 
 ```
 
-It appears that---with 3 outlying datapoints removed---we now find an effect
-of conversation type. This suggests that there may, indeed, be systematic
-changes in speakers' linguistic styles from monologues to conversations
-based on the type of conversation that they're having. However, the results
-here are tentative and must be further investigated in future work.
+We also see that there are significant effects in the change in the determinism
+(DET) by conversation---in other words, the structure in the patterns of 
+recurrence. Specifically, we see that the change in language style structure 
+from monologues to conversation is significantly *greater* when followed by a 
+friendly conversation (compared to a conflict conversation). In other words, 
+people are *more likely* to change the structure in their langauge style when 
+having a friendly conversation as compared to an argumentative one---consistent
+with the results found in the post-hoc analysis of RR.
+
+```{r silently-plot-h1-post-det-data, echo=FALSE}
+
+qplot(data=h1_post_hoc, x=DET_m, y=DET_c, colour=cond_c) +
+  geom_abline()
+
+```
+
+***
+
+### Post-hoc analysis: Normalized entropy
+
+```{r post-hoc-h1-rentr-model}
+
+# do changes in uniformity of structure of linguistic style between monologues 
+# and dialogues differ by conversation type?
+h1_analyses_post_rENTR = lm(Diff_rENTR ~ cond_c, 
+                      data = h1_post_hoc)
+
+```
+
+```{r silently-print-post-hoc-h1-rentr-summary, eval=TRUE, echo=FALSE}
+
+# print summary table
+summary(h1_analyses_post_rENTR)
+
+```
+
+```{r silently-print-posthoc-h1-rentr-table, eval=FALSE}
+
+# neatly print output
+pander_lme(h1_analyses_post_rENTR)
+
+```
+
+Unlike RR and DET, we do not see a difference in normalized entropy by 
+conversation type. Normalized entropy essentially captures the degree to which
+the structure of the line lengths are uniform (i.e., lower variety in line
+lengths means lower `rENTR`) or more heterogenous (i.e., higher variety in line
+lengths means higher `rENTR`).
+
+```{r silently-plot-h1-post-retnr-data, echo=FALSE}
+
+qplot(data=h1_post_hoc, x=rENTR_m, y=rENTR_c, colour=cond_c) +
+  geom_abline()
+
+```
 
 ***
 
