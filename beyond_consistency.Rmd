@@ -126,6 +126,13 @@ for (next_mon in split_mon){
                               cond,
                               rqa_for_mon[1:9])
   crqa_mon = rbind.data.frame(crqa_mon,next_data_line)
+  
+  # save the RPs
+  png(filename = paste0('./figures/h1-rqa/rp-speaker_',speaker_code,'-monologue.png'))
+  plotRP(rqa_for_mon$RP, 
+         list(unit = 2, labelx = "Speaker A", labely = "Speaker A", 
+              cols = "black", pcex = .5))
+  dev.off()
 }
 
 ```
@@ -190,7 +197,7 @@ for (next_conv in split_conv){
                       rescale=0,
                       mindiagline=2,
                       minvertline=2,
-                      tw=0,
+                      tw=1, # exclude line of identity
                       whiteline=FALSE,
                       recpt=FALSE)
   
@@ -205,6 +212,13 @@ for (next_conv in split_conv){
                               cond,
                               rqa_for_conv[1:9])
   crqa_conv = rbind.data.frame(crqa_conv,next_data_line)
+  
+  # save the RPs
+  png(filename = paste0('./figures/h1-rqa/rp-speaker_',speaker_code,'-conversation.png'))
+  plotRP(rqa_for_conv$RP, 
+         list(unit = 2, labelx = "Speaker A", labely = "Speaker A", 
+              cols = "black", pcex = .5))
+  dev.off()
 }
 
 ```
@@ -976,7 +990,16 @@ for (next_conv in split_conv){
                                 cond,
                                 conv.no,
                                 crqa_for_conv[1:9])
-    crqa_real = rbind.data.frame(crqa_real,next_data_line)}
+    crqa_real = rbind.data.frame(crqa_real,next_data_line)
+    
+    # plot the CRPs
+    png(filename = paste0('./figures/h2-crqa/crp-dyad_',dyad_id,'-cond_',cond,'.png'))
+    plotRP(crqa_for_conv$RP, 
+           list(unit = 2, labelx = "Speaker A", labely = "Speaker B", 
+                cols = "black", pcex = .5))
+    dev.off()
+    
+  }
 }
 
 ```
@@ -1047,23 +1070,23 @@ for (next_conv in split_h2) {
              conv.no = conv.no,
              data_type = data_type)
     
-    # # get the mean RR for the left side of the plot
-    # mean_left_rr = drps %>%
-    #   dplyr::filter(raw < 0) %>% 
-    #   summarize(mean_rr = mean(rr)) %>%
-    #   .$mean_rr
-    # 
-    # # get the mean RR for the right side of the plot
-    # mean_right_rr = drps %>%
-    #   dplyr::filter(raw > 0) %>% 
-    #   summarize(mean_rr = mean(rr)) %>%
-    #   .$mean_rr
-    # 
-    # # flip arrangement if leader is not on left
-    # if (mean_left_rr < mean_right_rr) {
-    #   drps = drps %>%
-    #     mutate(rr = rev(rr))
-    # }
+    # get the mean RR for the left side of the plot
+    mean_left_rr = drps %>%
+      dplyr::filter(raw < 0) %>%
+      summarize(mean_rr = mean(rr)) %>%
+      .$mean_rr
+    
+    # get the mean RR for the right side of the plot
+    mean_right_rr = drps %>%
+      dplyr::filter(raw > 0) %>%
+      summarize(mean_rr = mean(rr)) %>%
+      .$mean_rr
+    
+    # flip arrangement if leader is not on left
+    if (mean_left_rr < mean_right_rr) {
+      drps = drps %>%
+        mutate(rr = rev(rr))
+    }
     
     # append to dataframe
     drp_real = rbind.data.frame(drp_real, drps)
@@ -1182,23 +1205,23 @@ for (fake_dyad in 1:nrow(partner_wise_baseline)){
                cond = cond,
                conv.no = next_conv)
       
-      # # get the mean RR for the left side of the plot
-      # mean_left_rr = next_data %>%
-      #   dplyr::filter(raw < 0) %>% 
-      #   summarize(mean_rr = mean(rr)) %>%
-      #   .$mean_rr
-      # 
-      # # get the mean RR for the right side of the plot
-      # mean_right_rr = next_data %>%
-      #   dplyr::filter(raw > 0) %>% 
-      #   summarize(mean_rr = mean(rr)) %>%
-      #   .$mean_rr
-      # 
-      # # flip arrangement if leader is not on left
-      # if (mean_left_rr < mean_right_rr) {
-      #   next_data = next_data %>%
-      #     mutate(rr = rev(rr))
-      # }
+      # get the mean RR for the left side of the plot
+      mean_left_rr = next_data %>%
+        dplyr::filter(raw < 0) %>%
+        summarize(mean_rr = mean(rr)) %>%
+        .$mean_rr
+      
+      # get the mean RR for the right side of the plot
+      mean_right_rr = next_data %>%
+        dplyr::filter(raw > 0) %>%
+        summarize(mean_rr = mean(rr)) %>%
+        .$mean_rr
+      
+      # flip arrangement if leader is not on left
+      if (mean_left_rr < mean_right_rr) {
+        next_data = next_data %>%
+          mutate(rr = rev(rr))
+      }
       
       # save to overall dataframe
       drp_partner = rbind.data.frame(drp_partner, next_data)
@@ -1253,23 +1276,23 @@ for (next_dyad in dyad_list){
                  conv.no = next_conv, 
                  dyad = next_dyad)
         
-        # # get the mean RR for the left side of the plot
-        # mean_left_rr = next_data %>%
-        #   dplyr::filter(raw < 0) %>% 
-        #   summarize(mean_rr = mean(rr)) %>%
-        #   .$mean_rr
-        # 
-        # # get the mean RR for the right side of the plot
-        # mean_right_rr = next_data %>%
-        #   dplyr::filter(raw > 0) %>% 
-        #   summarize(mean_rr = mean(rr)) %>%
-        #   .$mean_rr
-        # 
-        # # flip arrangement if leader is not on left
-        # if (mean_left_rr < mean_right_rr) {
-        #   next_data = next_data %>%
-        #     mutate(rr = rev(rr))
-        # }
+        # get the mean RR for the left side of the plot
+        mean_left_rr = next_data %>%
+          dplyr::filter(raw < 0) %>%
+          summarize(mean_rr = mean(rr)) %>%
+          .$mean_rr
+        
+        # get the mean RR for the right side of the plot
+        mean_right_rr = next_data %>%
+          dplyr::filter(raw > 0) %>%
+          summarize(mean_rr = mean(rr)) %>%
+          .$mean_rr
+        
+        # flip arrangement if leader is not on left
+        if (mean_left_rr < mean_right_rr) {
+          next_data = next_data %>%
+            mutate(rr = rev(rr))
+        }
         
         # save to overall dataframe
         drp_sample = rbind.data.frame(drp_sample, next_data)
@@ -1295,9 +1318,9 @@ drp_real = drp_real %>% ungroup() %>%
                c("cond"="condition")) %>%
   
   # recode "condition" values to be -.5 and +.5
-  mutate(condition = dplyr::if_else(condition=="K",
-                                    -.5,
-                                    .5))%>%
+  mutate(condition = dplyr::if_else(condition=="P",
+                                    -.5,      # personal = -.5
+                                    .5)) %>%  # conflict = .5
   
   # first-order polynomials
   mutate(condition.ot1 = condition * ot1) %>%
@@ -1307,7 +1330,10 @@ drp_real = drp_real %>% ungroup() %>%
   
   # polynomial interactions
   mutate(ot1.ot2 = ot1 * ot2) %>%
-  mutate(condition.ot1.ot2 = condition * ot1 * ot2)
+  mutate(condition.ot1.ot2 = condition * ot1 * ot2) %>%
+  
+  # convert condition to factor
+  mutate(condition = as.factor(condition))
 
 ```
 
@@ -1319,9 +1345,9 @@ drp_partner = drp_partner %>% ungroup() %>%
                c("cond"="condition")) %>%
   
   # recode "condition" values to be -.5 and +.5
-  mutate(condition = dplyr::if_else(condition=="K",
-                                    -.5,
-                                    .5))%>%
+  mutate(condition = dplyr::if_else(condition=="P",
+                                    -.5,      # personal = -.5
+                                    .5)) %>%  # conflict = .5
   
   # first-order polynomials
   mutate(condition.ot1 = condition * ot1) %>%
@@ -1335,7 +1361,10 @@ drp_partner = drp_partner %>% ungroup() %>%
   
   # convert to speakers to factors for appropriate numeric transform
   mutate(speaker_A = as.numeric(as.factor(speaker_A))) %>%
-  mutate(speaker_B = as.numeric(as.factor(speaker_B)))
+  mutate(speaker_B = as.numeric(as.factor(speaker_B))) %>%
+  
+  # convert condition to factor
+  mutate(condition = as.factor(condition))
 
 ```  
 
@@ -1347,9 +1376,9 @@ drp_sample = drp_sample %>% ungroup() %>%
                c("cond"="condition")) %>%
   
   # recode "condition" values to be -.5 and +.5
-  mutate(condition = dplyr::if_else(condition=="K",
-                                    -.5,
-                                    .5))%>%
+  mutate(condition = dplyr::if_else(condition=="P",
+                                    -.5,      # personal = -.5
+                                    .5)) %>%  # conflict = .5
   
   # first-order polynomials
   mutate(condition.ot1 = condition * ot1) %>%
@@ -1359,7 +1388,10 @@ drp_sample = drp_sample %>% ungroup() %>%
   
   # polynomial interactions
   mutate(ot1.ot2 = ot1 * ot2) %>%
-  mutate(condition.ot1.ot2 = condition * ot1 * ot2)
+  mutate(condition.ot1.ot2 = condition * ot1 * ot2) %>%
+  
+  # convert condition to factor
+  mutate(condition = as.factor(condition))
 
 ```
 
@@ -1393,10 +1425,14 @@ drp_sample_st = mutate_each(drp_sample,
 
 ### Analyses of plot-level CRQA metrics
 
+First, do we see differences in the overall amount of recurrence in the plot
+based on conversational context (when accounting for conversation number)?
+
 ```{r model-h2-crqa-raw}
 
 # does linguistic style matching change based on the conversational context?
-h2_analyses <- lm(RR ~ cond + conv.no, data = crqa_real) 
+h2_analyses <- lm(RR ~ cond + conv.no, 
+                  data = crqa_real)
 
 ```
 
@@ -1415,13 +1451,18 @@ pander_lme(h2_analyses)
 ```
 
 We don't see a difference by overall amounts of recurrence, but what about
-differences in the structure of the recurrence? Let's look at two metrics:
-the number of lines on the plot (`NRLINE`) and determinism (`DET`).
+differences in the structure of the recurrence? From looking at the 
+cross-recurrence plots, there are vastly different visual "textures" by
+conversation. To quantify these differences, let's look at three metrics:
+the number of lines on the plot (`NRLINE`), normalized entropy (`rENTR`,
+which accounts for the number of lines in the plot), and percent determinism 
+(`DET`).
 
 ```{r model-h2-crqa-nrline-raw}
 
-# does linguistic style matching change based on the conversational context?
-h2_analyses_nrline <- lm(NRLINE ~ cond, data = crqa_real) #conv.type
+# does the structure of language style matching change by context?
+h2_analyses_nrline <- lm(NRLINE ~ cond + conv.no, 
+                         data = crqa_real)
 
 ```
 
@@ -1439,24 +1480,47 @@ pander_lme(h2_analyses_nrline)
 
 ```
 
-```{r model-h2-crqa-entr-raw}
+```{r model-h2-crqa-rentr-raw}
 
-# does linguistic style matching change based on the conversational context?
-h2_analyses_determinism <- lm(DET ~ cond, data = crqa_real)
+# does the heterogeneity of structure of LSM change by context?
+h2_analyses_entropy <- lm(rENTR ~ cond + conv.no, 
+                          data = crqa_real)
+
+```
+
+```{r silently-print-h2-crqa-rentr-summary, eval=TRUE, echo=FALSE}
+
+# print summary table
+summary(h2_analyses_entropy)
+
+```
+
+```{r silently-print-h2-crqa-rentr-table, eval=TRUE, echo=FALSE}
+
+# neatly print output
+pander_lme(h2_analyses_entropy)
+
+```
+
+```{r model-h2-crqa-det-raw}
+
+# does the proportion of recurrent structures in LSM change by context?
+h2_analyses_det <- lm(DET ~ cond + conv.no, 
+                      data = crqa_real)
 
 ```
 
 ```{r silently-print-h2-crqa-det-summary, eval=TRUE, echo=FALSE}
 
 # print summary table
-summary(h2_analyses_determinism)
+summary(h2_analyses_det)
 
 ```
 
-```{r silently-print-h2-crqa-entr-table, eval=TRUE, echo=FALSE}
+```{r silently-print-h2-crqa-det-table, eval=TRUE, echo=FALSE}
 
 # neatly print output
-pander_lme(h2_analyses_determinism)
+pander_lme(h2_analyses_det)
 
 ```
 
@@ -1464,26 +1528,29 @@ pander_lme(h2_analyses_determinism)
 
 ### Analyses of diagonal recurrence profiles
 
-We now create a linear mixed-effects model to gauge how linear lag (`ot1`) and quadratic lag (`ot2`) interact with condition (`condition`) to influence Language Style Matching (`rr`). We present both standardized and raw models below.
+We now create a linear mixed-effects model to gauge how linear lag (`ot1`) and
+quadratic lag (`ot2`) interact with condition (`condition`) to influence 
+Language Style Matching (`rr`). We present both standardized and raw models below.
 
 ```{r model-h2-drp-standardized}
 
 # standardized maximal random-effects model
 H2_st = lmer(
   rr ~ condition + conv.no + ot1 + ot2 + 
-    ot1.ot2 + condition.ot1 + condition.ot2 + condition.ot1.ot2 + 
-    (1 | dyad_id), data=drp_real_st, REML=FALSE)
+    ot1.ot2 + condition.ot1 + condition.ot2 + condition.ot1.ot2 +
+    (1 | dyad_id), 
+  data=drp_real_st)
 
 ```
 
-```{r silently-print-h2-st-drp-summary, eval=TRUE, echo=FALSE}
+```{r silently-print-h2-st-drp-summary, echo=FALSE}
 
 # print summary table
 summary(H2_st)
 
 ```
 
-```{r silently-print-h2-st-real-drp-table, eval=TRUE, echo=FALSE}
+```{r silently-print-h2-st-real-drp-table, echo=FALSE}
 
 # neatly print output
 pander_lme(H2_st)
@@ -1493,7 +1560,7 @@ pander_lme(H2_st)
 ```{r plot-aggregate-real-st-drps, echo=FALSE}
 
 # what do these DRPs look like?
-ggplot(data=drp_real_st,
+ggplot(data=drp_real,
        aes(y=rr, 
            x=raw,
            colour=as.factor(condition))) +
@@ -1504,19 +1571,19 @@ ggplot(data=drp_real_st,
 ```{r model-h2-drp-raw-real}
 
 # raw maximal random-effects model
-H2_raw = lmer(rr ~ condition + conv.no + ot1 + ot2 + ot1.ot2 + condition.ot1 + condition.ot2 + condition.ot1.ot2 + (1 | dyad_id), data=drp_real, REML=FALSE)
+H2_raw = lmer(rr ~ conv.no + condition * ot1 * ot2 + (1 | dyad_id), 
+              data=drp_real, REML=FALSE)
 
 ```
 
-
-```{r silently-print-h2-real-raw-drp-summary, eval=TRUE, echo=FALSE}
+```{r silently-print-h2-real-raw-drp-summary, echo=FALSE}
 
 # print summary table
 summary(H2_raw)
 
 ```
 
-```{r silently-print-h2-raw-drp-table, eval=TRUE, echo=FALSE}
+```{r silently-print-h2-raw-drp-table, echo=FALSE}
 
 # neatly print output
 pander_lme(H2_raw)
@@ -1536,21 +1603,27 @@ ggplot(data=drp_real,
 
 ```{r model-h2-drp-st-partnerwise}
 
-# raw maximal random-effects model
-H2_partner_st = lmer(rr ~ condition + conv.no + ot1 + ot2 + ot1.ot2 + condition.ot1 + condition.ot2 + condition.ot1.ot2 + (1 | speaker_A) + (1 | speaker_B), data=drp_partner_st, REML=FALSE)
+# standardized maximal random-effects model
+H2_partner_st = lmer(
+  rr ~ condition + conv.no + ot1 + ot2 + 
+    ot1.ot2 + condition.ot1 + condition.ot2 + condition.ot1.ot2 +
+    (1 | speaker_A) + (1 | speaker_B), 
+  data=drp_partner_st, REML=FALSE
+)
 
-#LMF: I added speaker_A  and speaker_B instead of dyad_id as random effect, but wasn't     sure about it.     
+#LMF: I added speaker_A  and speaker_B instead of dyad_id as random effect, but wasn't sure about it.     
+## AP: Perfect!
 
 ```
 
-```{r silently-print-h2-partnerwise-st-drp-summary, eval=TRUE, echo=FALSE}
+```{r silently-print-h2-partnerwise-st-drp-summary, echo=FALSE}
 
 # print summary table
 summary(H2_partner_st)
 
 ```
 
-```{r silently-print-h2-partnerwise-st-drp-table, eval=TRUE, echo=FALSE}
+```{r silently-print-h2-partnerwise-st-drp-table, echo=FALSE}
 
 # neatly print output
 pander_lme(H2_partner_st)
@@ -1560,7 +1633,7 @@ pander_lme(H2_partner_st)
 ```{r plot-aggregate-partnerwise-st-drps, echo=FALSE}
 
 # what do these DRPs look like?
-ggplot(data=drp_partner_st,
+ggplot(data=drp_partner,
        aes(y=rr, 
            x=raw,
            colour=as.factor(condition))) +
@@ -1571,21 +1644,25 @@ ggplot(data=drp_partner_st,
 ```{r model-h2-drp-raw-partnerwise}
 
 # raw maximal random-effects model
-H2_partner = lmer(rr ~ condition + conv.no + ot1 + ot2 + ot1.ot2 + condition.ot1 + condition.ot2 + condition.ot1.ot2 + (1 | speaker_A) + (1 | speaker_B), data=drp_partner, REML=FALSE)
+H2_partner_raw = lmer(
+  rr ~ conv.no + condition * ot1 * ot2 +
+    (1 | speaker_A) + (1 | speaker_B), 
+  data=drp_partner, REML=FALSE
+)
 
 ```
 
 ```{r silently-print-h2-partnerwise-raw-drp-summary, eval=TRUE, echo=FALSE}
 
 # print summary table
-summary(H2_partner)
+summary(H2_partner_raw)
 
 ```
 
 ```{r silently-print-h2-partnerwise-real-drp-table, eval=TRUE, echo=FALSE}
 
 # neatly print output
-pander_lme(H2_partner)
+pander_lme(H2_partner_raw)
 
 ```
 
@@ -1602,24 +1679,23 @@ ggplot(data=drp_partner,
 
 ```{r model-h2-drp-st-samplewise, eval=FALSE}
 
-# raw maximal random-effects model
+# standardized maximal random-effects model
 H2_sample_st = lmer(
   rr ~ condition + conv.no + ot1 + ot2 + 
     ot1.ot2 + condition.ot1 + condition.ot2 + condition.ot1.ot2 + 
     (1 | dyad_id), data=drp_sample_st, REML=FALSE
-  )
+)
 
 ```
 
-
-```{r silently-print-h2-samplewise-st-drp-summary, eval=FALSE, echo=FALSE}
+```{r silently-print-h2-samplewise-st-drp-summary, echo=FALSE, eval=FALSE}
 
 # print summary table
 summary(H2_sample_st)
 
 ```
 
-```{r silently-print-h2-samplewise-st-drp-table, eval=FALSE, echo=FALSE}
+```{r silently-print-h2-samplewise-st-drp-table, echo=FALSE, eval=FALSE}
 
 # neatly print output
 pander_lme(H2_sample_st)
@@ -1629,7 +1705,7 @@ pander_lme(H2_sample_st)
 ```{r plot-aggregate-samplewise-st-drps, echo=FALSE}
 
 # what do these DRPs look like?
-ggplot(data=drp_sample_st,
+ggplot(data=drp_sample,
        aes(y=rr, 
            x=raw,
            colour=as.factor(condition))) +
@@ -1640,21 +1716,27 @@ ggplot(data=drp_sample_st,
 ```{r model-h2-drp-raw-samplewise, eval=FALSE}
 
 # raw maximal random-effects model
-H2_sample = lmer(rr ~ condition + conv.no + ot1 + ot2 + ot1.ot2 + condition.ot1 + condition.ot2 + condition.ot1.ot2 + (1 | speaker_A) + (1 | speaker_B), data=drp_sample, REML=FALSE)
+H2_sample_raw = lmer(
+  rr ~ conv.no + condition * ot1 * ot2 + 
+    (1 | dyad_id), 
+  data=drp_sample, REML=FALSE
+)
+
+## AP: Getting `lengths differ` error for `dyad_id`
 
 ```
 
 ```{r silently-print-h2-samplewise-raw-drp-summary, eval=FALSE, echo=FALSE}
 
 # print summary table
-summary(H2_sample)
+summary(H2_sample_raw)
 
 ```
 
 ```{r silently-print-h2-samplewise-real-drp-table, eval=FALSE, echo=FALSE}
 
 # neatly print output
-pander_lme(H2_sample)
+pander_lme(H2_sample_raw)
 
 ```
 
@@ -1668,7 +1750,4 @@ ggplot(data=drp_sample,
   geom_smooth()
 
 ```
-
-
-
 

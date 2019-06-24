@@ -117,6 +117,13 @@ for (next_mon in split_mon){
                               cond,
                               rqa_for_mon[1:9])
   crqa_mon = rbind.data.frame(crqa_mon,next_data_line)
+  
+  # save the RPs
+  png(filename = paste0('./figures/h1-rqa/rp-speaker_',speaker_code,'-monologue.png'))
+  plotRP(rqa_for_mon$RP, 
+         list(unit = 2, labelx = "Speaker A", labely = "Speaker A", 
+              cols = "black", pcex = .5))
+  dev.off()
 }
 ```
 
@@ -178,7 +185,7 @@ for (next_conv in split_conv){
                       rescale=0,
                       mindiagline=2,
                       minvertline=2,
-                      tw=0,
+                      tw=1, # exclude line of identity
                       whiteline=FALSE,
                       recpt=FALSE)
   
@@ -193,6 +200,13 @@ for (next_conv in split_conv){
                               cond,
                               rqa_for_conv[1:9])
   crqa_conv = rbind.data.frame(crqa_conv,next_data_line)
+  
+  # save the RPs
+  png(filename = paste0('./figures/h1-rqa/rp-speaker_',speaker_code,'-conversation.png'))
+  plotRP(rqa_for_conv$RP, 
+         list(unit = 2, labelx = "Speaker A", labely = "Speaker A", 
+              cols = "black", pcex = .5))
+  dev.off()
 }
 ```
 
@@ -896,7 +910,16 @@ for (next_conv in split_conv){
                                 cond,
                                 conv.no,
                                 crqa_for_conv[1:9])
-    crqa_real = rbind.data.frame(crqa_real,next_data_line)}
+    crqa_real = rbind.data.frame(crqa_real,next_data_line)
+    
+    # plot the CRPs
+    png(filename = paste0('./figures/h2-crqa/crp-dyad_',dyad_id,'-cond_',cond,'.png'))
+    plotRP(crqa_for_conv$RP, 
+           list(unit = 2, labelx = "Speaker A", labely = "Speaker B", 
+                cols = "black", pcex = .5))
+    dev.off()
+    
+  }
 }
 ```
 
@@ -951,23 +974,23 @@ for (next_conv in split_h2) {
              conv.no = conv.no,
              data_type = data_type)
     
-    # # get the mean RR for the left side of the plot
-    # mean_left_rr = drps %>%
-    #   dplyr::filter(raw < 0) %>% 
-    #   summarize(mean_rr = mean(rr)) %>%
-    #   .$mean_rr
-    # 
-    # # get the mean RR for the right side of the plot
-    # mean_right_rr = drps %>%
-    #   dplyr::filter(raw > 0) %>% 
-    #   summarize(mean_rr = mean(rr)) %>%
-    #   .$mean_rr
-    # 
-    # # flip arrangement if leader is not on left
-    # if (mean_left_rr < mean_right_rr) {
-    #   drps = drps %>%
-    #     mutate(rr = rev(rr))
-    # }
+    # get the mean RR for the left side of the plot
+    mean_left_rr = drps %>%
+      dplyr::filter(raw < 0) %>%
+      summarize(mean_rr = mean(rr)) %>%
+      .$mean_rr
+    
+    # get the mean RR for the right side of the plot
+    mean_right_rr = drps %>%
+      dplyr::filter(raw > 0) %>%
+      summarize(mean_rr = mean(rr)) %>%
+      .$mean_rr
+    
+    # flip arrangement if leader is not on left
+    if (mean_left_rr < mean_right_rr) {
+      drps = drps %>%
+        mutate(rr = rev(rr))
+    }
     
     # append to dataframe
     drp_real = rbind.data.frame(drp_real, drps)
@@ -1085,23 +1108,23 @@ for (fake_dyad in 1:nrow(partner_wise_baseline)){
                cond = cond,
                conv.no = next_conv)
       
-      # # get the mean RR for the left side of the plot
-      # mean_left_rr = next_data %>%
-      #   dplyr::filter(raw < 0) %>% 
-      #   summarize(mean_rr = mean(rr)) %>%
-      #   .$mean_rr
-      # 
-      # # get the mean RR for the right side of the plot
-      # mean_right_rr = next_data %>%
-      #   dplyr::filter(raw > 0) %>% 
-      #   summarize(mean_rr = mean(rr)) %>%
-      #   .$mean_rr
-      # 
-      # # flip arrangement if leader is not on left
-      # if (mean_left_rr < mean_right_rr) {
-      #   next_data = next_data %>%
-      #     mutate(rr = rev(rr))
-      # }
+      # get the mean RR for the left side of the plot
+      mean_left_rr = next_data %>%
+        dplyr::filter(raw < 0) %>%
+        summarize(mean_rr = mean(rr)) %>%
+        .$mean_rr
+      
+      # get the mean RR for the right side of the plot
+      mean_right_rr = next_data %>%
+        dplyr::filter(raw > 0) %>%
+        summarize(mean_rr = mean(rr)) %>%
+        .$mean_rr
+      
+      # flip arrangement if leader is not on left
+      if (mean_left_rr < mean_right_rr) {
+        next_data = next_data %>%
+          mutate(rr = rev(rr))
+      }
       
       # save to overall dataframe
       drp_partner = rbind.data.frame(drp_partner, next_data)
@@ -1155,23 +1178,23 @@ for (next_dyad in dyad_list){
                  conv.no = next_conv, 
                  dyad = next_dyad)
         
-        # # get the mean RR for the left side of the plot
-        # mean_left_rr = next_data %>%
-        #   dplyr::filter(raw < 0) %>% 
-        #   summarize(mean_rr = mean(rr)) %>%
-        #   .$mean_rr
-        # 
-        # # get the mean RR for the right side of the plot
-        # mean_right_rr = next_data %>%
-        #   dplyr::filter(raw > 0) %>% 
-        #   summarize(mean_rr = mean(rr)) %>%
-        #   .$mean_rr
-        # 
-        # # flip arrangement if leader is not on left
-        # if (mean_left_rr < mean_right_rr) {
-        #   next_data = next_data %>%
-        #     mutate(rr = rev(rr))
-        # }
+        # get the mean RR for the left side of the plot
+        mean_left_rr = next_data %>%
+          dplyr::filter(raw < 0) %>%
+          summarize(mean_rr = mean(rr)) %>%
+          .$mean_rr
+        
+        # get the mean RR for the right side of the plot
+        mean_right_rr = next_data %>%
+          dplyr::filter(raw > 0) %>%
+          summarize(mean_rr = mean(rr)) %>%
+          .$mean_rr
+        
+        # flip arrangement if leader is not on left
+        if (mean_left_rr < mean_right_rr) {
+          next_data = next_data %>%
+            mutate(rr = rev(rr))
+        }
         
         # save to overall dataframe
         drp_sample = rbind.data.frame(drp_sample, next_data)
@@ -1197,9 +1220,9 @@ drp_real = drp_real %>% ungroup() %>%
                c("cond"="condition")) %>%
   
   # recode "condition" values to be -.5 and +.5
-  mutate(condition = dplyr::if_else(condition=="K",
-                                    -.5,
-                                    .5))%>%
+  mutate(condition = dplyr::if_else(condition=="P",
+                                    -.5,      # personal = -.5
+                                    .5)) %>%  # conflict = .5
   
   # first-order polynomials
   mutate(condition.ot1 = condition * ot1) %>%
@@ -1209,7 +1232,10 @@ drp_real = drp_real %>% ungroup() %>%
   
   # polynomial interactions
   mutate(ot1.ot2 = ot1 * ot2) %>%
-  mutate(condition.ot1.ot2 = condition * ot1 * ot2)
+  mutate(condition.ot1.ot2 = condition * ot1 * ot2) %>%
+  
+  # convert condition to factor
+  mutate(condition = as.factor(condition))
 ```
 
 
@@ -1220,9 +1246,9 @@ drp_partner = drp_partner %>% ungroup() %>%
                c("cond"="condition")) %>%
   
   # recode "condition" values to be -.5 and +.5
-  mutate(condition = dplyr::if_else(condition=="K",
-                                    -.5,
-                                    .5))%>%
+  mutate(condition = dplyr::if_else(condition=="P",
+                                    -.5,      # personal = -.5
+                                    .5)) %>%  # conflict = .5
   
   # first-order polynomials
   mutate(condition.ot1 = condition * ot1) %>%
@@ -1236,7 +1262,10 @@ drp_partner = drp_partner %>% ungroup() %>%
   
   # convert to speakers to factors for appropriate numeric transform
   mutate(speaker_A = as.numeric(as.factor(speaker_A))) %>%
-  mutate(speaker_B = as.numeric(as.factor(speaker_B)))
+  mutate(speaker_B = as.numeric(as.factor(speaker_B))) %>%
+  
+  # convert condition to factor
+  mutate(condition = as.factor(condition))
 ```
 
 
@@ -1247,9 +1276,9 @@ drp_sample = drp_sample %>% ungroup() %>%
                c("cond"="condition")) %>%
   
   # recode "condition" values to be -.5 and +.5
-  mutate(condition = dplyr::if_else(condition=="K",
-                                    -.5,
-                                    .5))%>%
+  mutate(condition = dplyr::if_else(condition=="P",
+                                    -.5,      # personal = -.5
+                                    .5)) %>%  # conflict = .5
   
   # first-order polynomials
   mutate(condition.ot1 = condition * ot1) %>%
@@ -1259,7 +1288,10 @@ drp_sample = drp_sample %>% ungroup() %>%
   
   # polynomial interactions
   mutate(ot1.ot2 = ot1 * ot2) %>%
-  mutate(condition.ot1.ot2 = condition * ot1 * ot2)
+  mutate(condition.ot1.ot2 = condition * ot1 * ot2) %>%
+  
+  # convert condition to factor
+  mutate(condition = as.factor(condition))
 ```
 
 ***
@@ -1309,10 +1341,14 @@ drp_sample_st = mutate_each(drp_sample,
 
 ### Analyses of plot-level CRQA metrics
 
+First, do we see differences in the overall amount of recurrence in the plot
+based on conversational context (when accounting for conversation number)?
+
 
 ```r
 # does linguistic style matching change based on the conversational context?
-h2_analyses <- lm(RR ~ cond + conv.no, data = crqa_real) 
+h2_analyses <- lm(RR ~ cond + conv.no, 
+                  data = crqa_real)
 ```
 
 
@@ -1346,152 +1382,212 @@ h2_analyses <- lm(RR ~ cond + conv.no, data = crqa_real)
 |  **conv.no2**   | -0.5062  |   0.3701   | -1.368  | 0.174  | 0.174  |     |
 
 We don't see a difference by overall amounts of recurrence, but what about
-differences in the structure of the recurrence? Let's look at two metrics:
-the number of lines on the plot (`NRLINE`) and determinism (`DET`).
+differences in the structure of the recurrence? From looking at the 
+cross-recurrence plots, there are vastly different visual "textures" by
+conversation. To quantify these differences, let's look at three metrics:
+the number of lines on the plot (`NRLINE`), normalized entropy (`rENTR`,
+which accounts for the number of lines in the plot), and percent determinism 
+(`DET`).
 
 
 ```r
-# does linguistic style matching change based on the conversational context?
-h2_analyses_nrline <- lm(NRLINE ~ cond, data = crqa_real) #conv.type
+# does the structure of language style matching change by context?
+h2_analyses_nrline <- lm(NRLINE ~ cond + conv.no, 
+                         data = crqa_real)
 ```
 
 
 ```
 ## 
 ## Call:
-## lm(formula = NRLINE ~ cond, data = crqa_real)
+## lm(formula = NRLINE ~ cond + conv.no, data = crqa_real)
 ## 
 ## Residuals:
 ##     Min      1Q  Median      3Q     Max 
-## -159.70  -57.40  -28.65   26.60  822.30 
+## -181.78  -64.54  -27.90   27.47  798.22 
 ## 
 ## Coefficients:
 ##             Estimate Std. Error t value             Pr(>|t|)    
-## (Intercept)   165.70      14.98  11.063 < 0.0000000000000002 ***
-## condK        -108.05      21.49  -5.029           0.00000149 ***
+## (Intercept)   189.78      18.87  10.059 < 0.0000000000000002 ***
+## condK        -112.38      21.35  -5.265          0.000000521 ***
+## conv.no2      -43.95      21.34  -2.060               0.0413 *  
 ## ---
 ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 ## 
-## Residual standard error: 128 on 140 degrees of freedom
-## Multiple R-squared:  0.153,	Adjusted R-squared:  0.1469 
-## F-statistic: 25.29 on 1 and 140 DF,  p-value: 0.000001488
+## Residual standard error: 126.5 on 139 degrees of freedom
+## Multiple R-squared:  0.1781,	Adjusted R-squared:  0.1662 
+## F-statistic: 15.06 on 2 and 139 DF,  p-value: 0.000001205
 ```
 
 
 |     &nbsp;      | Estimate | Std..Error | t.value |   p    | p_adj  | sig |
 |:---------------:|:--------:|:----------:|:-------:|:------:|:------:|:---:|
-| **(Intercept)** |  165.7   |   14.98    |  11.06  | 0.0001 | 0.0001 | *** |
-|    **condK**    |   -108   |   21.49    | -5.029  | 0.0001 | 0.0001 | *** |
+| **(Intercept)** |  189.8   |   18.87    |  10.06  | 0.0001 | 0.0001 | *** |
+|    **condK**    |  -112.4  |   21.35    | -5.265  | 0.0001 | 0.0001 | *** |
+|  **conv.no2**   |  -43.95  |   21.34    |  -2.06  | 0.041  | 0.041  |  *  |
 
 
 ```r
-# does linguistic style matching change based on the conversational context?
-h2_analyses_determinism <- lm(DET ~ cond, data = crqa_real)
+# does the heterogeneity of structure of LSM change by context?
+h2_analyses_entropy <- lm(rENTR ~ cond + conv.no, 
+                          data = crqa_real)
 ```
 
 
 ```
 ## 
 ## Call:
-## lm(formula = DET ~ cond, data = crqa_real)
+## lm(formula = rENTR ~ cond + conv.no, data = crqa_real)
 ## 
 ## Residuals:
 ##      Min       1Q   Median       3Q      Max 
-## -20.4531  -3.0009   0.4795   3.5435  14.0297 
+## -0.31421 -0.08840 -0.02783  0.06902  0.40472 
 ## 
 ## Coefficients:
-##             Estimate Std. Error t value            Pr(>|t|)    
-## (Intercept)  30.6811     0.6787  45.204 <0.0000000000000002 ***
-## condK        -0.2280     0.9811  -0.232               0.817    
+##             Estimate Std. Error t value             Pr(>|t|)    
+## (Intercept)  0.44768    0.01983  22.574 < 0.0000000000000002 ***
+## condK        0.07891    0.02317   3.406             0.000884 ***
+## conv.no2     0.02885    0.02308   1.250             0.213648    
 ## ---
 ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 ## 
-## Residual standard error: 5.799 on 138 degrees of freedom
-##   (2 observations deleted due to missingness)
-## Multiple R-squared:  0.0003912,	Adjusted R-squared:  -0.006852 
-## F-statistic: 0.05401 on 1 and 138 DF,  p-value: 0.8166
+## Residual standard error: 0.1307 on 127 degrees of freedom
+##   (12 observations deleted due to missingness)
+## Multiple R-squared:  0.08874,	Adjusted R-squared:  0.07439 
+## F-statistic: 6.184 on 2 and 127 DF,  p-value: 0.002737
 ```
 
 
 |     &nbsp;      | Estimate | Std..Error | t.value |   p    | p_adj  | sig |
 |:---------------:|:--------:|:----------:|:-------:|:------:|:------:|:---:|
-| **(Intercept)** |  30.68   |   0.6787   |  45.2   | 0.0001 | 0.0001 | *** |
-|    **condK**    |  -0.228  |   0.9811   | -0.2324 |  0.82  |  0.82  |     |
+| **(Intercept)** |  0.4477  |  0.01983   |  22.57  | 0.0001 | 0.0001 | *** |
+|    **condK**    | 0.07891  |  0.02317   |  3.406  | 0.001  | 0.001  | **  |
+|  **conv.no2**   | 0.02885  |  0.02308   |  1.25   | 0.214  | 0.214  |     |
+
+
+```r
+# does the proportion of recurrent structures in LSM change by context?
+h2_analyses_det <- lm(DET ~ cond + conv.no, 
+                      data = crqa_real)
+```
+
+
+```
+## 
+## Call:
+## lm(formula = DET ~ cond + conv.no, data = crqa_real)
+## 
+## Residuals:
+##     Min      1Q  Median      3Q     Max 
+## -20.110  -2.876   0.427   3.669  13.751 
+## 
+## Coefficients:
+##             Estimate Std. Error t value            Pr(>|t|)    
+## (Intercept)  31.0218     0.8691  35.694 <0.0000000000000002 ***
+## condK        -0.2903     0.9882  -0.294               0.769    
+## conv.no2     -0.6218     0.9873  -0.630               0.530    
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+## 
+## Residual standard error: 5.812 on 137 degrees of freedom
+##   (2 observations deleted due to missingness)
+## Multiple R-squared:  0.003277,	Adjusted R-squared:  -0.01127 
+## F-statistic: 0.2252 on 2 and 137 DF,  p-value: 0.7986
+```
+
+
+|     &nbsp;      | Estimate | Std..Error | t.value |   p    | p_adj  | sig |
+|:---------------:|:--------:|:----------:|:-------:|:------:|:------:|:---:|
+| **(Intercept)** |  31.02   |   0.8691   |  35.69  | 0.0001 | 0.0001 | *** |
+|    **condK**    | -0.2903  |   0.9882   | -0.2938 |  0.77  |  0.77  |     |
+|  **conv.no2**   | -0.6218  |   0.9873   | -0.6298 |  0.53  |  0.77  |     |
 
 ***
 
 ### Analyses of diagonal recurrence profiles
 
-We now create a linear mixed-effects model to gauge how linear lag (`ot1`) and quadratic lag (`ot2`) interact with condition (`condition`) to influence Language Style Matching (`rr`). We present both standardized and raw models below.
+We now create a linear mixed-effects model to gauge how linear lag (`ot1`) and
+quadratic lag (`ot2`) interact with condition (`condition`) to influence 
+Language Style Matching (`rr`). We present both standardized and raw models below.
 
 
 ```r
 # standardized maximal random-effects model
 H2_st = lmer(
   rr ~ condition + conv.no + ot1 + ot2 + 
-    ot1.ot2 + condition.ot1 + condition.ot2 + condition.ot1.ot2 + 
-    (1 | dyad_id), data=drp_real_st, REML=FALSE)
+    ot1.ot2 + condition.ot1 + condition.ot2 + condition.ot1.ot2 +
+    (1 | dyad_id), 
+  data=drp_real_st)
 ```
 
 
 ```
-## Linear mixed model fit by maximum likelihood . t-tests use
-##   Satterthwaite's method [lmerModLmerTest]
+## Linear mixed model fit by REML. t-tests use Satterthwaite's method [
+## lmerModLmerTest]
 ## Formula: rr ~ condition + conv.no + ot1 + ot2 + ot1.ot2 + condition.ot1 +  
 ##     condition.ot2 + condition.ot1.ot2 + (1 | dyad_id)
 ##    Data: drp_real_st
 ## 
-##      AIC      BIC   logLik deviance df.resid 
-##   4292.9   4351.6  -2135.5   4270.9     1518 
+## REML criterion at convergence: 4237.6
 ## 
 ## Scaled residuals: 
 ##     Min      1Q  Median      3Q     Max 
-## -3.2254 -0.6186 -0.0291  0.6022  4.1592 
+## -3.3602 -0.6438 -0.0513  0.5422  4.6537 
 ## 
 ## Random effects:
 ##  Groups   Name        Variance Std.Dev.
-##  dyad_id  (Intercept) 0.08293  0.2880  
-##  Residual             0.90946  0.9537  
+##  dyad_id  (Intercept) 0.08679  0.2946  
+##  Residual             0.86482  0.9300  
 ## Number of obs: 1529, groups:  dyad_id, 71
 ## 
 ## Fixed effects:
-##                     Estimate Std. Error         df t value Pr(>|t|)  
-## (Intercept)        2.013e-03  4.206e-02  7.132e+01   0.048   0.9620  
-## condition          3.089e-02  2.486e-02  1.500e+03   1.243   0.2142  
-## conv.no           -5.881e-02  2.463e-02  1.480e+03  -2.387   0.0171 *
-## ot1               -6.475e-03  3.526e-02  1.459e+03  -0.184   0.8543  
-## ot2               -2.588e-03  2.443e-02  1.459e+03  -0.106   0.9156  
-## ot1.ot2            8.616e-03  3.526e-02  1.459e+03   0.244   0.8070  
-## condition.ot1      5.029e-02  3.526e-02  1.459e+03   1.426   0.1540  
-## condition.ot2     -2.260e-02  2.443e-02  1.459e+03  -0.925   0.3550  
-## condition.ot1.ot2 -5.585e-02  3.526e-02  1.459e+03  -1.584   0.1134  
+##                      Estimate  Std. Error          df t value
+## (Intercept)          0.002111    0.042357   70.304096   0.050
+## condition           -0.030669    0.024255 1490.369885  -1.264
+## conv.no             -0.058804    0.024027 1471.266214  -2.447
+## ot1                 -0.267134    0.034382 1450.681911  -7.770
+## ot2                 -0.002588    0.023821 1450.681911  -0.109
+## ot1.ot2              0.078520    0.034382 1450.681911   2.284
+## condition.ot1       -0.009094    0.034382 1450.681911  -0.264
+## condition.ot2        0.022602    0.023821 1450.681911   0.949
+## condition.ot1.ot2   -0.038841    0.034382 1450.681911  -1.130
+##                             Pr(>|t|)    
+## (Intercept)                   0.9604    
+## condition                     0.2063    
+## conv.no                       0.0145 *  
+## ot1               0.0000000000000148 ***
+## ot2                           0.9135    
+## ot1.ot2                       0.0225 *  
+## condition.ot1                 0.7914    
+## condition.ot2                 0.3429    
+## condition.ot1.ot2             0.2588    
 ## ---
 ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 ## 
 ## Correlation of Fixed Effects:
 ##             (Intr) condtn conv.n ot1    ot2    ot1.t2 cndt.1 cndt.2
-## condition   -0.006                                                 
-## conv.no     -0.001 -0.092                                          
+## condition    0.006                                                 
+## conv.no     -0.002  0.092                                          
 ## ot1          0.000  0.000  0.000                                   
 ## ot2          0.000  0.000  0.000  0.000                            
 ## ot1.ot2      0.000  0.000  0.000 -0.721  0.000                     
-## conditin.t1  0.000  0.000  0.000 -0.050  0.000  0.036              
-## conditin.t2  0.000  0.000  0.000  0.000 -0.050  0.000  0.000       
-## cndtn.t1.t2  0.000  0.000  0.000  0.036  0.000 -0.050 -0.721  0.000
+## conditin.t1  0.000  0.000  0.000  0.050  0.000 -0.036              
+## conditin.t2  0.000  0.000  0.000  0.000  0.050  0.000  0.000       
+## cndtn.t1.t2  0.000  0.000  0.000 -0.036  0.000  0.050 -0.721  0.000
 ```
 
 
-|        &nbsp;         | Estimate  | Std..Error |  df   | t.value |   p   | p_adj | sig |
-|:---------------------:|:---------:|:----------:|:-----:|:-------:|:-----:|:-----:|:---:|
-|    **(Intercept)**    | 0.002013  |  0.04206   | 71.32 | 0.04787 | 0.96  | 0.96  |     |
-|     **condition**     |  0.03089  |  0.02486   | 1500  |  1.243  | 0.214 | 0.48  |     |
-|      **conv.no**      | -0.05881  |  0.02463   | 1480  | -2.387  | 0.017 | 0.154 |     |
-|        **ot1**        | -0.006475 |  0.03526   | 1459  | -0.1837 | 0.85  | 0.96  |     |
-|        **ot2**        | -0.002588 |  0.02443   | 1459  | -0.1059 | 0.92  | 0.96  |     |
-|      **ot1.ot2**      | 0.008616  |  0.03526   | 1459  | 0.2444  | 0.81  | 0.96  |     |
-|   **condition.ot1**   |  0.05029  |  0.03526   | 1459  |  1.426  | 0.154 | 0.46  |     |
-|   **condition.ot2**   |  -0.0226  |  0.02443   | 1459  | -0.9253 | 0.36  | 0.64  |     |
-| **condition.ot1.ot2** | -0.05585  |  0.03526   | 1459  | -1.584  | 0.113 | 0.46  |     |
+|        &nbsp;         | Estimate  | Std..Error |  df  | t.value |   p    | p_adj  | sig |
+|:---------------------:|:---------:|:----------:|:----:|:-------:|:------:|:------:|:---:|
+|    **(Intercept)**    | 0.002111  |  0.04236   | 70.3 | 0.04984 |  0.96  |  0.96  |     |
+|     **condition**     | -0.03067  |  0.02426   | 1490 | -1.264  | 0.206  |  0.46  |     |
+|      **conv.no**      |  -0.0588  |  0.02403   | 1471 | -2.447  | 0.014  | 0.065  |  .  |
+|        **ot1**        |  -0.2671  |  0.03438   | 1451 |  -7.77  | 0.0001 | 0.0001 | *** |
+|        **ot2**        | -0.002588 |  0.02382   | 1451 | -0.1086 |  0.91  |  0.96  |     |
+|      **ot1.ot2**      |  0.07852  |  0.03438   | 1451 |  2.284  | 0.022  | 0.068  |  .  |
+|   **condition.ot1**   | -0.009094 |  0.03438   | 1451 | -0.2645 |  0.79  |  0.96  |     |
+|   **condition.ot2**   |  0.0226   |  0.02382   | 1451 | 0.9489  |  0.34  |  0.51  |     |
+| **condition.ot1.ot2** | -0.03884  |  0.03438   | 1451 |  -1.13  |  0.26  |  0.47  |     |
 
 
 ```
@@ -1503,79 +1599,78 @@ H2_st = lmer(
 
 ```r
 # raw maximal random-effects model
-H2_raw = lmer(rr ~ condition + conv.no + ot1 + ot2 + ot1.ot2 + condition.ot1 + condition.ot2 + condition.ot1.ot2 + (1 | dyad_id), data=drp_real, REML=FALSE)
+H2_raw = lmer(rr ~ conv.no + condition * ot1 * ot2 + (1 | dyad_id), 
+              data=drp_real, REML=FALSE)
 ```
-
 
 
 ```
 ## Linear mixed model fit by maximum likelihood . t-tests use
 ##   Satterthwaite's method [lmerModLmerTest]
-## Formula: rr ~ condition + conv.no + ot1 + ot2 + ot1.ot2 + condition.ot1 +  
-##     condition.ot2 + condition.ot1.ot2 + (1 | dyad_id)
+## Formula: rr ~ conv.no + condition * ot1 * ot2 + (1 | dyad_id)
 ##    Data: drp_real
 ## 
 ##      AIC      BIC   logLik deviance df.resid 
-##  -4347.3  -4288.7   2184.7  -4369.3     1518 
+##  -4428.7  -4370.1   2225.4  -4450.7     1518 
 ## 
 ## Scaled residuals: 
 ##     Min      1Q  Median      3Q     Max 
-## -3.2254 -0.6186 -0.0291  0.6022  4.1592 
+## -3.3700 -0.6444 -0.0511  0.5421  4.6645 
 ## 
 ## Random effects:
 ##  Groups   Name        Variance  Std.Dev.
-##  dyad_id  (Intercept) 0.0002914 0.01707 
-##  Residual             0.0031961 0.05653 
+##  dyad_id  (Intercept) 0.0002993 0.01730 
+##  Residual             0.0030226 0.05498 
 ## Number of obs: 1529, groups:  dyad_id, 71
 ## 
 ## Fixed effects:
-##                       Estimate   Std. Error           df t value
-## (Intercept)          0.1718924    0.0028943  127.6231057  59.389
-## condition            0.0036663    0.0029503 1500.3257968   1.243
-## conv.no2            -0.0069705    0.0029197 1480.0471031  -2.387
-## ot1                 -0.0012727    0.0069300 1458.6870072  -0.184
-## ot2                 -0.0005086    0.0048012 1458.6870072  -0.106
-## ot1.ot2              0.0045859    0.0187665 1458.6870073   0.244
-## condition.ot1        0.0197671    0.0138600 1458.6870072   1.426
-## condition.ot2       -0.0088850    0.0096025 1458.6870072  -0.925
-## condition.ot1.ot2   -0.0594495    0.0375331 1458.6870072  -1.584
-##                              Pr(>|t|)    
-## (Intercept)       <0.0000000000000002 ***
-## condition                      0.2142    
-## conv.no2                       0.0171 *  
-## ot1                            0.8543    
-## ot2                            0.9156    
-## ot1.ot2                        0.8070    
-## condition.ot1                  0.1540    
-## condition.ot2                  0.3550    
-## condition.ot1.ot2              0.1134    
+##                         Estimate  Std. Error          df t value
+## (Intercept)             0.173719    0.003232  195.486117  53.752
+## conv.no2               -0.006970    0.002840 1479.460283  -2.454
+## condition0.5           -0.003643    0.002870 1498.872921  -1.269
+## ot1                    -0.050718    0.009288 1458.649951  -5.461
+## ot2                    -0.004951    0.006435 1458.649951  -0.769
+## condition0.5:ot1       -0.003575    0.013479 1458.649951  -0.265
+## condition0.5:ot2        0.008885    0.009338 1458.649951   0.951
+## ot1:ot2                 0.062467    0.025151 1458.649951   2.484
+## condition0.5:ot1:ot2   -0.041347    0.036500 1458.649951  -1.133
+##                                  Pr(>|t|)    
+## (Intercept)          < 0.0000000000000002 ***
+## conv.no2                           0.0142 *  
+## condition0.5                       0.2045    
+## ot1                          0.0000000557 ***
+## ot2                                0.4418    
+## condition0.5:ot1                   0.7909    
+## condition0.5:ot2                   0.3415    
+## ot1:ot2                            0.0131 *  
+## condition0.5:ot1:ot2               0.2575    
 ## ---
 ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 ## 
 ## Correlation of Fixed Effects:
-##             (Intr) condtn cnv.n2 ot1    ot2    ot1.t2 cndt.1 cndt.2
-## condition    0.016                                                 
-## conv.no2    -0.507 -0.092                                          
-## ot1          0.000  0.000  0.000                                   
-## ot2          0.000  0.000  0.000  0.000                            
-## ot1.ot2      0.000  0.000  0.000 -0.721  0.000                     
-## conditin.t1  0.000  0.000  0.000 -0.050  0.000  0.036              
-## conditin.t2  0.000  0.000  0.000  0.000 -0.050  0.000  0.000       
-## cndtn.t1.t2  0.000  0.000  0.000  0.036  0.000 -0.050 -0.721  0.000
+##             (Intr) cnv.n2 cnd0.5 ot1    ot2    cn0.5:1 c0.5:2 ot1:t2
+## conv.no2    -0.482                                                  
+## conditin0.5 -0.458  0.092                                           
+## ot1          0.000  0.000  0.000                                    
+## ot2          0.000  0.000  0.000  0.000                             
+## cndtn0.5:t1  0.000  0.000  0.000 -0.689  0.000                      
+## cndtn0.5:t2  0.000  0.000  0.000  0.000 -0.689  0.000               
+## ot1:ot2      0.000  0.000  0.000 -0.721  0.000  0.497   0.000       
+## cndt0.5:1:2  0.000  0.000  0.000  0.497  0.000 -0.721   0.000 -0.689
 ```
 
 
-|        &nbsp;         |  Estimate  | Std..Error |  df   | t.value |   p    | p_adj  | sig |
-|:---------------------:|:----------:|:----------:|:-----:|:-------:|:------:|:------:|:---:|
-|    **(Intercept)**    |   0.1719   |  0.002894  | 127.6 |  59.39  | 0.0001 | 0.0001 | *** |
-|     **condition**     |  0.003666  |  0.00295   | 1500  |  1.243  | 0.214  |  0.39  |     |
-|     **conv.no2**      | -0.006971  |  0.00292   | 1480  | -2.387  | 0.017  | 0.077  |  .  |
-|        **ot1**        | -0.001273  |  0.00693   | 1459  | -0.1837 |  0.85  |  0.92  |     |
-|        **ot2**        | -0.0005086 |  0.004801  | 1459  | -0.1059 |  0.92  |  0.92  |     |
-|      **ot1.ot2**      |  0.004586  |  0.01877   | 1459  | 0.2444  |  0.81  |  0.92  |     |
-|   **condition.ot1**   |  0.01977   |  0.01386   | 1459  |  1.426  | 0.154  |  0.35  |     |
-|   **condition.ot2**   | -0.008885  |  0.009602  | 1459  | -0.9253 |  0.36  |  0.53  |     |
-| **condition.ot1.ot2** |  -0.05945  |  0.03753   | 1459  | -1.584  | 0.113  |  0.34  |     |
+|          &nbsp;          | Estimate  | Std..Error |  df   | t.value |   p    | p_adj  | sig |
+|:------------------------:|:---------:|:----------:|:-----:|:-------:|:------:|:------:|:---:|
+|     **(Intercept)**      |  0.1737   |  0.003232  | 195.5 |  53.75  | 0.0001 | 0.0001 | *** |
+|       **conv.no2**       | -0.00697  |  0.00284   | 1479  | -2.454  | 0.014  | 0.032  |  *  |
+|     **condition0.5**     | -0.003643 |  0.00287   | 1499  | -1.269  | 0.204  |  0.37  |     |
+|         **ot1**          | -0.05072  |  0.009288  | 1459  | -5.461  | 0.0001 | 0.0001 | *** |
+|         **ot2**          | -0.004951 |  0.006435  | 1459  | -0.7694 |  0.44  |  0.5   |     |
+|   **condition0.5:ot1**   | -0.003575 |  0.01348   | 1459  | -0.2652 |  0.79  |  0.79  |     |
+|   **condition0.5:ot2**   | 0.008885  |  0.009338  | 1459  | 0.9515  |  0.34  |  0.44  |     |
+|       **ot1:ot2**        |  0.06247  |  0.02515   | 1459  |  2.484  | 0.013  | 0.032  |  *  |
+| **condition0.5:ot1:ot2** | -0.04135  |   0.0365   | 1459  | -1.133  |  0.26  |  0.39  |     |
 
 
 ```
@@ -1586,10 +1681,16 @@ H2_raw = lmer(rr ~ condition + conv.no + ot1 + ot2 + ot1.ot2 + condition.ot1 + c
 
 
 ```r
-# raw maximal random-effects model
-H2_partner_st = lmer(rr ~ condition + conv.no + ot1 + ot2 + ot1.ot2 + condition.ot1 + condition.ot2 + condition.ot1.ot2 + (1 | speaker_A) + (1 | speaker_B), data=drp_partner_st, REML=FALSE)
+# standardized maximal random-effects model
+H2_partner_st = lmer(
+  rr ~ condition + conv.no + ot1 + ot2 + 
+    ot1.ot2 + condition.ot1 + condition.ot2 + condition.ot1.ot2 +
+    (1 | speaker_A) + (1 | speaker_B), 
+  data=drp_partner_st, REML=FALSE
+)
 
-#LMF: I added speaker_A  and speaker_B instead of dyad_id as random effect, but wasn't     sure about it.     
+#LMF: I added speaker_A  and speaker_B instead of dyad_id as random effect, but wasn't sure about it.     
+## AP: Perfect!
 ```
 
 
@@ -1602,67 +1703,67 @@ H2_partner_st = lmer(rr ~ condition + conv.no + ot1 + ot2 + ot1.ot2 + condition.
 ##    Data: drp_partner_st
 ## 
 ##      AIC      BIC   logLik deviance df.resid 
-##  14236.0  14314.5  -7106.0  14212.0     5103 
+##  13958.1  14036.5  -6967.0  13934.1     5103 
 ## 
 ## Scaled residuals: 
 ##     Min      1Q  Median      3Q     Max 
-## -3.1414 -0.6359 -0.0239  0.5762  7.4063 
+## -3.4064 -0.6253 -0.0171  0.5725  7.3757 
 ## 
 ## Random effects:
 ##  Groups    Name        Variance Std.Dev.
-##  speaker_B (Intercept) 0.06232  0.2496  
-##  speaker_A (Intercept) 0.03335  0.1826  
-##  Residual              0.90560  0.9516  
+##  speaker_B (Intercept) 0.06352  0.2520  
+##  speaker_A (Intercept) 0.03432  0.1853  
+##  Residual              0.85632  0.9254  
 ## Number of obs: 5115, groups:  speaker_B, 71; speaker_A, 69
 ## 
 ## Fixed effects:
-##                       Estimate   Std. Error           df t value Pr(>|t|)
-## (Intercept)         -0.0008209    0.0395898   92.2511295  -0.021 0.983502
-## condition           -0.0181724    0.0170967 3045.1874048  -1.063 0.287903
-## conv.no             -0.0601394    0.0155050 4145.6634611  -3.879 0.000107
-## ot1                  0.0068312    0.0192620 4968.2675162   0.355 0.722867
-## ot2                  0.0278353    0.0133451 4968.2675162   2.086 0.037047
-## ot1.ot2             -0.0032327    0.0192620 4968.2675162  -0.168 0.866726
-## condition.ot1       -0.0004671    0.0192620 4968.2675162  -0.024 0.980655
-## condition.ot2        0.0072079    0.0133451 4968.2675162   0.540 0.589140
-## condition.ot1.ot2   -0.0035631    0.0192620 4968.2675162  -0.185 0.853251
-##                      
-## (Intercept)          
-## condition            
-## conv.no           ***
-## ot1                  
-## ot2               *  
-## ot1.ot2              
-## condition.ot1        
-## condition.ot2        
-## condition.ot1.ot2    
+##                       Estimate   Std. Error           df t value
+## (Intercept)         -0.0008819    0.0398493   93.6615226  -0.022
+## condition            0.0186804    0.0167006 3197.3253424   1.119
+## conv.no             -0.0598029    0.0151211 4247.3671554  -3.955
+## ot1                 -0.2669335    0.0187306 4967.9919871 -14.251
+## ot2                  0.0278353    0.0129769 4967.9919871   2.145
+## ot1.ot2              0.0761172    0.0187306 4967.9919871   4.064
+## condition.ot1       -0.0462420    0.0187306 4967.9919871  -2.469
+## condition.ot2       -0.0072079    0.0129769 4967.9919871  -0.555
+## condition.ot1.ot2    0.0141474    0.0187306 4967.9919871   0.755
+##                               Pr(>|t|)    
+## (Intercept)                     0.9824    
+## condition                       0.2634    
+## conv.no                      0.0000778 ***
+## ot1               < 0.0000000000000002 ***
+## ot2                             0.0320 *  
+## ot1.ot2                      0.0000490 ***
+## condition.ot1                   0.0136 *  
+## condition.ot2                   0.5786    
+## condition.ot1.ot2               0.4501    
 ## ---
 ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 ## 
 ## Correlation of Fixed Effects:
 ##             (Intr) condtn conv.n ot1    ot2    ot1.t2 cndt.1 cndt.2
-## condition   -0.009                                                 
-## conv.no      0.047 -0.212                                          
+## condition    0.009                                                 
+## conv.no      0.046  0.213                                          
 ## ot1          0.000  0.000  0.000                                   
 ## ot2          0.000  0.000  0.000  0.000                            
 ## ot1.ot2      0.000  0.000  0.000 -0.721  0.000                     
-## conditin.t1  0.000  0.000  0.000 -0.075  0.000  0.054              
-## conditin.t2  0.000  0.000  0.000  0.000 -0.075  0.000  0.000       
-## cndtn.t1.t2  0.000  0.000  0.000  0.054  0.000 -0.075 -0.721  0.000
+## conditin.t1  0.000  0.000  0.000  0.075  0.000 -0.054              
+## conditin.t2  0.000  0.000  0.000  0.000  0.075  0.000  0.000       
+## cndtn.t1.t2  0.000  0.000  0.000 -0.054  0.000  0.075 -0.721  0.000
 ```
 
 
-|        &nbsp;         |  Estimate  | Std..Error |  df   | t.value  |   p    | p_adj | sig |
-|:---------------------:|:----------:|:----------:|:-----:|:--------:|:------:|:-----:|:---:|
-|    **(Intercept)**    | -0.0008209 |  0.03959   | 92.25 | -0.02073 |  0.98  | 0.98  |     |
-|     **condition**     |  -0.01817  |   0.0171   | 3045  |  -1.063  |  0.29  | 0.86  |     |
-|      **conv.no**      |  -0.06014  |   0.0155   | 4146  |  -3.879  | 0.0001 | 0.001 | **  |
-|        **ot1**        |  0.006831  |  0.01926   | 4968  |  0.3546  |  0.72  | 0.98  |     |
-|        **ot2**        |  0.02784   |  0.01335   | 4968  |  2.086   | 0.037  | 0.167 |     |
-|      **ot1.ot2**      | -0.003233  |  0.01926   | 4968  | -0.1678  |  0.87  | 0.98  |     |
-|   **condition.ot1**   | -0.0004671 |  0.01926   | 4968  | -0.02425 |  0.98  | 0.98  |     |
-|   **condition.ot2**   |  0.007208  |  0.01335   | 4968  |  0.5401  |  0.59  | 0.98  |     |
-| **condition.ot1.ot2** | -0.003563  |  0.01926   | 4968  |  -0.185  |  0.85  | 0.98  |     |
+|        &nbsp;         |  Estimate  | Std..Error |  df   | t.value  |   p    | p_adj  | sig |
+|:---------------------:|:----------:|:----------:|:-----:|:--------:|:------:|:------:|:---:|
+|    **(Intercept)**    | -0.0008819 |  0.03985   | 93.66 | -0.02213 |  0.98  |  0.98  |     |
+|     **condition**     |  0.01868   |   0.0167   | 3197  |  1.119   |  0.26  |  0.4   |     |
+|      **conv.no**      |  -0.0598   |  0.01512   | 4247  |  -3.955  | 0.0001 | 0.0002 | *** |
+|        **ot1**        |  -0.2669   |  0.01873   | 4968  |  -14.25  | 0.0001 | 0.0001 | *** |
+|        **ot2**        |  0.02784   |  0.01298   | 4968  |  2.145   | 0.032  | 0.058  |  .  |
+|      **ot1.ot2**      |  0.07612   |  0.01873   | 4968  |  4.064   | 0.0001 | 0.0002 | *** |
+|   **condition.ot1**   |  -0.04624  |  0.01873   | 4968  |  -2.469  | 0.014  | 0.031  |  *  |
+|   **condition.ot2**   | -0.007208  |  0.01298   | 4968  | -0.5554  |  0.58  |  0.65  |     |
+| **condition.ot1.ot2** |  0.01415   |  0.01873   | 4968  |  0.7553  |  0.45  |  0.58  |     |
 
 
 ```
@@ -1674,80 +1775,83 @@ H2_partner_st = lmer(rr ~ condition + conv.no + ot1 + ot2 + ot1.ot2 + condition.
 
 ```r
 # raw maximal random-effects model
-H2_partner = lmer(rr ~ condition + conv.no + ot1 + ot2 + ot1.ot2 + condition.ot1 + condition.ot2 + condition.ot1.ot2 + (1 | speaker_A) + (1 | speaker_B), data=drp_partner, REML=FALSE)
+H2_partner_raw = lmer(
+  rr ~ conv.no + condition * ot1 * ot2 +
+    (1 | speaker_A) + (1 | speaker_B), 
+  data=drp_partner, REML=FALSE
+)
 ```
 
 
 ```
 ## Linear mixed model fit by maximum likelihood . t-tests use
 ##   Satterthwaite's method [lmerModLmerTest]
-## Formula: rr ~ condition + conv.no + ot1 + ot2 + ot1.ot2 + condition.ot1 +  
-##     condition.ot2 + condition.ot1.ot2 + (1 | speaker_A) + (1 |  
+## Formula: rr ~ conv.no + condition * ot1 * ot2 + (1 | speaker_A) + (1 |  
 ##     speaker_B)
 ##    Data: drp_partner
 ## 
 ##      AIC      BIC   logLik deviance df.resid 
-## -13511.8 -13433.3   6767.9 -13535.8     5103 
+## -13789.7 -13711.2   6906.9 -13813.7     5103 
 ## 
 ## Scaled residuals: 
 ##     Min      1Q  Median      3Q     Max 
-## -3.1414 -0.6359 -0.0239  0.5762  7.4063 
+## -3.4064 -0.6253 -0.0171  0.5725  7.3757 
 ## 
 ## Random effects:
 ##  Groups    Name        Variance  Std.Dev.
-##  speaker_B (Intercept) 0.0002746 0.01657 
-##  speaker_A (Intercept) 0.0001469 0.01212 
-##  Residual              0.0039901 0.06317 
+##  speaker_B (Intercept) 0.0002799 0.01673 
+##  speaker_A (Intercept) 0.0001512 0.01230 
+##  Residual              0.0037730 0.06142 
 ## Number of obs: 5115, groups:  speaker_B, 71; speaker_A, 69
 ## 
 ## Fixed effects:
-##                       Estimate   Std. Error           df t value
-## (Intercept)          0.1801796    0.0038354  364.9396134  46.978
-## condition           -0.0024191    0.0022759 3045.1874060  -1.063
-## conv.no             -0.0089151    0.0022985 4145.6634504  -3.879
-## ot1                  0.0015038    0.0042401 4968.2675163   0.355
-## ot2                  0.0061273    0.0029376 4968.2675163   2.086
-## ot1.ot2             -0.0019270    0.0114823 4968.2675164  -0.168
-## condition.ot1       -0.0002056    0.0084802 4968.2675163  -0.024
-## condition.ot2        0.0031733    0.0058753 4968.2675163   0.540
-## condition.ot1.ot2   -0.0042480    0.0229646 4968.2675164  -0.185
-##                               Pr(>|t|)    
-## (Intercept)       < 0.0000000000000002 ***
-## condition                     0.287903    
-## conv.no                       0.000107 ***
-## ot1                           0.722867    
-## ot2                           0.037047 *  
-## ot1.ot2                       0.866726    
-## condition.ot1                 0.980655    
-## condition.ot2                 0.589140    
-## condition.ot1.ot2             0.853251    
+##                         Estimate  Std. Error          df t value
+## (Intercept)             0.178871    0.004094  430.375071  43.691
+## conv.no                -0.008865    0.002242 4247.367153  -3.955
+## condition0.5            0.002487    0.002223 3197.325342   1.119
+## ot1                    -0.048581    0.005607 4967.991987  -8.664
+## ot2                     0.007714    0.003885 4967.991987   1.986
+## condition0.5:ot1       -0.020358    0.008246 4967.991987  -2.469
+## condition0.5:ot2       -0.003173    0.005713 4967.991987  -0.555
+## ot1:ot2                 0.036941    0.015185 4967.991987   2.433
+## condition0.5:ot1:ot2    0.016867    0.022331 4967.991987   0.755
+##                                  Pr(>|t|)    
+## (Intercept)          < 0.0000000000000002 ***
+## conv.no                         0.0000778 ***
+## condition0.5                       0.2634    
+## ot1                  < 0.0000000000000002 ***
+## ot2                                0.0471 *  
+## condition0.5:ot1                   0.0136 *  
+## condition0.5:ot2                   0.5786    
+## ot1:ot2                            0.0150 *  
+## condition0.5:ot1:ot2               0.4501    
 ## ---
 ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 ## 
 ## Correlation of Fixed Effects:
-##             (Intr) condtn conv.n ot1    ot2    ot1.t2 cndt.1 cndt.2
-## condition    0.134                                                 
-## conv.no     -0.729 -0.212                                          
-## ot1          0.000  0.000  0.000                                   
-## ot2          0.000  0.000  0.000  0.000                            
-## ot1.ot2      0.000  0.000  0.000 -0.721  0.000                     
-## conditin.t1  0.000  0.000  0.000 -0.075  0.000  0.054              
-## conditin.t2  0.000  0.000  0.000  0.000 -0.075  0.000  0.000       
-## cndtn.t1.t2  0.000  0.000  0.000  0.054  0.000 -0.075 -0.721  0.000
+##             (Intr) conv.n cnd0.5 ot1    ot2    cn0.5:1 c0.5:2 ot1:t2
+## conv.no     -0.723                                                  
+## conditin0.5 -0.394  0.213                                           
+## ot1          0.000  0.000  0.000                                    
+## ot2          0.000  0.000  0.000  0.000                             
+## cndtn0.5:t1  0.000  0.000  0.000 -0.680  0.000                      
+## cndtn0.5:t2  0.000  0.000  0.000  0.000 -0.680  0.000               
+## ot1:ot2      0.000  0.000  0.000 -0.721  0.000  0.490   0.000       
+## cndt0.5:1:2  0.000  0.000  0.000  0.490  0.000 -0.721   0.000 -0.680
 ```
 
 
-|        &nbsp;         |  Estimate  | Std..Error |  df   | t.value  |   p    | p_adj  | sig |
-|:---------------------:|:----------:|:----------:|:-----:|:--------:|:------:|:------:|:---:|
-|    **(Intercept)**    |   0.1802   |  0.003835  | 364.9 |  46.98   | 0.0001 | 0.0001 | *** |
-|     **condition**     | -0.002419  |  0.002276  | 3045  |  -1.063  |  0.29  |  0.65  |     |
-|      **conv.no**      | -0.008915  |  0.002298  | 4146  |  -3.879  | 0.0001 |   0    | *** |
-|        **ot1**        |  0.001504  |  0.00424   | 4968  |  0.3546  |  0.72  |  0.98  |     |
-|        **ot2**        |  0.006127  |  0.002938  | 4968  |  2.086   | 0.037  | 0.111  |     |
-|      **ot1.ot2**      | -0.001927  |  0.01148   | 4968  | -0.1678  |  0.87  |  0.98  |     |
-|   **condition.ot1**   | -0.0002056 |  0.00848   | 4968  | -0.02425 |  0.98  |  0.98  |     |
-|   **condition.ot2**   |  0.003173  |  0.005875  | 4968  |  0.5401  |  0.59  |  0.98  |     |
-| **condition.ot1.ot2** | -0.004248  |  0.02296   | 4968  |  -0.185  |  0.85  |  0.98  |     |
+|          &nbsp;          | Estimate  | Std..Error |  df   | t.value |   p    | p_adj  | sig |
+|:------------------------:|:---------:|:----------:|:-----:|:-------:|:------:|:------:|:---:|
+|     **(Intercept)**      |  0.1789   |  0.004094  | 430.4 |  43.69  | 0.0001 | 0.0001 | *** |
+|       **conv.no**        | -0.008865 |  0.002242  | 4247  | -3.955  | 0.0001 | 0.0002 | *** |
+|     **condition0.5**     | 0.002487  |  0.002223  | 3197  |  1.119  |  0.26  |  0.34  |     |
+|         **ot1**          | -0.04858  |  0.005607  | 4968  | -8.664  | 0.0001 | 0.0001 | *** |
+|         **ot2**          | 0.007714  |  0.003885  | 4968  |  1.986  | 0.047  | 0.071  |  .  |
+|   **condition0.5:ot1**   | -0.02036  |  0.008246  | 4968  | -2.469  | 0.014  | 0.027  |  *  |
+|   **condition0.5:ot2**   | -0.003173 |  0.005713  | 4968  | -0.5554 |  0.58  |  0.58  |     |
+|       **ot1:ot2**        |  0.03694  |  0.01518   | 4968  |  2.433  | 0.015  | 0.027  |  *  |
+| **condition0.5:ot1:ot2** |  0.01687  |  0.02233   | 4968  | 0.7553  |  0.45  |  0.51  |     |
 
 
 ```
@@ -1758,14 +1862,13 @@ H2_partner = lmer(rr ~ condition + conv.no + ot1 + ot2 + ot1.ot2 + condition.ot1
 
 
 ```r
-# raw maximal random-effects model
+# standardized maximal random-effects model
 H2_sample_st = lmer(
   rr ~ condition + conv.no + ot1 + ot2 + 
     ot1.ot2 + condition.ot1 + condition.ot2 + condition.ot1.ot2 + 
     (1 | dyad_id), data=drp_sample_st, REML=FALSE
-  )
+)
 ```
-
 
 
 
@@ -1781,7 +1884,13 @@ H2_sample_st = lmer(
 
 ```r
 # raw maximal random-effects model
-H2_sample = lmer(rr ~ condition + conv.no + ot1 + ot2 + ot1.ot2 + condition.ot1 + condition.ot2 + condition.ot1.ot2 + (1 | speaker_A) + (1 | speaker_B), data=drp_sample, REML=FALSE)
+H2_sample_raw = lmer(
+  rr ~ conv.no + condition * ot1 * ot2 + 
+    (1 | dyad_id), 
+  data=drp_sample, REML=FALSE
+)
+
+## AP: Getting `lengths differ` error for `dyad_id`
 ```
 
 
@@ -1794,7 +1903,4 @@ H2_sample = lmer(rr ~ condition + conv.no + ot1 + ot2 + ot1.ot2 + condition.ot1 
 ```
 
 ![](beyond_consistency_files/figure-html/plot-aggregate-samplewise-real-drps-1.png)<!-- -->
-
-
-
 
