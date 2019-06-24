@@ -1491,41 +1491,22 @@ pander_lme(h2_analyses_det)
 ***
 
 
-```{r model-h2-drp-standardized}
 
-# standardized maximal random-effects model
-H2_st = lmer(
-  rr ~ condition + conv.no + ot1 + ot2 + 
-    ot1.ot2 + condition.ot1 + condition.ot2 + condition.ot1.ot2 +
-    (1 | dyad_id), 
-  data=drp_real_st)
+```{r}
+
+h2_analyses_rr <- lm(RR ~ (cond + conv.no) * con,
+                     data = crqa_real)
 
 ```
 
-```{r silently-print-h2-st-drp-summary, echo=FALSE}
 
-# print summary table
-summary(H2_st)
-
-```
-
-```{r silently-print-h2-st-real-drp-table, echo=FALSE}
-
-# neatly print output
-pander_lme(H2_st)
-
-```
+***
 
 ### DRP: Analyses of moment-to-moment dynamics
 
-# what do these DRPs look like?
-ggplot(data=drp_real,
-       aes(y=rr, 
-           x=raw,
-           colour=as.factor(condition))) +
-  geom_smooth()
-
-```
+We now create a linear mixed-effects model to gauge how linear lag (`ot1`) and
+quadratic lag (`ot2`) interact with condition (`condition`) to influence 
+Language Style Matching (`rr`).
 
 ```{r model-h2-drp-real}
 
@@ -1560,119 +1541,7 @@ ggplot(data=drp_real,
 
 ```
 
-```{r model-h2-drp-st-partnerwise}
-
-# standardized maximal random-effects model
-H2_partner_st = lmer(
-  rr ~ condition + conv.no + ot1 + ot2 + 
-    ot1.ot2 + condition.ot1 + condition.ot2 + condition.ot1.ot2 +
-    (1 | speaker_A) + (1 | speaker_B), 
-  data=drp_partner_st, REML=FALSE
-)
-
-#LMF: I added speaker_A  and speaker_B instead of dyad_id as random effect, but wasn't sure about it.     
-## AP: Perfect!
-
-```
-
-```{r silently-print-h2-partnerwise-st-drp-summary, echo=FALSE}
-
-# print summary table
-summary(H2_partner_st)
-
-```
-
-```{r silently-print-h2-partnerwise-st-drp-table, echo=FALSE}
-
-# neatly print output
-pander_lme(H2_partner_st)
-
-```
-
-```{r plot-aggregate-partnerwise-st-drps, echo=FALSE}
-
-# what do these DRPs look like?
-ggplot(data=drp_partner,
-       aes(y=rr, 
-           x=raw,
-           colour=as.factor(condition))) +
-  geom_smooth()
-
-```
-
-```{r model-h2-drp-raw-partnerwise}
-
-# raw maximal random-effects model
-H2_partner_raw = lmer(
-  rr ~ conv.no + condition * ot1 * ot2 +
-    (1 | speaker_A) + (1 | speaker_B), 
-  data=drp_partner, REML=FALSE
-)
-
-```
-
-```{r silently-print-h2-partnerwise-raw-drp-summary, eval=TRUE, echo=FALSE}
-
-# print summary table
-summary(H2_partner_raw)
-
-```
-
-```{r silently-print-h2-partnerwise-real-drp-table, eval=TRUE, echo=FALSE}
-
-# neatly print output
-pander_lme(H2_partner_raw)
-
-```
-
-```{r plot-aggregate-partnerwise-real-drps, echo=FALSE}
-
-# what do these DRPs look like?
-ggplot(data=drp_partner,
-       aes(y=rr, 
-           x=raw,
-           colour=as.factor(condition))) +
-  geom_smooth()
-
-```
-
-```{r model-h2-drp-st-samplewise, eval=FALSE}
-
-# standardized maximal random-effects model
-H2_sample_st = lmer(
-  rr ~ condition + conv.no + ot1 + ot2 + 
-    ot1.ot2 + condition.ot1 + condition.ot2 + condition.ot1.ot2 + 
-    (1 | dyad_id), data=drp_sample_st, REML=FALSE
-)
-
-```
-
-```{r silently-print-h2-samplewise-st-drp-summary, echo=FALSE, eval=FALSE}
-
-# print summary table
-summary(H2_sample_st)
-
-```
-
-```{r silently-print-h2-samplewise-st-drp-table, echo=FALSE, eval=FALSE}
-
-# neatly print output
-pander_lme(H2_sample_st)
-
-```
-
-```{r plot-aggregate-samplewise-st-drps, echo=FALSE}
-
-# what do these DRPs look like?
-ggplot(data=drp_sample,
-       aes(y=rr, 
-           x=raw,
-           colour=as.factor(condition))) +
-  geom_smooth()
-
-```
-
-```{r model-h2-drp-raw-samplewise, eval=FALSE}
+```{r model-h2-drp-samplewise, eval=FALSE}
 
 # maximal random-effects model
 H2_drp_baseline = lmer(
