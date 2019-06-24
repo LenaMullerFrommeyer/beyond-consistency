@@ -1231,7 +1231,7 @@ for (next_conv in split_h2) {
 
 # cycle through all the dyads
 dyad_list = unique(sample_wise_baseline$dyad_id)
-drp_sample = data.frame()
+drp_sample_shuffle = data.frame()
 for (next_dyad in dyad_list){
   for (next_conv in 1:max(h2_data$conv.no)) {
     
@@ -1287,7 +1287,7 @@ for (next_dyad in dyad_list){
         }
         
         # save to overall dataframe
-        drp_sample = rbind.data.frame(drp_sample, next_data)
+        drp_sample_shuffle = rbind.data.frame(drp_sample_shuffle, next_data)
       }
     }
   }
@@ -1353,24 +1353,24 @@ crqa_partner_shuffle = crqa_partner_shuffle %>% ungroup() %>%
 
 # prepare real data dataframe
 drp_real = drp_real %>% ungroup() %>%
-  
-  # recode "condition" values to be -.5 and +.5
-  dplyr::rename(condition = cond) %>%
-  mutate(condition = dplyr::if_else(condition=="P",
-                                    -.5,      # personal = -.5
-                                    .5)) %>%  # conflict = .5
-  
-  # convert variables to factor
-  mutate(condition = as.factor(condition),
-         dyad_id = as.factor(dyad_id),
-         conv.no = as.factor(conv.no))
+
+# recode "condition" values to be -.5 and +.5
+dplyr::rename(condition = cond) %>%
+mutate(condition = dplyr::if_else(condition=="P",
+-.5,      # personal = -.5
+.5)) %>%  # conflict = .5
+
+# convert variables to factor
+mutate(condition = as.factor(condition),
+dyad_id = as.factor(dyad_id),
+conv.no = as.factor(conv.no))
 
 ```
 
 ```{r prepare-drp-variables-baseline}
 
 # prepare sample-wise baseline dataframe
-drp_sample = drp_sample %>% ungroup() %>%
+drp_sample_shuffle = drp_sample_shuffle %>% ungroup() %>%
   
   # recode "condition" values to be -.5 and +.5
   dplyr::rename(condition = cond) %>%
