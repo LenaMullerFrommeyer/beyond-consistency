@@ -135,6 +135,10 @@ for (next_mon in split_mon){
   dev.off()
 }
 
+# clean up what we don't need
+rm(split_mon, next_mon, rqa_for_mon,
+   dyad_id, speaker_code, cond, conv.type, next_data_line)
+
 ```
 
 ***
@@ -221,6 +225,10 @@ for (next_conv in split_conv){
   dev.off()
 }
 
+# clean up what we don't need
+rm(split_conv, next_conv, rqa_for_conv,
+   dyad_id, speaker_code, conv.type, cond, next_data_line)
+
 ```
 
 ***
@@ -284,6 +292,10 @@ for (next_mon in split_mon){
     monologue_baseline = rbind.data.frame(monologue_baseline, permuted_mon_df)}
 }
 
+# clean up what we don't need
+rm(split_mon, next_mon, 
+   run, next_shuffle, permuted_mon_df)
+
 ```
 
 ***
@@ -328,6 +340,10 @@ for (next_conv in split_conv){
     # bind the next surrogate's data to the dataframe
     conversation_baseline = rbind.data.frame(conversation_baseline, permuted_conv_df)}
 }
+
+# clean up what we don't need
+rm(split_conv, next_conv, 
+   run, next_shuffle, permuted_conv_df)
 
 ```
 
@@ -384,8 +400,12 @@ for (next_speaker in speaker_list){
   }
 }
 
-```
+# clean up what we don't need
+rm(spekaer_list, next_speaker_df,
+   run_no, temp_AB, rqa_sample_mon,
+   dyad_id, speaker_code, cond, conv.type, run_id, next_data_line)
 
+```
 
 ***
 
@@ -439,6 +459,11 @@ for (next_speaker in speaker_list){
     rqa_conv_sur = rbind.data.frame(rqa_conv_sur,next_data_line)
   }
 }
+
+# clean up what we don't need
+rm(speaker_list, next_speaker, next_speaker_df,
+   run_no, temp_AB, rqa_sample_con,
+   dyad_id, speaker_code, cond, conv.type, run_id, next_data_line)
 
 ```
 
@@ -567,6 +592,9 @@ h1_post_sur = full_join(crqa_mon_sur_post, crqa_conv_sur_post,
 # Calculate Diff_DET
 h1_post_hoc_sur = h1_post_sur %>%
   mutate(Diff_DET = DET_m - DET_c)
+
+# clean up what we don't need
+rm(rqa_mon_sur_post, rqa_conv_sur_post)
 
 ```
 
@@ -888,6 +916,9 @@ partner_wise_baseline = partner_wise_baseline %>%
 write.table(partner_wise_baseline, 
             './scripts/partner_wise_baseline-partner_IDs.csv', sep=",")
 
+# clean up what we don't need
+rm(runs, temp_df)
+
 ```
 
 ```{r read-in partner-wise-baseline-ids}
@@ -948,6 +979,9 @@ for (next_conv in split_h2){
     sample_wise_baseline = rbind.data.frame(sample_wise_baseline, permuted_df)}
 }
 
+# clean up what we don't need
+rm(next_conv, next_shuffle, permuted_df)
+
 ```
 
 ***
@@ -1004,6 +1038,10 @@ for (next_conv in split_conv){
     
   }
 }
+
+# clean up what we don't need
+rm(next_conv, crqa_for_conv, 
+   dyad_id, speaker_A, speaker_B, cond, conv.no, next_data_line)
 
 ```
 
@@ -1097,6 +1135,12 @@ for (fake_dyad in 1:nrow(partner_wise_baseline)) {
     }
   }
 }
+
+# clean up what we don't need
+rm(fake_dyad, next_conv,
+   temp_A, temp_B, temp_data, crqa_for_sur, 
+   speaker_A, speaker_B, cond, conv.no, next_data_line)
+
 ```
 
 ***
