@@ -1033,14 +1033,20 @@ for (next_conv in split_conv){
                          whiteline=FALSE,
                          recpt=FALSE)
     
-    # save plot-level information to dataframe -- confirm that we don't need anything else here
+    # save plot-level information to dataframe
     dyad_id = unique(next_conv$dyad_id)
+    speaker_A = unique(next_conv$speaker_A)
+    speaker_B = unique(next_conv$speaker_B)
     cond = unique(next_conv$cond) 
-    conv.no = unique(next_conv$conv.no) #conv.no
-    next_data_line = data.frame(dyad_id,  
+    conv.no = unique(next_conv$conv.no)
+    next_data_line = data.frame(dyad_id,
+                                speaker_A,
+                                speaker_B,
                                 cond,
                                 conv.no,
-                                crqa_for_conv[1:9])
+                                turns,
+                                crqa_for_conv[1:9]) %>%
+      mutate(NRLINE_norm = NRLINE / dim(next_conv)[1]) # normalize NRLINE by number of turns 
     crqa_real = rbind.data.frame(crqa_real,next_data_line)
     
     # plot the CRPs
@@ -1073,7 +1079,7 @@ ggplot(data=crqa_real,
 
 ggplot(data=crqa_real,
        aes(x=cond,
-           y=ENTR)) +
+           y=rENTR)) +
   geom_boxplot() +
   geom_point()
 
@@ -1083,7 +1089,7 @@ ggplot(data=crqa_real,
 
 ggplot(data=crqa_real,
        aes(x=cond,
-           y=NRLINE)) +
+           y=NRLINE_norm)) +
   geom_boxplot() +
   geom_point()
 
