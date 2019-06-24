@@ -503,6 +503,10 @@ write.table(h1_data_sur,'./data/h1_data-surrogate.csv',sep=",")
 
 ## Data analysis
 
+***
+
+### Planned analysis
+
 Here, we perform a linear mixed-effects model to analyze how conversation
 type---whether a monologue (M) or conversation (C)---changes a person's
 language style, specifically looking at their use of function words (often a
@@ -515,7 +519,8 @@ failed to converge. As a result, we use only the random intercept in our model.
 ```{r model-h1}
 
 # does linguistic style change based on the conversational context?
-h1_analyses <- lmer(RR ~ conv.type + (1|speaker_code), data = h1_data, REML = FALSE)
+h1_analyses <- lmer(RR ~ conv.type + (1|speaker_code), 
+                    data = h1_data, REML = FALSE)
 
 ```
 
@@ -604,11 +609,10 @@ rqa_conv_sur_post = rqa_conv_sur  %>%
                 rENTR_c = rENTR,
                 LAM_c = LAM,
                 TT_c = TT) 
-h1_post_sur = full_join(crqa_mon_sur_post, crqa_conv_sur_post,
-                        by=c("dyad_id", "speaker_code"))
 
 # Calculate Diff_DET
-h1_post_hoc_sur = h1_post_sur %>%
+h1_post_sur = full_join(rqa_mon_sur_post, rqa_conv_sur_post,
+                        by=c("dyad_id", "speaker_code")) %>%
   mutate(Diff_DET = DET_m - DET_c)
 
 # clean up what we don't need
@@ -621,7 +625,6 @@ rm(rqa_mon_sur_post, rqa_conv_sur_post)
 # do changes in linguistic style between monologues and dialogues
 # differ by conversation type?
 h1_analyses_post = lm(Diff_DET ~ cond_c, data = h1_post_hoc)
-h1_analyses_post_sur = lm(Diff_DET ~ cond_c, data = h1_post_hoc_sur)
 
 ```
 
@@ -629,7 +632,6 @@ h1_analyses_post_sur = lm(Diff_DET ~ cond_c, data = h1_post_hoc_sur)
 
 # print summary table
 summary(h1_analyses_post)
-summary(h1_analyses_post_sur)
 
 ```
 
@@ -637,11 +639,8 @@ summary(h1_analyses_post_sur)
 
 # neatly print output
 pander_lme(h1_analyses_post)
-pander_lme(h1_analyses_post_sur)
 ```
 
-We find a trend toward an effect of condition, but it does not 
-reach statistical significance. Let's take a look at the data.
 
 ```{r silently-plot-h1-post-trend-data, echo=FALSE}
 
