@@ -550,7 +550,7 @@ A_dfs = A_dfs %>% ungroup() %>%
                 speaker_A = speaker_code,
                 wc_A = WC) %>%
   dplyr::select(dyad_id, speaker_A, Segment, cond, 
-                function_words_A, fw_quantiles_A, wc_A, conv.no, data_type )
+                function_words_A, fw_quantiles_A, wc_A, conv.no, data_type)
 ```
 
 ***
@@ -1155,7 +1155,7 @@ based on conversational context (when accounting for conversation number)?
 ```{r model-h2-crqa-raw}
 
 # does linguistic style matching change based on the conversational context?
-h2_analyses_rr <- lm(RR ~ cond + conv.no, 
+h2_analyses_rr <- lm(RR ~ condition + conv.no, 
                      data = crqa_real)
 
 ```
@@ -1185,7 +1185,7 @@ which accounts for the number of lines in the plot), and percent determinism
 ```{r model-h2-crqa-nrline-raw}
 
 # does the structure of language style matching change by context?
-h2_analyses_nrline <- lm(NRLINE ~ cond + conv.no, 
+h2_analyses_nrline <- lm(NRLINE ~ condition + conv.no, 
                          data = crqa_real)
 
 ```
@@ -1207,7 +1207,7 @@ pander_lme(h2_analyses_nrline)
 ```{r model-h2-crqa-rentr-raw}
 
 # does the heterogeneity of structure of LSM change by context?
-h2_analyses_entropy <- lm(rENTR ~ cond + conv.no, 
+h2_analyses_entropy <- lm(rENTR ~ condition + conv.no, 
                           data = crqa_real)
 
 ```
@@ -1229,7 +1229,7 @@ pander_lme(h2_analyses_entropy)
 ```{r model-h2-crqa-det-raw}
 
 # does the proportion of recurrent structures in LSM change by context?
-h2_analyses_det <- lm(DET ~ cond + conv.no, 
+h2_analyses_det <- lm(DET ~ condition + conv.no, 
                       data = crqa_real)
 
 ```
@@ -1247,18 +1247,6 @@ summary(h2_analyses_det)
 pander_lme(h2_analyses_det)
 
 ```
-
-***
-
-
-
-```{r}
-
-h2_analyses_rr <- lm(RR ~ (cond + conv.no) * con,
-                     data = crqa_real)
-
-```
-
 
 ***
 
