@@ -279,6 +279,22 @@ h1_analyses <- lmer(RR ~ conv.type + (1|speaker_code),
                     data = h1_data, REML = FALSE)
 ```
 
+```
+## Warning in optwrap(optimizer, devfun, getStart(start, rho$lower, rho$pp), :
+## convergence code -4 from nloptwrap
+```
+
+```
+## Warning in checkConv(attr(opt, "derivs"), opt$par, ctrl =
+## control$checkConv, : unable to evaluate scaled gradient
+```
+
+```
+## Warning in checkConv(attr(opt, "derivs"), opt$par, ctrl =
+## control$checkConv, : Model failed to converge: degenerate Hessian with 1
+## negative eigenvalues
+```
+
 
 ```
 ## Linear mixed model fit by maximum likelihood . t-tests use
@@ -287,35 +303,41 @@ h1_analyses <- lmer(RR ~ conv.type + (1|speaker_code),
 ##    Data: h1_data
 ## 
 ##      AIC      BIC   logLik deviance df.resid 
-##   1469.1   1483.0   -730.6   1461.1      232 
+##  -1227.7  -1213.8    617.8  -1235.7      232 
 ## 
 ## Scaled residuals: 
-##     Min      1Q  Median      3Q     Max 
-## -3.6500 -0.5747 -0.0145  0.6198  2.6340 
+##          Min           1Q       Median           3Q          Max 
+## -0.000048502 -0.000007124  0.000001132  0.000008887  0.000021014 
 ## 
 ## Random effects:
-##  Groups       Name        Variance Std.Dev.
-##  speaker_code (Intercept)  5.697   2.387   
-##  Residual                 23.464   4.844   
+##  Groups       Name        Variance        Std.Dev.  
+##  speaker_code (Intercept) 12.924611155278 3.59508152
+##  Residual                  0.000000003756 0.00006129
 ## Number of obs: 236, groups:  speaker_code, 118
 ## 
 ## Fixed effects:
-##             Estimate Std. Error       df t value             Pr(>|t|)    
-## (Intercept)  29.3813     0.4971 227.3241  59.104 < 0.0000000000000002 ***
-## conv.typeC    4.6582     0.6306 117.9998   7.387      0.0000000000234 ***
+##                         Estimate           Std. Error                   df
+## (Intercept) 34.09796543527484403  0.33095339217895448 87.99054976736901779
+## conv.typeC   0.00000000000002312  0.00000797881197106 47.20263542934374357
+##             t value            Pr(>|t|)    
+## (Intercept)     103 <0.0000000000000002 ***
+## conv.typeC        0                   1    
 ## ---
 ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 ## 
 ## Correlation of Fixed Effects:
 ##            (Intr)
-## conv.typeC -0.634
+## conv.typeC 0.000 
+## convergence code: -4
+## unable to evaluate scaled gradient
+## Model failed to converge: degenerate  Hessian with 1 negative eigenvalues
 ```
 
 
-|     &nbsp;      | Estimate | Std..Error |  df   | t.value |   p    | p_adj  | sig |
-|:---------------:|:--------:|:----------:|:-----:|:-------:|:------:|:------:|:---:|
-| **(Intercept)** |  29.38   |   0.4971   | 227.3 |  59.1   | 0.0001 | 0.0001 | *** |
-| **conv.typeC**  |  4.658   |   0.6306   |  118  |  7.387  | 0.0001 | 0.0001 | *** |
+|     &nbsp;      |      Estimate       | Std..Error  |  df   |    t.value     |   p    | p_adj  | sig |
+|:---------------:|:-------------------:|:-----------:|:-----:|:--------------:|:------:|:------:|:---:|
+| **(Intercept)** |        34.1         |    0.331    | 87.99 |      103       | 0.0001 | 0.0001 | *** |
+| **conv.typeC**  | 0.00000000000002312 | 0.000007979 | 47.2  | 0.000000002898 |   1    |   1    |     |
 
 As predicted, we do see a difference in linguistic style between conversations
 and monologues. Specifically, we find that conversations tend to have more
@@ -388,19 +410,17 @@ h1_analyses_post_RR = lm(Diff_RR ~ cond_c,
 ## lm(formula = Diff_RR ~ cond_c, data = h1_post_hoc)
 ## 
 ## Residuals:
-##      Min       1Q   Median       3Q      Max 
-## -23.1390  -4.1330   0.7717   4.3963  16.6707 
+##    Min     1Q Median     3Q    Max 
+##      0      0      0      0      0 
 ## 
 ## Coefficients:
-##             Estimate Std. Error t value            Pr(>|t|)    
-## (Intercept)  -7.2987     0.8021  -9.100 0.00000000000000304 ***
-## cond_cP       5.5638     1.1643   4.779 0.00000521049786764 ***
-## ---
-## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+##             Estimate Std. Error t value Pr(>|t|)
+## (Intercept)        0          0      NA       NA
+## cond_cP            0          0      NA       NA
 ## 
-## Residual standard error: 6.315 on 116 degrees of freedom
-## Multiple R-squared:  0.1645,	Adjusted R-squared:  0.1573 
-## F-statistic: 22.84 on 1 and 116 DF,  p-value: 0.00000521
+## Residual standard error: 0 on 116 degrees of freedom
+## Multiple R-squared:    NaN,	Adjusted R-squared:    NaN 
+## F-statistic:   NaN on 1 and 116 DF,  p-value: NA
 ```
 
 
@@ -437,20 +457,17 @@ h1_analyses_post_DET = lm(Diff_DET ~ cond_c,
 ## lm(formula = Diff_DET ~ cond_c, data = h1_post_hoc)
 ## 
 ## Residuals:
-##     Min      1Q  Median      3Q     Max 
-## -33.125  -7.437  -0.201   7.657  33.981 
+##    Min     1Q Median     3Q    Max 
+##      0      0      0      0      0 
 ## 
 ## Coefficients:
-##             Estimate Std. Error t value         Pr(>|t|)    
-## (Intercept)  -11.300      1.479  -7.640 0.00000000000705 ***
-## cond_cP        4.236      2.138   1.982           0.0499 *  
-## ---
-## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+##             Estimate Std. Error t value Pr(>|t|)
+## (Intercept)        0          0      NA       NA
+## cond_cP            0          0      NA       NA
 ## 
-## Residual standard error: 11.55 on 115 degrees of freedom
-##   (1 observation deleted due to missingness)
-## Multiple R-squared:  0.03302,	Adjusted R-squared:  0.02461 
-## F-statistic: 3.926 on 1 and 115 DF,  p-value: 0.04992
+## Residual standard error: 0 on 116 degrees of freedom
+## Multiple R-squared:    NaN,	Adjusted R-squared:    NaN 
+## F-statistic:   NaN on 1 and 116 DF,  p-value: NA
 ```
 
 
@@ -467,11 +484,6 @@ friendly conversation (compared to a conflict conversation). In other words,
 people are *more likely* to change the structure in their langauge style when 
 having a friendly conversation as compared to an argumentative one---consistent
 with the results found in the post-hoc analysis of RR.
-
-
-```
-## Warning: Removed 1 rows containing missing values (geom_point).
-```
 
 ![](beyond_consistency_files/figure-html/silently-plot-h1-post-det-data-1.png)<!-- -->
 
@@ -494,20 +506,17 @@ h1_analyses_post_rENTR = lm(Diff_rENTR ~ cond_c,
 ## lm(formula = Diff_rENTR ~ cond_c, data = h1_post_hoc)
 ## 
 ## Residuals:
-##      Min       1Q   Median       3Q      Max 
-## -0.30919 -0.08640 -0.01154  0.06985  0.60921 
+##    Min     1Q Median     3Q    Max 
+##      0      0      0      0      0 
 ## 
 ## Coefficients:
-##             Estimate Std. Error t value Pr(>|t|)  
-## (Intercept)  0.01842    0.01786   1.032    0.304  
-## cond_cP      0.04657    0.02582   1.804    0.074 .
-## ---
-## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+##             Estimate Std. Error t value Pr(>|t|)
+## (Intercept)        0          0      NA       NA
+## cond_cP            0          0      NA       NA
 ## 
-## Residual standard error: 0.1383 on 113 degrees of freedom
-##   (3 observations deleted due to missingness)
-## Multiple R-squared:  0.02798,	Adjusted R-squared:  0.01938 
-## F-statistic: 3.253 on 1 and 113 DF,  p-value: 0.07395
+## Residual standard error: 0 on 116 degrees of freedom
+## Multiple R-squared:    NaN,	Adjusted R-squared:    NaN 
+## F-statistic:   NaN on 1 and 116 DF,  p-value: NA
 ```
 
 
@@ -521,11 +530,6 @@ conversation type. Normalized entropy essentially captures the degree to which
 the structure of the line lengths are uniform (i.e., lower variety in line
 lengths means lower `rENTR`) or more heterogenous (i.e., higher variety in line
 lengths means higher `rENTR`).
-
-
-```
-## Warning: Removed 3 rows containing missing values (geom_point).
-```
 
 ![](beyond_consistency_files/figure-html/silently-plot-h1-post-retnr-data-1.png)<!-- -->
 
@@ -1176,27 +1180,27 @@ h2_analyses_rr <- lm(RR ~ condition + conv.no,
 ## 
 ## Residuals:
 ##     Min      1Q  Median      3Q     Max 
-## -7.5514 -1.3995  0.6324  1.6092  4.2556 
+## -7.5742 -1.3961  0.6318  1.6004  4.2488 
 ## 
 ## Coefficients:
 ##              Estimate Std. Error t value            Pr(>|t|)    
-## (Intercept)   17.4009     0.3273  53.172 <0.0000000000000002 ***
-## condition0.5  -0.5455     0.3703  -1.473               0.143    
-## conv.no2      -0.5062     0.3701  -1.368               0.174    
+## (Intercept)   17.4095     0.3268  53.280 <0.0000000000000002 ***
+## condition0.5  -0.5615     0.3690  -1.521               0.130    
+## conv.no2      -0.4919     0.3690  -1.333               0.185    
 ## ---
 ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 ## 
-## Residual standard error: 2.194 on 139 degrees of freedom
-## Multiple R-squared:  0.02579,	Adjusted R-squared:  0.01177 
-## F-statistic:  1.84 on 2 and 139 DF,  p-value: 0.1627
+## Residual standard error: 2.193 on 139 degrees of freedom
+## Multiple R-squared:  0.02678,	Adjusted R-squared:  0.01278 
+## F-statistic: 1.912 on 2 and 139 DF,  p-value: 0.1516
 ```
 
 
 |      &nbsp;      | Estimate | Std..Error | t.value |   p    | p_adj  | sig |
 |:----------------:|:--------:|:----------:|:-------:|:------:|:------:|:---:|
-| **(Intercept)**  |   17.4   |   0.3273   |  53.17  | 0.0001 | 0.0001 | *** |
-| **condition0.5** | -0.5455  |   0.3703   | -1.473  | 0.143  | 0.174  |     |
-|   **conv.no2**   | -0.5062  |   0.3701   | -1.368  | 0.174  | 0.174  |     |
+| **(Intercept)**  |  17.41   |   0.3268   |  53.28  | 0.0001 | 0.0001 | *** |
+| **condition0.5** | -0.5615  |   0.369    | -1.521  |  0.13  | 0.185  |     |
+|   **conv.no2**   | -0.4919  |   0.369    | -1.333  | 0.185  | 0.185  |     |
 
 We don't see a difference by overall amounts of recurrence, but what about
 differences in the structure of the recurrence? From looking at the 
@@ -1221,27 +1225,27 @@ h2_analyses_nrline <- lm(NRLINE ~ condition + conv.no,
 ## 
 ## Residuals:
 ##     Min      1Q  Median      3Q     Max 
-## -181.78  -64.54  -27.90   27.47  798.22 
+## -183.20  -64.20  -25.68   25.80  796.80 
 ## 
 ## Coefficients:
 ##              Estimate Std. Error t value             Pr(>|t|)    
-## (Intercept)    189.78      18.87  10.059 < 0.0000000000000002 ***
-## condition0.5  -112.38      21.35  -5.265          0.000000521 ***
-## conv.no2       -43.95      21.34  -2.060               0.0413 *  
+## (Intercept)    191.20      18.75  10.199 < 0.0000000000000002 ***
+## condition0.5  -115.03      21.17  -5.433          0.000000241 ***
+## conv.no2       -40.97      21.17  -1.935                0.055 .  
 ## ---
 ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 ## 
-## Residual standard error: 126.5 on 139 degrees of freedom
-## Multiple R-squared:  0.1781,	Adjusted R-squared:  0.1662 
-## F-statistic: 15.06 on 2 and 139 DF,  p-value: 0.000001205
+## Residual standard error: 125.8 on 139 degrees of freedom
+## Multiple R-squared:  0.1868,	Adjusted R-squared:  0.1751 
+## F-statistic: 15.97 on 2 and 139 DF,  p-value: 0.0000005719
 ```
 
 
 |      &nbsp;      | Estimate | Std..Error | t.value |   p    | p_adj  | sig |
 |:----------------:|:--------:|:----------:|:-------:|:------:|:------:|:---:|
-| **(Intercept)**  |  189.8   |   18.87    |  10.06  | 0.0001 | 0.0001 | *** |
-| **condition0.5** |  -112.4  |   21.35    | -5.265  | 0.0001 | 0.0001 | *** |
-|   **conv.no2**   |  -43.95  |   21.34    |  -2.06  | 0.041  | 0.041  |  *  |
+| **(Intercept)**  |  191.2   |   18.75    |  10.2   | 0.0001 | 0.0001 | *** |
+| **condition0.5** |   -115   |   21.17    | -5.433  | 0.0001 | 0.0001 | *** |
+|   **conv.no2**   |  -40.97  |   21.17    | -1.935  | 0.055  | 0.055  |  .  |
 
 
 ```r
@@ -1258,28 +1262,28 @@ h2_analyses_entropy <- lm(rENTR ~ condition + conv.no,
 ## 
 ## Residuals:
 ##      Min       1Q   Median       3Q      Max 
-## -0.31421 -0.08840 -0.02783  0.06902  0.40472 
+## -0.38432 -0.09061 -0.02526  0.07065  0.39913 
 ## 
 ## Coefficients:
 ##              Estimate Std. Error t value             Pr(>|t|)    
-## (Intercept)   0.44768    0.01983  22.574 < 0.0000000000000002 ***
-## condition0.5  0.07891    0.02317   3.406             0.000884 ***
-## conv.no2      0.02885    0.02308   1.250             0.213648    
+## (Intercept)   0.45327    0.02002  22.641 < 0.0000000000000002 ***
+## condition0.5  0.06789    0.02331   2.913              0.00423 ** 
+## conv.no2      0.02548    0.02328   1.095              0.27578    
 ## ---
 ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 ## 
-## Residual standard error: 0.1307 on 127 degrees of freedom
+## Residual standard error: 0.1322 on 127 degrees of freedom
 ##   (12 observations deleted due to missingness)
-## Multiple R-squared:  0.08874,	Adjusted R-squared:  0.07439 
-## F-statistic: 6.184 on 2 and 127 DF,  p-value: 0.002737
+## Multiple R-squared:  0.0678,	Adjusted R-squared:  0.05312 
+## F-statistic: 4.618 on 2 and 127 DF,  p-value: 0.01159
 ```
 
 
 |      &nbsp;      | Estimate | Std..Error | t.value |   p    | p_adj  | sig |
 |:----------------:|:--------:|:----------:|:-------:|:------:|:------:|:---:|
-| **(Intercept)**  |  0.4477  |  0.01983   |  22.57  | 0.0001 | 0.0001 | *** |
-| **condition0.5** | 0.07891  |  0.02317   |  3.406  | 0.001  | 0.001  | **  |
-|   **conv.no2**   | 0.02885  |  0.02308   |  1.25   | 0.214  | 0.214  |     |
+| **(Intercept)**  |  0.4533  |  0.02002   |  22.64  | 0.0001 | 0.0001 | *** |
+| **condition0.5** | 0.06789  |  0.02331   |  2.913  | 0.004  | 0.006  | **  |
+|   **conv.no2**   | 0.02548  |  0.02328   |  1.095  |  0.28  |  0.28  |     |
 
 
 ```r
@@ -1295,29 +1299,29 @@ h2_analyses_det <- lm(DET ~ condition + conv.no,
 ## lm(formula = DET ~ condition + conv.no, data = crqa_real)
 ## 
 ## Residuals:
-##     Min      1Q  Median      3Q     Max 
-## -20.110  -2.876   0.427   3.669  13.751 
+##      Min       1Q   Median       3Q      Max 
+## -20.2647  -2.7396   0.5292   3.7526  13.6238 
 ## 
 ## Coefficients:
 ##              Estimate Std. Error t value            Pr(>|t|)    
-## (Intercept)   31.0218     0.8691  35.694 <0.0000000000000002 ***
-## condition0.5  -0.2903     0.9882  -0.294               0.769    
-## conv.no2      -0.6218     0.9873  -0.630               0.530    
+## (Intercept)  30.87888    0.86836  35.560 <0.0000000000000002 ***
+## condition0.5 -0.01993    0.98528  -0.020               0.984    
+## conv.no2     -0.59420    0.98518  -0.603               0.547    
 ## ---
 ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 ## 
-## Residual standard error: 5.812 on 137 degrees of freedom
+## Residual standard error: 5.814 on 137 degrees of freedom
 ##   (2 observations deleted due to missingness)
-## Multiple R-squared:  0.003277,	Adjusted R-squared:  -0.01127 
-## F-statistic: 0.2252 on 2 and 137 DF,  p-value: 0.7986
+## Multiple R-squared:  0.002652,	Adjusted R-squared:  -0.01191 
+## F-statistic: 0.1822 on 2 and 137 DF,  p-value: 0.8337
 ```
 
 
-|      &nbsp;      | Estimate | Std..Error | t.value |   p    | p_adj  | sig |
-|:----------------:|:--------:|:----------:|:-------:|:------:|:------:|:---:|
-| **(Intercept)**  |  31.02   |   0.8691   |  35.69  | 0.0001 | 0.0001 | *** |
-| **condition0.5** | -0.2903  |   0.9882   | -0.2938 |  0.77  |  0.77  |     |
-|   **conv.no2**   | -0.6218  |   0.9873   | -0.6298 |  0.53  |  0.77  |     |
+|      &nbsp;      | Estimate | Std..Error | t.value  |   p    | p_adj  | sig |
+|:----------------:|:--------:|:----------:|:--------:|:------:|:------:|:---:|
+| **(Intercept)**  |  30.88   |   0.8684   |  35.56   | 0.0001 | 0.0001 | *** |
+| **condition0.5** | -0.01993 |   0.9853   | -0.02023 |  0.98  |  0.98  |     |
+|   **conv.no2**   | -0.5942  |   0.9852   | -0.6031  |  0.55  |  0.82  |     |
 
 ***
 
@@ -1342,66 +1346,66 @@ H2_drp = lmer(rr ~ conv.no + condition * ot1 * ot2 + (1 | dyad_id),
 ##    Data: drp_real
 ## 
 ##      AIC      BIC   logLik deviance df.resid 
-##  -4428.7  -4370.1   2225.4  -4450.7     1518 
+##  -4430.0  -4371.3   2226.0  -4452.0     1518 
 ## 
 ## Scaled residuals: 
 ##     Min      1Q  Median      3Q     Max 
-## -3.3700 -0.6444 -0.0511  0.5421  4.6645 
+## -3.3909 -0.6485 -0.0522  0.5423  4.6735 
 ## 
 ## Random effects:
 ##  Groups   Name        Variance  Std.Dev.
-##  dyad_id  (Intercept) 0.0002993 0.01730 
-##  Residual             0.0030226 0.05498 
+##  dyad_id  (Intercept) 0.0003009 0.01735 
+##  Residual             0.0030196 0.05495 
 ## Number of obs: 1529, groups:  dyad_id, 71
 ## 
 ## Fixed effects:
 ##                         Estimate  Std. Error          df t value
-## (Intercept)             0.173719    0.003232  195.486117  53.752
-## conv.no2               -0.006970    0.002840 1479.460283  -2.454
-## condition0.5           -0.003643    0.002870 1498.872921  -1.269
-## ot1                    -0.050718    0.009288 1458.649951  -5.461
-## ot2                    -0.004951    0.006435 1458.649951  -0.769
-## condition0.5:ot1       -0.003575    0.013479 1458.649951  -0.265
-## condition0.5:ot2        0.008885    0.009338 1458.649951   0.951
-## ot1:ot2                 0.062467    0.025151 1458.649951   2.484
-## condition0.5:ot1:ot2   -0.041347    0.036500 1458.649951  -1.133
+## (Intercept)             0.173453    0.003225  194.093373  53.780
+## conv.no2               -0.006833    0.002832 1479.437281  -2.413
+## condition0.5           -0.003129    0.002832 1479.042736  -1.105
+## ot1                    -0.048769    0.009413 1458.672343  -5.181
+## ot2                    -0.005363    0.006521 1458.672343  -0.822
+## condition0.5:ot1       -0.007453    0.013458 1458.672343  -0.554
+## condition0.5:ot2        0.009465    0.009324 1458.672343   1.015
+## ot1:ot2                 0.063086    0.025490 1458.672343   2.475
+## condition0.5:ot1:ot2   -0.041397    0.036444 1458.672343  -1.136
 ##                                  Pr(>|t|)    
 ## (Intercept)          < 0.0000000000000002 ***
-## conv.no2                           0.0142 *  
-## condition0.5                       0.2045    
-## ot1                          0.0000000557 ***
-## ot2                                0.4418    
-## condition0.5:ot1                   0.7909    
-## condition0.5:ot2                   0.3415    
-## ot1:ot2                            0.0131 *  
-## condition0.5:ot1:ot2               0.2575    
+## conv.no2                           0.0160 *  
+## condition0.5                       0.2695    
+## ot1                           0.000000251 ***
+## ot2                                0.4110    
+## condition0.5:ot1                   0.5798    
+## condition0.5:ot2                   0.3102    
+## ot1:ot2                            0.0134 *  
+## condition0.5:ot1:ot2               0.2562    
 ## ---
 ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 ## 
 ## Correlation of Fixed Effects:
 ##             (Intr) cnv.n2 cnd0.5 ot1    ot2    cn0.5:1 c0.5:2 ot1:t2
-## conv.no2    -0.482                                                  
-## conditin0.5 -0.458  0.092                                           
+## conv.no2    -0.470                                                  
+## conditin0.5 -0.452  0.062                                           
 ## ot1          0.000  0.000  0.000                                    
 ## ot2          0.000  0.000  0.000  0.000                             
-## cndtn0.5:t1  0.000  0.000  0.000 -0.689  0.000                      
-## cndtn0.5:t2  0.000  0.000  0.000  0.000 -0.689  0.000               
-## ot1:ot2      0.000  0.000  0.000 -0.721  0.000  0.497   0.000       
-## cndt0.5:1:2  0.000  0.000  0.000  0.497  0.000 -0.721   0.000 -0.689
+## cndtn0.5:t1  0.000  0.000  0.000 -0.699  0.000                      
+## cndtn0.5:t2  0.000  0.000  0.000  0.000 -0.699  0.000               
+## ot1:ot2      0.000  0.000  0.000 -0.721  0.000  0.504   0.000       
+## cndt0.5:1:2  0.000  0.000  0.000  0.504  0.000 -0.721   0.000 -0.699
 ```
 
 
 |          &nbsp;          | Estimate  | Std..Error |  df   | t.value |   p    | p_adj  | sig |
 |:------------------------:|:---------:|:----------:|:-----:|:-------:|:------:|:------:|:---:|
-|     **(Intercept)**      |  0.1737   |  0.003232  | 195.5 |  53.75  | 0.0001 | 0.0001 | *** |
-|       **conv.no2**       | -0.00697  |  0.00284   | 1479  | -2.454  | 0.014  | 0.032  |  *  |
-|     **condition0.5**     | -0.003643 |  0.00287   | 1499  | -1.269  | 0.204  |  0.37  |     |
-|         **ot1**          | -0.05072  |  0.009288  | 1459  | -5.461  | 0.0001 | 0.0001 | *** |
-|         **ot2**          | -0.004951 |  0.006435  | 1459  | -0.7694 |  0.44  |  0.5   |     |
-|   **condition0.5:ot1**   | -0.003575 |  0.01348   | 1459  | -0.2652 |  0.79  |  0.79  |     |
-|   **condition0.5:ot2**   | 0.008885  |  0.009338  | 1459  | 0.9515  |  0.34  |  0.44  |     |
-|       **ot1:ot2**        |  0.06247  |  0.02515   | 1459  |  2.484  | 0.013  | 0.032  |  *  |
-| **condition0.5:ot1:ot2** | -0.04135  |   0.0365   | 1459  | -1.133  |  0.26  |  0.39  |     |
+|     **(Intercept)**      |  0.1735   |  0.003225  | 194.1 |  53.78  | 0.0001 | 0.0001 | *** |
+|       **conv.no2**       | -0.006833 |  0.002832  | 1479  | -2.413  | 0.016  | 0.036  |  *  |
+|     **condition0.5**     | -0.003129 |  0.002832  | 1479  | -1.105  |  0.27  |  0.4   |     |
+|         **ot1**          | -0.04877  |  0.009413  | 1459  | -5.181  | 0.0001 | 0.0001 | *** |
+|         **ot2**          | -0.005363 |  0.006521  | 1459  | -0.8223 |  0.41  |  0.46  |     |
+|   **condition0.5:ot1**   | -0.007453 |  0.01346   | 1459  | -0.5538 |  0.58  |  0.58  |     |
+|   **condition0.5:ot2**   | 0.009465  |  0.009324  | 1459  |  1.015  |  0.31  |  0.4   |     |
+|       **ot1:ot2**        |  0.06309  |  0.02549   | 1459  |  2.475  | 0.013  | 0.036  |  *  |
+| **condition0.5:ot1:ot2** |  -0.0414  |  0.03644   | 1459  | -1.136  |  0.26  |  0.4   |     |
 
 
 ```
