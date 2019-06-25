@@ -124,7 +124,8 @@ for (next_mon in split_mon){
                               speaker_code,
                               conv.type,
                               cond,
-                              rqa_for_mon[1:9])
+                              rqa_for_mon[1:9]) %>%
+    mutate(NRLINE_norm = NRLINE / dim(next_mon)[1]) # normalize NRLINE by number of words
   rqa_mon = rbind.data.frame(rqa_mon,next_data_line)
   
   # # save the RPs -- including LOI/LOS for plotting (commenting for time/speed)
@@ -226,7 +227,8 @@ for (next_conv in split_conv){
                               speaker_code,
                               conv.type,
                               cond,
-                              rqa_for_conv[1:9])
+                              rqa_for_conv[1:9]) %>%
+  mutate(NRLINE_norm = NRLINE / dim(next_conv)[1]) # normalize NRLINE by number of words 
   rqa_conv = rbind.data.frame(rqa_conv,next_data_line)
   
   # # plot the RPs -- include LOI/LOS (removing for speed/time)
@@ -335,7 +337,8 @@ rqa_mon_post = rqa_mon %>%
                 ENTR_m = ENTR,
                 rENTR_m = rENTR,
                 LAM_m = LAM,
-                TT_m = TT) 
+                TT_m = TT,
+                NRLINE_norm_m = NRLINE_norm) 
 rqa_conv_post = rqa_conv  %>%
   dplyr::rename(conv.type_c = conv.type,
                 cond_c = cond,
@@ -347,14 +350,16 @@ rqa_conv_post = rqa_conv  %>%
                 ENTR_c = ENTR,
                 rENTR_c = rENTR,
                 LAM_c = LAM,
-                TT_c = TT) 
+                TT_c = TT,
+                NRLINE_norm_c = NRLINE_norm) 
 
 # Calculate difference scores
 h1_post_hoc = full_join(rqa_mon_post, rqa_conv_post,
                     by=c("dyad_id", "speaker_code")) %>%
   mutate(Diff_RR = RR_m - RR_c,           # positive means higher RR in mon
          Diff_DET = DET_m - DET_c,        # positive means more DET in mon
-         Diff_rENTR = rENTR_m - rENTR_c)  # positive means more line diversity in mon 
+         Diff_rENTR = rENTR_m - rENTR_c,  # positive means more line diversity in mon 
+         Diff_NRLINE_norm = NRLINE_norm_m - NRLINE_norm_c) 
 
 # clean up what we don't need
 rm(rqa_mon_post, rqa_conv_post)
@@ -477,6 +482,40 @@ conversation type. Normalized entropy essentially captures the degree to which
 the structure of the line lengths are uniform (i.e., lower variety in line
 lengths means lower `rENTR`) or more heterogenous (i.e., higher variety in line
 lengths means higher `rENTR`).
+
+```{r silently-plot-h1-post-retnr-data, echo=FALSE}
+
+qplot(data=h1_post_hoc, x=rENTR_m, y=rENTR_c, colour=cond_c) +
+  geom_abline()
+
+```
+
+### Post-hoc analysis: Normalized NRLINE
+
+```{r post-hoc-h1-rentr-model}
+
+# do changes in uniformity of structure of linguistic style between monologues 
+# and dialogues differ by conversation type?
+h1_analyses_post_NRLINE_norm = lm(Diff_NRLINE_norm ~ cond_c, 
+                      data = h1_post_hoc)
+
+```
+
+```{r silently-print-post-hoc-h1-rentr-summary, eval=TRUE, echo=FALSE}
+
+# print summary table
+summary(h1_analyses_post_NRLINE_norm)
+
+```
+
+```{r silently-print-posthoc-h1-rentr-table, eval=FALSE}
+
+# neatly print output
+pander_lme(h1_analyses_post_NRLINE_norm)
+
+```
+
+
 
 ```{r silently-plot-h1-post-retnr-data, echo=FALSE}
 
