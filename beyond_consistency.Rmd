@@ -128,24 +128,24 @@ for (next_mon in split_mon){
     mutate(NRLINE_norm = NRLINE / dim(next_mon)[1]) # normalize NRLINE by number of words
   rqa_mon = rbind.data.frame(rqa_mon,next_data_line)
   
-  # save the RPs -- including LOI/LOS for plotting (commenting for time/speed)
-  rqa_for_mon = crqa(ts1=next_mon$function_words,
-                     ts2=next_mon$function_contrast,
-                     delay=1,
-                     embed=1,
-                     r=0.1,
-                     normalize=0,
-                     rescale=0,
-                     mindiagline=2,
-                     minvertline=2,
-                     tw=0, # include LOI/LOS
-                     whiteline=FALSE,
-                     recpt=FALSE)
-  png(filename = paste0('./figures/h1-rqa/rp-speaker_',speaker_code,'-monologue.png'))
-  plotRP(rqa_for_mon$RP,
-         list(unit = 2, labelx = "Speaker A", labely = "Speaker A",
-              cols = "black", pcex = .5))
-  dev.off()
+  # # save the RPs -- including LOI/LOS for plotting (commenting for time/speed)
+  # rqa_for_mon = crqa(ts1=next_mon$function_words,
+  #                    ts2=next_mon$function_contrast,
+  #                    delay=1,
+  #                    embed=1,
+  #                    r=0.1,
+  #                    normalize=0,
+  #                    rescale=0,
+  #                    mindiagline=2,
+  #                    minvertline=2,
+  #                    tw=0, # include LOI/LOS
+  #                    whiteline=FALSE,
+  #                    recpt=FALSE)
+  # png(filename = paste0('./figures/h1-rqa/rp-speaker_',speaker_code,'-monologue.png'))
+  # plotRP(rqa_for_mon$RP,
+  #        list(unit = 2, labelx = "Speaker A", labely = "Speaker A",
+  #             cols = "black", pcex = .5))
+  # dev.off()
 }
 
 # clean up what we don't need
@@ -228,27 +228,27 @@ for (next_conv in split_conv){
                               conv.type,
                               cond,
                               rqa_for_conv[1:9]) %>%
-  mutate(NRLINE_norm = NRLINE / dim(next_conv)[1]) # normalize NRLINE by number of words 
+    mutate(NRLINE_norm = NRLINE / dim(next_conv)[1]) # normalize NRLINE by number of words
   rqa_conv = rbind.data.frame(rqa_conv,next_data_line)
   
-  # plot the RPs -- include LOI/LOS (removing for speed/time)
-  rqa_for_conv = crqa(ts1=next_conv$function_words,
-                      ts2=next_conv$function_contrast,
-                      delay=1,
-                      embed=1,
-                      r=0.1,
-                      normalize=0,
-                      rescale=0,
-                      mindiagline=2,
-                      minvertline=2,
-                      tw=0, # retain LOI for plotting only
-                      whiteline=FALSE,
-                      recpt=FALSE)
-  png(filename = paste0('./figures/h1-rqa/rp-speaker_',speaker_code,'-conversation.png'))
-  plotRP(rqa_for_conv$RP,
-         list(unit = 2, labelx = "Speaker A", labely = "Speaker A",
-              cols = "black", pcex = .5))
-  dev.off()
+  # # plot the RPs -- include LOI/LOS (removing for speed/time)
+  # rqa_for_conv = crqa(ts1=next_conv$function_words,
+  #                     ts2=next_conv$function_contrast,
+  #                     delay=1,
+  #                     embed=1,
+  #                     r=0.1,
+  #                     normalize=0,
+  #                     rescale=0,
+  #                     mindiagline=2,
+  #                     minvertline=2,
+  #                     tw=0, # retain LOI for plotting only
+  #                     whiteline=FALSE,
+  #                     recpt=FALSE)
+  # png(filename = paste0('./figures/h1-rqa/rp-speaker_',speaker_code,'-conversation.png'))
+  # plotRP(rqa_for_conv$RP,
+  #        list(unit = 2, labelx = "Speaker A", labely = "Speaker A",
+  #             cols = "black", pcex = .5))
+  # dev.off()
 }
 
 # clean up what we don't need
@@ -291,7 +291,7 @@ failed to converge. As a result, we use only the random intercept in our model.
 ```{r model-h1}
 
 # does linguistic style change based on the conversational context?
-h1_analyses <- lmer(RR ~ conv.type + (1|speaker_code), 
+h1_analyses <- lmer(RR ~ conv.type + (1|speaker_code),
                     data = h1_data, REML = FALSE)
 
 ```
@@ -315,7 +315,7 @@ and monologues. Specifically, we find that conversations tend to have more
 structure in their use of function words than monologues do.
 
 Next, we'll do some post-hoc analyses to explore whether these changes depend
-on the kind of conversation that participants have (i.e., personal 
+on the kind of conversation that participants have (i.e., personal
 versus conflict).
 
 ***
@@ -338,7 +338,7 @@ rqa_mon_post = rqa_mon %>%
                 rENTR_m = rENTR,
                 LAM_m = LAM,
                 TT_m = TT,
-                NRLINE_norm_m = NRLINE_norm) 
+                NRLINE_norm_m = NRLINE_norm)
 rqa_conv_post = rqa_conv  %>%
   dplyr::rename(conv.type_c = conv.type,
                 cond_c = cond,
@@ -351,15 +351,15 @@ rqa_conv_post = rqa_conv  %>%
                 rENTR_c = rENTR,
                 LAM_c = LAM,
                 TT_c = TT,
-                NRLINE_norm_c = NRLINE_norm) 
+                NRLINE_norm_c = NRLINE_norm)
 
 # Calculate difference scores
 h1_post_hoc = full_join(rqa_mon_post, rqa_conv_post,
                         by=c("dyad_id", "speaker_code")) %>%
   mutate(Diff_RR = RR_m - RR_c,           # positive means higher RR in mon
          Diff_DET = DET_m - DET_c,        # positive means more DET in mon
-         Diff_rENTR = rENTR_m - rENTR_c,  # positive means more line diversity in mon 
-         Diff_NRLINE_norm = NRLINE_norm_m - NRLINE_norm_c) 
+         Diff_rENTR = rENTR_m - rENTR_c,  # positive means more line diversity in mon
+         Diff_NRLINE_norm = NRLINE_norm_m - NRLINE_norm_c)
 
 # clean up what we don't need
 rm(rqa_mon_post, rqa_conv_post)
@@ -372,9 +372,9 @@ rm(rqa_mon_post, rqa_conv_post)
 
 ```{r post-hoc-h1-rr-model}
 
-# do changes in linguistic style between monologues and dialogues differ by 
+# do changes in linguistic style between monologues and dialogues differ by
 # conversation type?
-h1_analyses_post_RR = lm(Diff_RR ~ cond_c, 
+h1_analyses_post_RR = lm(Diff_RR ~ cond_c,
                          data = h1_post_hoc)
 
 ```
@@ -386,7 +386,7 @@ summary(h1_analyses_post_RR)
 
 ```
 
-```{r silently-print-posthoc-h1-rr-table, eval=FALSE}
+```{r silently-print-posthoc-h1-rr-table, echo=FALSE}
 
 # neatly print output
 pander_lme(h1_analyses_post_RR)
@@ -413,9 +413,9 @@ qplot(data=h1_post_hoc, x=RR_m, y=RR_c, colour=cond_c) +
 
 ```{r post-hoc-h1-det-model}
 
-# do changes in structure of linguistic style between monologues and dialogues 
+# do changes in structure of linguistic style between monologues and dialogues
 # differ by conversation type?
-h1_analyses_post_DET = lm(Diff_DET ~ cond_c, 
+h1_analyses_post_DET = lm(Diff_DET ~ cond_c,
                           data = h1_post_hoc)
 
 ```
@@ -427,7 +427,7 @@ summary(h1_analyses_post_DET)
 
 ```
 
-```{r silently-print-posthoc-h1-det-table, eval=FALSE}
+```{r silently-print-posthoc-h1-det-table, echo=FALSE}
 
 # neatly print output
 pander_lme(h1_analyses_post_DET)
@@ -435,11 +435,11 @@ pander_lme(h1_analyses_post_DET)
 ```
 
 We also see that there are significant effects in the change in the determinism
-(DET) by conversation---in other words, the structure in the patterns of 
-recurrence. Specifically, we see that the change in language style structure 
-from monologues to conversation is significantly *greater* when followed by a 
-friendly conversation (compared to a conflict conversation). In other words, 
-people are *more likely* to change the structure in their langauge style when 
+(DET) by conversation---in other words, the structure in the patterns of
+recurrence. Specifically, we see that the change in language style structure
+from monologues to conversation is significantly *greater* when followed by a
+friendly conversation (compared to a conflict conversation). In other words,
+people are *more likely* to change the structure in their langauge style when
 having a friendly conversation as compared to an argumentative one---consistent
 with the results found in the post-hoc analysis of RR.
 
@@ -456,9 +456,9 @@ qplot(data=h1_post_hoc, x=DET_m, y=DET_c, colour=cond_c) +
 
 ```{r post-hoc-h1-rentr-model}
 
-# do changes in uniformity of structure of linguistic style between monologues 
+# do changes in uniformity of structure of linguistic style between monologues
 # and dialogues differ by conversation type?
-h1_analyses_post_rENTR = lm(Diff_rENTR ~ cond_c, 
+h1_analyses_post_rENTR = lm(Diff_rENTR ~ cond_c,
                             data = h1_post_hoc)
 
 ```
@@ -470,14 +470,14 @@ summary(h1_analyses_post_rENTR)
 
 ```
 
-```{r silently-print-posthoc-h1-rentr-table, eval=FALSE}
+```{r silently-print-posthoc-h1-rentr-table, echo=FALSE}
 
 # neatly print output
 pander_lme(h1_analyses_post_rENTR)
 
 ```
 
-Unlike RR and DET, we do not see a difference in normalized entropy by 
+Unlike RR and DET, we do not see a difference in normalized entropy by
 conversation type. Normalized entropy essentially captures the degree to which
 the structure of the line lengths are uniform (i.e., lower variety in line
 lengths means lower `rENTR`) or more heterogenous (i.e., higher variety in line
@@ -490,36 +490,36 @@ qplot(data=h1_post_hoc, x=rENTR_m, y=rENTR_c, colour=cond_c) +
 
 ```
 
-### Post-hoc analysis: Normalized NRLINE
+***
 
-```{r post-hoc-h1-rentr-model}
+### Post-hoc analysis: Number of lines (normalized)
 
-# do changes in uniformity of structure of linguistic style between monologues 
-# and dialogues differ by conversation type?
-h1_analyses_post_NRLINE_norm = lm(Diff_NRLINE_norm ~ cond_c, 
-                      data = h1_post_hoc)
+```{r post-hoc-h1-nrline-model}
+
+# do changes in amount of structure of linguistic style between monologues and
+# dialogues differ by conversation type?
+h1_analyses_post_NRLINE = lm(Diff_NRLINE_norm ~ cond_c,
+                             data = h1_post_hoc)
 
 ```
 
-```{r silently-print-post-hoc-h1-rentr-summary, eval=TRUE, echo=FALSE}
+```{r silently-print-post-hoc-h1-nrline-summary, eval=TRUE, echo=FALSE}
 
 # print summary table
-summary(h1_analyses_post_NRLINE_norm)
+summary(h1_analyses_post_NRLINE)
 
 ```
 
-```{r silently-print-posthoc-h1-rentr-table, eval=FALSE}
+```{r silently-print-posthoc-h1-nrline-table, echo=FALSE}
 
 # neatly print output
-pander_lme(h1_analyses_post_NRLINE_norm)
+pander_lme(h1_analyses_post_NRLINE)
 
 ```
 
+```{r plot-h1-post-nrline-data, echo=FALSE}
 
-
-```{r silently-plot-h1-post-retnr-data, echo=FALSE}
-
-qplot(data=h1_post_hoc, x=rENTR_m, y=rENTR_c, colour=cond_c) +
+qplot(data=h1_post_hoc, x=NRLINE_norm_m, y=NRLINE_norm_c, colour=cond_c) +
   geom_abline()
 
 ```
@@ -588,7 +588,7 @@ A_dfs = A_dfs %>% ungroup() %>%
                 fw_quantiles_A = fw_quantiles,
                 speaker_A = speaker_code,
                 wc_A = WC) %>%
-  dplyr::select(dyad_id, speaker_A, Segment, cond, 
+  dplyr::select(dyad_id, speaker_A, Segment, cond,
                 function_words_A, fw_quantiles_A, wc_A, conv.no, data_type)
 ```
 
@@ -648,7 +648,7 @@ B_dfs = B_dfs %>% ungroup() %>%
                 fw_quantiles_B = fw_quantiles,
                 speaker_B = speaker_code,
                 wc_B = WC) %>%
-  dplyr::select(dyad_id, speaker_B, Segment, cond, 
+  dplyr::select(dyad_id, speaker_B, Segment, cond,
                 function_words_B, fw_quantiles_B, wc_B, conv.no, data_type)
 
 ```
@@ -716,7 +716,7 @@ as `eval=FALSE` and read in a CSV of the file.
 ```{r partnerwise-h2-surrogate, eval = FALSE}
 
 # specify real partners
-partner_wise_baseline = h2_data %>% 
+partner_wise_baseline = h2_data %>%
   
   # choose only conversation 1 and variables that we need
   dplyr::filter(conv.no == 1) %>%
@@ -730,7 +730,7 @@ for (runs in c(1:5)){
   
   # generate a potential paired set value
   temp_df = partner_wise_baseline %>% ungroup() %>%
-    group_by(cond) %>% 
+    group_by(cond) %>%
     mutate(!!paste0("speaker_B_run", runs) := gtools::permute(speaker_B_real)) %>%
     ungroup()
   
@@ -758,7 +758,7 @@ partner_wise_baseline = partner_wise_baseline %>%
   dplyr::filter(shuffle_run != "real")
 
 # save results to file
-write.table(partner_wise_baseline, 
+write.table(partner_wise_baseline,
             './scripts/partner_wise_baseline-partner_IDs.csv', sep=",")
 
 # clean up what we don't need
@@ -769,7 +769,7 @@ rm(runs, temp_df)
 ```{r read-in partner-wise-baseline-ids}
 
 # read in the shuffled pairings that we've already created
-partner_wise_baseline = read.csv('./scripts/partner_wise_baseline-partner_IDs.csv', 
+partner_wise_baseline = read.csv('./scripts/partner_wise_baseline-partner_IDs.csv',
                                  header = TRUE, sep=",")
 
 ```
@@ -787,7 +787,7 @@ recurrence (e.g., DRPs, mean line length, percent determinism) will be altered.
 ```{r samplewise-h2-surrogate}
 
 # split all dyads by dyad ID
-split_h2 = split(h2_data, list(h2_data$dyad_id, h2_data$conv.no)) 
+split_h2 = split(h2_data, list(h2_data$dyad_id, h2_data$conv.no))
 sample_wise_baseline = data.frame()
 for (next_conv in split_h2){
   
@@ -837,7 +837,7 @@ rm(next_conv, next_shuffle, permuted_df)
 ```{r analysis-df-plot-level}
 
 # split dataframe by dyad ID
-split_conv = split(h2_data, list(h2_data$dyad_id, 
+split_conv = split(h2_data, list(h2_data$dyad_id,
                                  h2_data$conv.no))
 
 # cycle through the individual conversations
@@ -865,7 +865,7 @@ for (next_conv in split_conv){
     dyad_id = unique(next_conv$dyad_id)
     speaker_A = unique(next_conv$speaker_A)
     speaker_B = unique(next_conv$speaker_B)
-    cond = unique(next_conv$cond) 
+    cond = unique(next_conv$cond)
     conv.no = unique(next_conv$conv.no)
     next_data_line = data.frame(dyad_id,
                                 speaker_A,
@@ -873,13 +873,13 @@ for (next_conv in split_conv){
                                 cond,
                                 conv.no,
                                 crqa_for_conv[1:9]) %>%
-      mutate(NRLINE_norm = NRLINE / dim(next_conv)[1]) # normalize NRLINE by number of turns 
+      mutate(NRLINE_norm = NRLINE / dim(next_conv)[1]) # normalize NRLINE by number of turns
     crqa_real = rbind.data.frame(crqa_real,next_data_line)
     
     # plot the CRPs
     png(filename = paste0('./figures/h2-crqa/crp-dyad_',dyad_id,'-cond_',cond,'.png'))
-    plotRP(crqa_for_conv$RP, 
-           list(unit = 2, labelx = "Speaker A", labely = "Speaker B", 
+    plotRP(crqa_for_conv$RP,
+           list(unit = 2, labelx = "Speaker A", labely = "Speaker B",
                 cols = "black", pcex = .5))
     dev.off()
     
@@ -887,7 +887,7 @@ for (next_conv in split_conv){
 }
 
 # clean up what we don't need
-rm(next_conv, crqa_for_conv, 
+rm(next_conv, crqa_for_conv,
    dyad_id, speaker_A, speaker_B, cond, conv.no, next_data_line)
 
 ```
@@ -909,7 +909,7 @@ for (fake_dyad in 1:nrow(partner_wise_baseline)) {
     
     # get next Speaker A data
     temp_A = h2_data %>% ungroup() %>%
-      dplyr::filter(speaker_A==partner_wise_baseline$speaker_A[fake_dyad], conv.no == next_conv) %>% 
+      dplyr::filter(speaker_A==partner_wise_baseline$speaker_A[fake_dyad], conv.no == next_conv) %>%
       select(speaker_A, cond, fw_quantiles_A, Segment, conv.no)
     
     # get only the data we need for Fake Partner B
@@ -922,7 +922,7 @@ for (fake_dyad in 1:nrow(partner_wise_baseline)) {
                         by = c("cond", "Segment", "conv.no")) %>%
       tidyr::drop_na()
     
-    # run CRQA only for a minimum of 10 observations 
+    # run CRQA only for a minimum of 10 observations
     if(nrow(temp_data)>9){
       
       crqa_for_sur = crqa(ts1=temp_data$fw_quantiles_A,
@@ -948,7 +948,7 @@ for (fake_dyad in 1:nrow(partner_wise_baseline)) {
                                   cond,
                                   conv.no,
                                   crqa_for_sur[1:9]) %>%
-        mutate(NRLINE_norm = NRLINE / dim(temp_data)[1]) # normalize NRLINE by number of turns 
+        mutate(NRLINE_norm = NRLINE / dim(temp_data)[1]) # normalize NRLINE by number of turns
       crqa_partner_shuffle = rbind.data.frame(crqa_partner_shuffle,next_data_line)
     }
   }
@@ -956,7 +956,7 @@ for (fake_dyad in 1:nrow(partner_wise_baseline)) {
 
 # clean up what we don't need
 rm(fake_dyad, next_conv,
-   temp_A, temp_B, temp_data, crqa_for_sur, 
+   temp_A, temp_B, temp_data, crqa_for_sur,
    speaker_A, speaker_B, cond, conv.no, next_data_line)
 
 ```
@@ -971,7 +971,7 @@ least 9 turns per participant.
 ```{r analysis-df-drp}
 
 # split dataframe by dyad ID
-split_h2 = split(h2_data, 
+split_h2 = split(h2_data,
                  list(h2_data$dyad_id, h2_data$conv.no))
 
 # cycle through all dyads
@@ -982,9 +982,9 @@ for (next_conv in split_h2) {
   if (dim(next_conv)[1]>9){
     
     # calculate diagonal recurrence profile using categorical recurrence
-    drp_for_conv = drpdfromts(next_conv$fw_quantiles_A, 
+    drp_for_conv = drpdfromts(next_conv$fw_quantiles_A,
                               next_conv$fw_quantiles_B,
-                              ws = wsz, 
+                              ws = wsz,
                               datatype="categorical")
     
     # save plot-level information to dataframe
@@ -1042,57 +1042,58 @@ for (next_dyad in dyad_list){
     # get the next participant's data
     next_dyad_df = sample_wise_baseline %>%
       dplyr::filter(dyad_id == next_dyad, conv.no == next_conv)
-    
-    # cycle through all sample-wise shuffle runs
-    for (run in 1:max(next_dyad_df$run)) {
+    if (dim(next_dyad_df)[1] > 0){
       
-      # get next Speaker A data
-      temp_AB = next_dyad_df %>% ungroup() %>%
-        dplyr::filter(run == run) %>%
-        select(speaker_A, speaker_B, cond, 
-               sur_fw_quantiles_A, sur_fw_quantiles_B, run, conv.no)
-      
-      # run DRP if we have enough talk-turns
-      if (dim(temp_AB)[1]>9){
+      # cycle through all sample-wise shuffle runs
+      for (run in 1:max(next_dyad_df$run)) {
         
-        # calculate diagonal recurrence profile using categorical recurrence
-        drp_for_sample = drpdfromts(ts1 = temp_AB$sur_fw_quantiles_A, 
-                                    ts2 = temp_AB$sur_fw_quantiles_B,
-                                    ws = wsz, 
-                                    datatype = "categorical")
+        # get next Speaker A data
+        temp_AB = next_dyad_df %>% ungroup() %>%
+          dplyr::filter(run == run) %>%
+          select(speaker_A, speaker_B, cond,
+                 sur_fw_quantiles_A, sur_fw_quantiles_B, run, conv.no)
         
-        # save plot-level information to dataframe
-        cond = unique(temp_AB$cond)
-        next_data = data.frame(raw = timeVals$raw,
-                               ot1 = timeVals$ot1,
-                               ot2  = timeVals$ot2,
-                               rr = drp_for_sample$profile) %>%
-          mutate(cond = cond,
-                 run = run,
-                 conv.no = next_conv, 
-                 dyad_id = next_dyad)
-        
-        # get the mean RR for the left side of the plot
-        mean_left_rr = next_data %>%
-          dplyr::filter(raw < 0) %>%
-          summarize(mean_rr = mean(rr)) %>%
-          .$mean_rr
-        
-        # get the mean RR for the right side of the plot
-        mean_right_rr = next_data %>%
-          dplyr::filter(raw > 0) %>%
-          summarize(mean_rr = mean(rr)) %>%
-          .$mean_rr
-        
-        # flip arrangement if leader is not on left
-        if (mean_left_rr < mean_right_rr) {
-          next_data = next_data %>%
-            mutate(rr = rev(rr))
-        }
-        
-        # save to overall dataframe
-        drp_sample_shuffle = rbind.data.frame(drp_sample_shuffle, next_data)
-      }
+        # run DRP if we have enough talk-turns
+        if (dim(temp_AB)[1]>9){
+          
+          # calculate diagonal recurrence profile using categorical recurrence
+          drp_for_sample = drpdfromts(ts1 = temp_AB$sur_fw_quantiles_A,
+                                      ts2 = temp_AB$sur_fw_quantiles_B,
+                                      ws = wsz,
+                                      datatype = "categorical")
+          
+          # save plot-level information to dataframe
+          cond = unique(temp_AB$cond)
+          next_data = data.frame(raw = timeVals$raw,
+                                 ot1 = timeVals$ot1,
+                                 ot2  = timeVals$ot2,
+                                 rr = drp_for_sample$profile) %>%
+            mutate(cond = cond,
+                   run = run,
+                   conv.no = next_conv,
+                   dyad_id = next_dyad)
+          
+          # get the mean RR for the left side of the plot
+          mean_left_rr = next_data %>%
+            dplyr::filter(raw < 0) %>%
+            summarize(mean_rr = mean(rr)) %>%
+            .$mean_rr
+          
+          # get the mean RR for the right side of the plot
+          mean_right_rr = next_data %>%
+            dplyr::filter(raw > 0) %>%
+            summarize(mean_rr = mean(rr)) %>%
+            .$mean_rr
+          
+          # flip arrangement if leader is not on left
+          if (mean_left_rr < mean_right_rr) {
+            next_data = next_data %>%
+              mutate(rr = rev(rr))
+          }
+          
+          # save to overall dataframe
+          drp_sample_shuffle = rbind.data.frame(drp_sample_shuffle, next_data)
+        }}
     }
   }
 }
@@ -1194,7 +1195,7 @@ based on conversational context (when accounting for conversation number)?
 ```{r model-h2-crqa-raw}
 
 # does linguistic style matching change based on the conversational context?
-h2_analyses_rr <- lm(RR ~ condition + conv.no, 
+h2_analyses_rr <- lm(RR ~ condition + conv.no,
                      data = crqa_real)
 
 ```
@@ -1214,17 +1215,17 @@ pander_lme(h2_analyses_rr)
 ```
 
 We don't see a difference by overall amounts of recurrence, but what about
-differences in the structure of the recurrence? From looking at the 
+differences in the structure of the recurrence? From looking at the
 cross-recurrence plots, there are vastly different visual "textures" by
 conversation. To quantify these differences, let's look at three metrics:
 the number of lines on the plot (`NRLINE`), normalized entropy (`rENTR`,
-which accounts for the number of lines in the plot), and percent determinism 
+which accounts for the number of lines in the plot), and percent determinism
 (`DET`, which accounts for the structure of the points in the plot).
 
 ```{r model-h2-crqa-nrline-raw}
 
 # does the structure of language style matching change by context?
-h2_analyses_nrline <- lm(NRLINE ~ condition + conv.no, 
+h2_analyses_nrline <- lm(NRLINE ~ condition + conv.no,
                          data = crqa_real)
 
 ```
@@ -1246,7 +1247,7 @@ pander_lme(h2_analyses_nrline)
 ```{r model-h2-crqa-rentr-raw}
 
 # does the heterogeneity of structure of LSM change by context?
-h2_analyses_entropy <- lm(rENTR ~ condition + conv.no, 
+h2_analyses_entropy <- lm(rENTR ~ condition + conv.no,
                           data = crqa_real)
 
 ```
@@ -1268,7 +1269,7 @@ pander_lme(h2_analyses_entropy)
 ```{r model-h2-crqa-det-raw}
 
 # does the proportion of recurrent structures in LSM change by context?
-h2_analyses_det <- lm(DET ~ condition + conv.no, 
+h2_analyses_det <- lm(DET ~ condition + conv.no,
                       data = crqa_real)
 
 ```
@@ -1292,13 +1293,13 @@ pander_lme(h2_analyses_det)
 ### DRP: Analyses of moment-to-moment dynamics
 
 We now create a linear mixed-effects model to gauge how linear lag (`ot1`) and
-quadratic lag (`ot2`) interact with condition (`condition`) to influence 
+quadratic lag (`ot2`) interact with condition (`condition`) to influence
 Language Style Matching (`rr`).
 
 ```{r model-h2-drp-real}
 
 # maximal random-effects model
-H2_drp = lmer(rr ~ conv.no + condition * ot1 * ot2 + (1 | dyad_id), 
+H2_drp = lmer(rr ~ conv.no + condition * ot1 * ot2 + (1 | dyad_id),
               data=drp_real, REML=FALSE)
 
 ```
@@ -1321,9 +1322,9 @@ pander_lme(H2_drp)
 
 # what do these DRPs look like?
 plot_drp_real = ggplot(data=drp_real,
-                  aes(y=rr, 
-                      x=raw,
-                      colour=as.factor(condition))) +
+                       aes(y=rr,
+                           x=raw,
+                           colour=as.factor(condition))) +
   geom_smooth() +
   ggtitle("Diagonal recurrence profiles by conversation type") +
   xlab("Lag (in turns)") +
@@ -1349,8 +1350,8 @@ ggsave(filename="./figures/bc-drp_real.png",
 
 # maximal random-effects model
 H2_drp_baseline = lmer(
-  rr ~ conv.no + condition * ot1 * ot2 + 
-    (1 | dyad_id), 
+  rr ~ conv.no + condition * ot1 * ot2 +
+    (1 | dyad_id),
   data=drp_sample_shuffle, REML=FALSE
 )
 
@@ -1376,10 +1377,9 @@ pander_lme(H2_drp_baseline)
 
 # what do these DRPs look like?
 ggplot(data=drp_sample_shuffle,
-       aes(y=rr, 
+       aes(y=rr,
            x=raw,
            colour=as.factor(condition))) +
   geom_smooth()
 
 ```
-
