@@ -128,24 +128,24 @@ for (next_mon in split_mon){
     mutate(NRLINE_norm = NRLINE / dim(next_mon)[1]) # normalize NRLINE by number of words
   rqa_mon = rbind.data.frame(rqa_mon,next_data_line)
   
-  # # save the RPs -- including LOI/LOS for plotting (commenting for time/speed)
-  # rqa_for_mon = crqa(ts1=next_mon$function_words,
-  #                    ts2=next_mon$function_contrast,
-  #                    delay=1,
-  #                    embed=1,
-  #                    r=0.1,
-  #                    normalize=0,
-  #                    rescale=0,
-  #                    mindiagline=2,
-  #                    minvertline=2,
-  #                    tw=0, # include LOI/LOS
-  #                    whiteline=FALSE,
-  #                    recpt=FALSE)
-  # png(filename = paste0('./figures/h1-rqa/rp-speaker_',speaker_code,'-monologue.png'))
-  # plotRP(rqa_for_mon$RP, 
-  #        list(unit = 2, labelx = "Speaker A", labely = "Speaker A", 
-  #             cols = "black", pcex = .5))
-  # dev.off()
+  # save the RPs -- including LOI/LOS for plotting (commenting for time/speed)
+  rqa_for_mon = crqa(ts1=next_mon$function_words,
+                     ts2=next_mon$function_contrast,
+                     delay=1,
+                     embed=1,
+                     r=0.1,
+                     normalize=0,
+                     rescale=0,
+                     mindiagline=2,
+                     minvertline=2,
+                     tw=0, # include LOI/LOS
+                     whiteline=FALSE,
+                     recpt=FALSE)
+  png(filename = paste0('./figures/h1-rqa/rp-speaker_',speaker_code,'-monologue.png'))
+  plotRP(rqa_for_mon$RP,
+         list(unit = 2, labelx = "Speaker A", labely = "Speaker A",
+              cols = "black", pcex = .5))
+  dev.off()
 }
 
 # clean up what we don't need
@@ -231,24 +231,24 @@ for (next_conv in split_conv){
   mutate(NRLINE_norm = NRLINE / dim(next_conv)[1]) # normalize NRLINE by number of words 
   rqa_conv = rbind.data.frame(rqa_conv,next_data_line)
   
-  # # plot the RPs -- include LOI/LOS (removing for speed/time)
-  # rqa_for_conv = crqa(ts1=next_conv$function_words,
-  #                     ts2=next_conv$function_contrast,
-  #                     delay=1,
-  #                     embed=1,
-  #                     r=0.1,
-  #                     normalize=0,
-  #                     rescale=0,
-  #                     mindiagline=2,
-  #                     minvertline=2,
-  #                     tw=0, # retain LOI for plotting only
-  #                     whiteline=FALSE,
-  #                     recpt=FALSE)
-  # png(filename = paste0('./figures/h1-rqa/rp-speaker_',speaker_code,'-conversation.png'))
-  # plotRP(rqa_for_conv$RP, 
-  #        list(unit = 2, labelx = "Speaker A", labely = "Speaker A", 
-  #             cols = "black", pcex = .5))
-  # dev.off()
+  # plot the RPs -- include LOI/LOS (removing for speed/time)
+  rqa_for_conv = crqa(ts1=next_conv$function_words,
+                      ts2=next_conv$function_contrast,
+                      delay=1,
+                      embed=1,
+                      r=0.1,
+                      normalize=0,
+                      rescale=0,
+                      mindiagline=2,
+                      minvertline=2,
+                      tw=0, # retain LOI for plotting only
+                      whiteline=FALSE,
+                      recpt=FALSE)
+  png(filename = paste0('./figures/h1-rqa/rp-speaker_',speaker_code,'-conversation.png'))
+  plotRP(rqa_for_conv$RP,
+         list(unit = 2, labelx = "Speaker A", labely = "Speaker A",
+              cols = "black", pcex = .5))
+  dev.off()
 }
 
 # clean up what we don't need
@@ -355,7 +355,7 @@ rqa_conv_post = rqa_conv  %>%
 
 # Calculate difference scores
 h1_post_hoc = full_join(rqa_mon_post, rqa_conv_post,
-                    by=c("dyad_id", "speaker_code")) %>%
+                        by=c("dyad_id", "speaker_code")) %>%
   mutate(Diff_RR = RR_m - RR_c,           # positive means higher RR in mon
          Diff_DET = DET_m - DET_c,        # positive means more DET in mon
          Diff_rENTR = rENTR_m - rENTR_c,  # positive means more line diversity in mon 
@@ -375,7 +375,7 @@ rm(rqa_mon_post, rqa_conv_post)
 # do changes in linguistic style between monologues and dialogues differ by 
 # conversation type?
 h1_analyses_post_RR = lm(Diff_RR ~ cond_c, 
-                      data = h1_post_hoc)
+                         data = h1_post_hoc)
 
 ```
 
@@ -400,7 +400,7 @@ conversation about personal topics (compared to having a conflict conversation
 about political topics). In other words, people are *more likely* to change their
 langauge style when having a friendly conversation as compared to an argument.
 
-```{r silently-plot-h1-post-rr-data, echo=FALSE}
+```{r plot-h1-post-rr-data, echo=FALSE}
 
 qplot(data=h1_post_hoc, x=RR_m, y=RR_c, colour=cond_c) +
   geom_abline()
@@ -416,7 +416,7 @@ qplot(data=h1_post_hoc, x=RR_m, y=RR_c, colour=cond_c) +
 # do changes in structure of linguistic style between monologues and dialogues 
 # differ by conversation type?
 h1_analyses_post_DET = lm(Diff_DET ~ cond_c, 
-                      data = h1_post_hoc)
+                          data = h1_post_hoc)
 
 ```
 
@@ -443,7 +443,7 @@ people are *more likely* to change the structure in their langauge style when
 having a friendly conversation as compared to an argumentative one---consistent
 with the results found in the post-hoc analysis of RR.
 
-```{r silently-plot-h1-post-det-data, echo=FALSE}
+```{r plot-h1-post-det-data, echo=FALSE}
 
 qplot(data=h1_post_hoc, x=DET_m, y=DET_c, colour=cond_c) +
   geom_abline()
@@ -459,7 +459,7 @@ qplot(data=h1_post_hoc, x=DET_m, y=DET_c, colour=cond_c) +
 # do changes in uniformity of structure of linguistic style between monologues 
 # and dialogues differ by conversation type?
 h1_analyses_post_rENTR = lm(Diff_rENTR ~ cond_c, 
-                      data = h1_post_hoc)
+                            data = h1_post_hoc)
 
 ```
 
@@ -483,7 +483,7 @@ the structure of the line lengths are uniform (i.e., lower variety in line
 lengths means lower `rENTR`) or more heterogenous (i.e., higher variety in line
 lengths means higher `rENTR`).
 
-```{r silently-plot-h1-post-retnr-data, echo=FALSE}
+```{r plot-h1-post-retnr-data, echo=FALSE}
 
 qplot(data=h1_post_hoc, x=rENTR_m, y=rENTR_c, colour=cond_c) +
   geom_abline()
@@ -1152,17 +1152,17 @@ We'll also need prepare for the models using diagonal recurrence profiles.
 
 # prepare real data dataframe
 drp_real = drp_real %>% ungroup() %>%
-
-# recode "condition" values to be -.5 and +.5
-dplyr::rename(condition = cond) %>%
-mutate(condition = dplyr::if_else(condition=="P",
--.5,      # personal = -.5
-.5)) %>%  # conflict = .5
-
-# convert variables to factor
-mutate(condition = as.factor(condition),
-dyad_id = as.factor(dyad_id),
-conv.no = as.factor(conv.no))
+  
+  # recode "condition" values to be -.5 and +.5
+  dplyr::rename(condition = cond) %>%
+  mutate(condition = dplyr::if_else(condition=="P",
+                                    -.5,      # personal = -.5
+                                    .5)) %>%  # conflict = .5
+  
+  # convert variables to factor
+  mutate(condition = as.factor(condition),
+         dyad_id = as.factor(dyad_id),
+         conv.no = as.factor(conv.no))
 
 ```
 
@@ -1320,11 +1320,28 @@ pander_lme(H2_drp)
 ```{r plot-aggregate-h2-real-drps, echo=FALSE}
 
 # what do these DRPs look like?
-ggplot(data=drp_real,
-       aes(y=rr, 
-           x=raw,
-           colour=as.factor(condition))) +
-  geom_smooth()
+plot_drp_real = ggplot(data=drp_real,
+                  aes(y=rr, 
+                      x=raw,
+                      colour=as.factor(condition))) +
+  geom_smooth() +
+  ggtitle("Diagonal recurrence profiles by conversation type") +
+  xlab("Lag (in turns)") +
+  ylab("Rate of recurrence (RR)") +
+  labs(colour="Conversation") +
+  scale_color_manual(breaks=levels(drp_real$condition),
+                     labels=c("Personal",
+                              "Conflict"),
+                     values=c("#5ab4ac",
+                              "#d8b365"))
+
+# save the file
+ggsave(filename="./figures/bc-drp_real.png",
+       plot=plot_drp_real,
+       width=6,
+       height=5,
+       units="in",
+       dpi=150)
 
 ```
 

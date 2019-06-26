@@ -118,24 +118,24 @@ for (next_mon in split_mon){
                               rqa_for_mon[1:9])
   rqa_mon = rbind.data.frame(rqa_mon,next_data_line)
   
-  # # save the RPs -- including LOI/LOS for plotting (commenting for time/speed)
-  # rqa_for_mon = crqa(ts1=next_mon$function_words,
-  #                    ts2=next_mon$function_contrast,
-  #                    delay=1,
-  #                    embed=1,
-  #                    r=0.1,
-  #                    normalize=0,
-  #                    rescale=0,
-  #                    mindiagline=2,
-  #                    minvertline=2,
-  #                    tw=0, # include LOI/LOS
-  #                    whiteline=FALSE,
-  #                    recpt=FALSE)
-  # png(filename = paste0('./figures/h1-rqa/rp-speaker_',speaker_code,'-monologue.png'))
-  # plotRP(rqa_for_mon$RP, 
-  #        list(unit = 2, labelx = "Speaker A", labely = "Speaker A", 
-  #             cols = "black", pcex = .5))
-  # dev.off()
+  # save the RPs -- including LOI/LOS for plotting (commenting for time/speed)
+  rqa_for_mon = crqa(ts1=next_mon$function_words,
+                     ts2=next_mon$function_contrast,
+                     delay=1,
+                     embed=1,
+                     r=0.1,
+                     normalize=0,
+                     rescale=0,
+                     mindiagline=2,
+                     minvertline=2,
+                     tw=0, # include LOI/LOS
+                     whiteline=FALSE,
+                     recpt=FALSE)
+  png(filename = paste0('./figures/h1-rqa/rp-speaker_',speaker_code,'-monologue.png'))
+  plotRP(rqa_for_mon$RP,
+         list(unit = 2, labelx = "Speaker A", labely = "Speaker A",
+              cols = "black", pcex = .5))
+  dev.off()
 }
 
 # clean up what we don't need
@@ -217,24 +217,24 @@ for (next_conv in split_conv){
                               rqa_for_conv[1:9])
   rqa_conv = rbind.data.frame(rqa_conv,next_data_line)
   
-  # # plot the RPs -- include LOI/LOS (removing for speed/time)
-  # rqa_for_conv = crqa(ts1=next_conv$function_words,
-  #                     ts2=next_conv$function_contrast,
-  #                     delay=1,
-  #                     embed=1,
-  #                     r=0.1,
-  #                     normalize=0,
-  #                     rescale=0,
-  #                     mindiagline=2,
-  #                     minvertline=2,
-  #                     tw=0, # retain LOI for plotting only
-  #                     whiteline=FALSE,
-  #                     recpt=FALSE)
-  # png(filename = paste0('./figures/h1-rqa/rp-speaker_',speaker_code,'-conversation.png'))
-  # plotRP(rqa_for_conv$RP, 
-  #        list(unit = 2, labelx = "Speaker A", labely = "Speaker A", 
-  #             cols = "black", pcex = .5))
-  # dev.off()
+  # plot the RPs -- include LOI/LOS (removing for speed/time)
+  rqa_for_conv = crqa(ts1=next_conv$function_words,
+                      ts2=next_conv$function_contrast,
+                      delay=1,
+                      embed=1,
+                      r=0.1,
+                      normalize=0,
+                      rescale=0,
+                      mindiagline=2,
+                      minvertline=2,
+                      tw=0, # retain LOI for plotting only
+                      whiteline=FALSE,
+                      recpt=FALSE)
+  png(filename = paste0('./figures/h1-rqa/rp-speaker_',speaker_code,'-conversation.png'))
+  plotRP(rqa_for_conv$RP,
+         list(unit = 2, labelx = "Speaker A", labely = "Speaker A",
+              cols = "black", pcex = .5))
+  dev.off()
 }
 
 # clean up what we don't need
@@ -306,22 +306,19 @@ h1_analyses <- lmer(RR ~ conv.type + (1|speaker_code),
 ##  -1227.7  -1213.8    617.8  -1235.7      232 
 ## 
 ## Scaled residuals: 
-##          Min           1Q       Median           3Q          Max 
-## -0.000048502 -0.000007124  0.000001132  0.000008887  0.000021014 
+##        Min         1Q     Median         3Q        Max 
+## -4.850e-05 -7.124e-06  1.132e-06  8.887e-06  2.101e-05 
 ## 
 ## Random effects:
-##  Groups       Name        Variance        Std.Dev.  
-##  speaker_code (Intercept) 12.924611155278 3.59508152
-##  Residual                  0.000000003756 0.00006129
+##  Groups       Name        Variance  Std.Dev. 
+##  speaker_code (Intercept) 1.292e+01 3.595e+00
+##  Residual                 3.756e-09 6.129e-05
 ## Number of obs: 236, groups:  speaker_code, 118
 ## 
 ## Fixed effects:
-##                         Estimate           Std. Error                   df
-## (Intercept) 34.09796543527484403  0.33095339217895448 87.99054976736901779
-## conv.typeC   0.00000000000002312  0.00000797881197106 47.20263542934374357
-##             t value            Pr(>|t|)    
-## (Intercept)     103 <0.0000000000000002 ***
-## conv.typeC        0                   1    
+##              Estimate Std. Error        df t value Pr(>|t|)    
+## (Intercept) 3.410e+01  3.310e-01 8.799e+01     103   <2e-16 ***
+## conv.typeC  2.312e-14  7.979e-06 4.720e+01       0        1    
 ## ---
 ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 ## 
@@ -382,7 +379,7 @@ rqa_conv_post = rqa_conv  %>%
 
 # Calculate difference scores
 h1_post_hoc = full_join(rqa_mon_post, rqa_conv_post,
-                    by=c("dyad_id", "speaker_code")) %>%
+                        by=c("dyad_id", "speaker_code")) %>%
   mutate(Diff_RR = RR_m - RR_c,           # positive means higher RR in mon
          Diff_DET = DET_m - DET_c,        # positive means more DET in mon
          Diff_rENTR = rENTR_m - rENTR_c)  # positive means more line diversity in mon 
@@ -400,7 +397,7 @@ rm(rqa_mon_post, rqa_conv_post)
 # do changes in linguistic style between monologues and dialogues differ by 
 # conversation type?
 h1_analyses_post_RR = lm(Diff_RR ~ cond_c, 
-                      data = h1_post_hoc)
+                         data = h1_post_hoc)
 ```
 
 
@@ -436,7 +433,7 @@ conversation about personal topics (compared to having a conflict conversation
 about political topics). In other words, people are *more likely* to change their
 langauge style when having a friendly conversation as compared to an argument.
 
-![](beyond_consistency_files/figure-html/silently-plot-h1-post-rr-data-1.png)<!-- -->
+![](beyond_consistency_files/figure-html/plot-h1-post-rr-data-1.png)<!-- -->
 
 ***
 
@@ -447,7 +444,7 @@ langauge style when having a friendly conversation as compared to an argument.
 # do changes in structure of linguistic style between monologues and dialogues 
 # differ by conversation type?
 h1_analyses_post_DET = lm(Diff_DET ~ cond_c, 
-                      data = h1_post_hoc)
+                          data = h1_post_hoc)
 ```
 
 
@@ -485,7 +482,7 @@ people are *more likely* to change the structure in their langauge style when
 having a friendly conversation as compared to an argumentative one---consistent
 with the results found in the post-hoc analysis of RR.
 
-![](beyond_consistency_files/figure-html/silently-plot-h1-post-det-data-1.png)<!-- -->
+![](beyond_consistency_files/figure-html/plot-h1-post-det-data-1.png)<!-- -->
 
 ***
 
@@ -496,7 +493,7 @@ with the results found in the post-hoc analysis of RR.
 # do changes in uniformity of structure of linguistic style between monologues 
 # and dialogues differ by conversation type?
 h1_analyses_post_rENTR = lm(Diff_rENTR ~ cond_c, 
-                      data = h1_post_hoc)
+                            data = h1_post_hoc)
 ```
 
 
@@ -531,7 +528,7 @@ the structure of the line lengths are uniform (i.e., lower variety in line
 lengths means lower `rENTR`) or more heterogenous (i.e., higher variety in line
 lengths means higher `rENTR`).
 
-![](beyond_consistency_files/figure-html/silently-plot-h1-post-retnr-data-1.png)<!-- -->
+![](beyond_consistency_files/figure-html/plot-h1-post-retnr-data-1.png)<!-- -->
 
 ***
 
@@ -1128,17 +1125,17 @@ We'll also need prepare for the models using diagonal recurrence profiles.
 ```r
 # prepare real data dataframe
 drp_real = drp_real %>% ungroup() %>%
-
-# recode "condition" values to be -.5 and +.5
-dplyr::rename(condition = cond) %>%
-mutate(condition = dplyr::if_else(condition=="P",
--.5,      # personal = -.5
-.5)) %>%  # conflict = .5
-
-# convert variables to factor
-mutate(condition = as.factor(condition),
-dyad_id = as.factor(dyad_id),
-conv.no = as.factor(conv.no))
+  
+  # recode "condition" values to be -.5 and +.5
+  dplyr::rename(condition = cond) %>%
+  mutate(condition = dplyr::if_else(condition=="P",
+                                    -.5,      # personal = -.5
+                                    .5)) %>%  # conflict = .5
+  
+  # convert variables to factor
+  mutate(condition = as.factor(condition),
+         dyad_id = as.factor(dyad_id),
+         conv.no = as.factor(conv.no))
 ```
 
 
@@ -1411,8 +1408,6 @@ H2_drp = lmer(rr ~ conv.no + condition * ot1 * ot2 + (1 | dyad_id),
 ```
 ## `geom_smooth()` using method = 'loess' and formula 'y ~ x'
 ```
-
-![](beyond_consistency_files/figure-html/plot-aggregate-h2-real-drps-1.png)<!-- -->
 
 
 ```r
