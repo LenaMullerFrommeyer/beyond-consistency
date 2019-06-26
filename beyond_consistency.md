@@ -61,7 +61,7 @@ mon_dfs = plyr::ldply(mon_files,
 ```r
 # prepare monologues for RQA
 mon_dfs = mon_dfs %>%
-  
+
   # separate 'Filename' column into separate columns
   tidyr::separate(Filename,
                   into = c("dyad_id", "dyad_position", "speaker_code"),
@@ -69,16 +69,16 @@ mon_dfs = mon_dfs %>%
                   remove = FALSE,
                   extra = "drop",
                   fill = "warn") %>%
-  
+
   # extract speaker number ID and conversation type from variable
   mutate(cond = gsub("[[:digit:]]+","",dyad_id)) %>%
-  
+
   # create new variable function_contrast with all 0 replaced by -1
   dplyr::rename(function_words = function.) %>%
   mutate(function_contrast = dplyr::if_else(function_words==0,
                                             -1,
                                             function_words)) %>%
-  
+
   #add new variable specifying conversation type
   mutate(conv.type = "M")
 ```
@@ -91,7 +91,7 @@ split_mon = split(mon_dfs, list(mon_dfs$Filename))
 # cycle through the individual monologues
 rqa_mon = data.frame()
 for (next_mon in split_mon){
-  
+
   # run (auto-)recurrence
   rqa_for_mon = crqa(ts1=next_mon$function_words,
                      ts2=next_mon$function_contrast,
@@ -105,7 +105,7 @@ for (next_mon in split_mon){
                      tw=1, # exclude line of identity
                      whiteline=FALSE,
                      recpt=FALSE)
-  
+
   # save plot-level information to dataframe
   dyad_id = unique(next_mon$dyad_id)
   speaker_code = unique(next_mon$speaker_code)
@@ -118,7 +118,7 @@ for (next_mon in split_mon){
                               rqa_for_mon[1:9]) %>%
     mutate(NRLINE_norm = NRLINE / dim(next_mon)[1]) # normalize NRLINE by number of words
   rqa_mon = rbind.data.frame(rqa_mon,next_data_line)
-  
+
   # # save the RPs -- including LOI/LOS for plotting (commenting for time/speed)
   # rqa_for_mon = crqa(ts1=next_mon$function_words,
   #                    ts2=next_mon$function_contrast,
@@ -161,7 +161,7 @@ conv_dfs = plyr::ldply(conv_files,
 ```r
 # prepare conversations for RQA
 conv_dfs = conv_dfs %>%
-  
+
   # separate 'Filename' column into separate columns
   tidyr::separate(Filename,
                   into = c("dyad_id", "dyad_position", "speaker_code"),
@@ -169,16 +169,16 @@ conv_dfs = conv_dfs %>%
                   remove = FALSE,
                   extra = "drop",
                   fill = "warn") %>%
-  
+
   # extract speaker number ID and conversation type from variable
   mutate(cond = gsub("[[:digit:]]+","",dyad_id)) %>%
-  
+
   # create new variable function_contrast with all 0 replaced by -1
   dplyr::rename(function_words = function.) %>%
   mutate(function_contrast = dplyr::if_else(function_words==0,
                                             -1,
                                             function_words)) %>%
-  
+
   # add new variable specifying conversation type
   mutate(conv.type = "C")
 ```
@@ -191,7 +191,7 @@ split_conv = split(conv_dfs, list(conv_dfs$Filename))
 # cycle through the individual conversations
 rqa_conv = data.frame()
 for (next_conv in split_conv){
-  
+
   # run recurrence
   rqa_for_conv = crqa(ts1=next_conv$function_words,
                       ts2=next_conv$function_contrast,
@@ -205,7 +205,7 @@ for (next_conv in split_conv){
                       tw=1, # exclude line of identity
                       whiteline=FALSE,
                       recpt=FALSE)
-  
+
   # save plot-level information to dataframe
   dyad_id = unique(next_conv$dyad_id)
   speaker_code = unique(next_conv$speaker_code)
@@ -218,7 +218,7 @@ for (next_conv in split_conv){
                               rqa_for_conv[1:9]) %>%
     mutate(NRLINE_norm = NRLINE / dim(next_conv)[1]) # normalize NRLINE by number of words
   rqa_conv = rbind.data.frame(rqa_conv,next_data_line)
-  
+
   # # plot the RPs -- include LOI/LOS (removing for speed/time)
   # rqa_for_conv = crqa(ts1=next_conv$function_words,
   #                     ts2=next_conv$function_contrast,
@@ -302,9 +302,9 @@ h1_analyses <- lmer(RR ~ conv.type + (1|speaker_code),
 ## Number of obs: 236, groups:  speaker_code, 118
 ## 
 ## Fixed effects:
-##             Estimate Std. Error       df t value             Pr(>|t|)    
-## (Intercept)  29.3813     0.4971 227.3241  59.104 < 0.0000000000000002 ***
-## conv.typeC    4.6582     0.6306 117.9998   7.387      0.0000000000234 ***
+##             Estimate Std. Error       df t value Pr(>|t|)    
+## (Intercept)  29.3813     0.4971 227.3241  59.104  < 2e-16 ***
+## conv.typeC    4.6582     0.6306 117.9998   7.387 2.34e-11 ***
 ## ---
 ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 ## 
@@ -543,7 +543,7 @@ lengths means higher `rENTR`).
 # do changes in amount of structure of linguistic style between monologues and
 # dialogues differ by conversation type?
 h1_analyses_post_NRLINE = lm(Diff_NRLINE_norm ~ cond_c,
-                             data = h1_post_hoc)
+                          data = h1_post_hoc)
 ```
 
 
@@ -574,6 +574,7 @@ h1_analyses_post_NRLINE = lm(Diff_NRLINE_norm ~ cond_c,
 | **(Intercept)** |  -75.27  |   5.767    | -13.05  | 0.0001 | 0.0001 | *** |
 |   **cond_cP**   |  6.337   |   8.371    | 0.7571  |  0.45  |  0.45  |     |
 
+
 ![](beyond_consistency_files/figure-html/plot-h1-post-nrline-data-1.png)<!-- -->
 
 ***
@@ -601,7 +602,7 @@ A_dfs = plyr::ldply(A_files,
 ```r
 # prepare conversations Speaker A for CRQA
 A_dfs = A_dfs %>% ungroup() %>%
-  
+
   # separate 'Filename' column into separate columns
   tidyr::separate(Filename,
                   into = c("dyad_id", "dyad_position",  "speaker_code", "cond", "conver"),
@@ -609,31 +610,31 @@ A_dfs = A_dfs %>% ungroup() %>%
                   remove = FALSE,
                   extra = "drop",
                   fill = "warn") %>%
-  
+
   # extract conversation number from variable conver
   mutate(conv.no = gsub(".txt","",conver)) %>%
-  
+
   # rename function. to function_words
   dplyr::rename(function_words = function.) %>%
-  
+
   # group by participant to cut quantiles
   group_by(Filename) %>%
-  
+
   # recode quartiles
   mutate(fw_quantiles = as.numeric(
     gtools::quantcut(function_words,
                      q=4,
                      na.rm = TRUE))
   ) %>% ungroup()  %>%
-  
+
   # recode anytime there is 0 function word use
   mutate(fw_quantiles = dplyr::if_else(function_words==0,
                                        0,
                                        fw_quantiles)) %>%
-  
+
   # specify these data are real
   mutate(data_type = 'real') %>%
-  
+
   # rename to specify speaker A contributions
   dplyr::rename(function_words_A = function_words,
                 fw_quantiles_A = fw_quantiles,
@@ -666,7 +667,7 @@ B_dfs = plyr::ldply(B_files,
 ```r
 # prepare conversations Speaker B for CRQA
 B_dfs = B_dfs %>% ungroup() %>%
-  
+
   # separate 'Filename' column into separate columns
   tidyr::separate(Filename,
                   into = c("dyad_id", "dyad_position",  "speaker_code", "cond", "conver"),
@@ -674,31 +675,31 @@ B_dfs = B_dfs %>% ungroup() %>%
                   remove = FALSE,
                   extra = "drop",
                   fill = "warn") %>%
-  
+
   # extract conversation number from variable conver
   mutate(conv.no = gsub(".txt","",conver)) %>%
-  
+
   # rename function. to function_words
   dplyr::rename(function_words = function.) %>%
-  
+
   # group by participant to cut quantiles
   group_by(Filename) %>%
-  
+
   # recode quartiles
   mutate(fw_quantiles = as.numeric(
     gtools::quantcut(function_words,
                      q=4,
                      na.rm = TRUE))
   ) %>% ungroup() %>%
-  
+
   # recode anytime there is 0 function word use
   mutate(fw_quantiles = dplyr::if_else(function_words==0,
                                        -1,
                                        fw_quantiles)) %>%
-  
+
   # specify these data are real
   mutate(data_type = 'real') %>%
-  
+
   # rename to specify speaker A contributions
   dplyr::rename(function_words_B = function_words,
                 fw_quantiles_B = fw_quantiles,
@@ -732,7 +733,7 @@ Speaker B function words, and turn).
 # merge Speaker A and Speaker B together
 h2_data = full_join(A_dfs, B_dfs,
                     by = c("dyad_id", "Segment", "cond", "data_type", "conv.no")) %>%
-  
+
   # because any missing values are filled with `NA`,
   # we can truncate turns simply by dropping `NA`
   tidyr::drop_na()
@@ -755,7 +756,7 @@ as `eval=FALSE` and read in a CSV of the file.
 ```r
 # specify real partners
 partner_wise_baseline = h2_data %>%
-  
+
   # choose only conversation 1 and variables that we need
   dplyr::filter(conv.no == 1) %>%
   select(dyad_id, speaker_A, speaker_B, cond) %>%
@@ -765,13 +766,13 @@ partner_wise_baseline = h2_data %>%
 
 # cycle through for 5 baselines
 for (runs in c(1:5)){
-  
+
   # generate a potential paired set value
   temp_df = partner_wise_baseline %>% ungroup() %>%
     group_by(cond) %>%
     mutate(!!paste0("speaker_B_run", runs) := gtools::permute(speaker_B_real)) %>%
     ungroup()
-  
+
   # keep resampling if we get any overlap from the real data or other pairs
   while (length(unique(apply(temp_df,1,function(x) sum(!duplicated(x))))) != 1) {
     temp_df = partner_wise_baseline %>% ungroup() %>%
@@ -779,7 +780,7 @@ for (runs in c(1:5)){
       mutate(!!paste0("speaker_B_run", runs) := gtools::permute(speaker_B_real)) %>%
       ungroup()
   }
-  
+
   # save the final option
   partner_wise_baseline = temp_df
 }
@@ -791,7 +792,7 @@ partner_wise_baseline = partner_wise_baseline %>%
                 -speaker_A,
                 -dyad_id_real,
                 -cond) %>%
-  
+
   mutate(shuffle_run = gsub("speaker_B_","",shuffle_run)) %>%
   dplyr::filter(shuffle_run != "real")
 
@@ -826,33 +827,33 @@ recurrence (e.g., DRPs, mean line length, percent determinism) will be altered.
 split_h2 = split(h2_data, list(h2_data$dyad_id, h2_data$conv.no))
 sample_wise_baseline = data.frame()
 for (next_conv in split_h2){
-  
+
   # only progress if we have data for this conversation type and dyad
   if (dim(next_conv)[1] > 1){
-    
+
     # permute 5 times for baseline
     permuted_df = data.frame()
     for (run in c(1:5)){
       next_shuffle = next_conv %>%
-        
+
         # shuffle each person's linguistic contributions
         group_by(dyad_id) %>%
         mutate(sur_fw_quantiles_A = gtools::permute(fw_quantiles_A)) %>%
         mutate(sur_fw_quantiles_B = gtools::permute(fw_quantiles_B)) %>%
         ungroup() %>%
-        
+
         # drop unneeded variables
         select(-fw_quantiles_A, -fw_quantiles_B,
                -contains('wc_'), -contains('function_words')) %>%
-        
+
         # add a marker for what run we're on and datatype
         mutate(run = run) %>%
         mutate(data_type = 'surrogate')
-      
+
       # add it to our dataframe
       permuted_df = rbind.data.frame(permuted_df, next_shuffle)
     }
-    
+
     # bind the next surrogate's data to the dataframe
     sample_wise_baseline = rbind.data.frame(sample_wise_baseline, permuted_df)}
 }
@@ -878,10 +879,10 @@ split_conv = split(h2_data, list(h2_data$dyad_id,
 # cycle through the individual conversations
 crqa_real = data.frame()
 for (next_conv in split_conv){
-  
+
   # only proceed if we have data for this conversation
   if (dim(next_conv)[1]>1){
-    
+
     # run cross-recurrence
     crqa_for_conv = crqa(ts1=next_conv$fw_quantiles_A,
                          ts2=next_conv$fw_quantiles_B,
@@ -895,7 +896,7 @@ for (next_conv in split_conv){
                          tw=0,
                          whiteline=FALSE,
                          recpt=FALSE)
-    
+
     # save plot-level information to dataframe
     dyad_id = unique(next_conv$dyad_id)
     speaker_A = unique(next_conv$speaker_A)
@@ -910,14 +911,14 @@ for (next_conv in split_conv){
                                 crqa_for_conv[1:9]) %>%
       mutate(NRLINE_norm = NRLINE / dim(next_conv)[1]) # normalize NRLINE by number of turns
     crqa_real = rbind.data.frame(crqa_real,next_data_line)
-    
+
     # plot the CRPs
     png(filename = paste0('./figures/h2-crqa/crp-dyad_',dyad_id,'-cond_',cond,'.png'))
     plotRP(crqa_for_conv$RP,
            list(unit = 2, labelx = "Speaker A", labely = "Speaker B",
                 cols = "black", pcex = .5))
     dev.off()
-    
+
   }
 }
 
@@ -938,27 +939,27 @@ crqa_partner_shuffle = data.frame()
 # cycle through all the pseudopartners
 for (fake_dyad in 1:nrow(partner_wise_baseline)) {
   for (next_conv in 1:max(h2_data$conv.no)) {
-    
+
     #double-check the no. of pairings
-    
+
     # get next Speaker A data
     temp_A = h2_data %>% ungroup() %>%
       dplyr::filter(speaker_A==partner_wise_baseline$speaker_A[fake_dyad], conv.no == next_conv) %>%
       select(speaker_A, cond, fw_quantiles_A, Segment, conv.no)
-    
+
     # get only the data we need for Fake Partner B
     temp_B = h2_data %>% ungroup() %>%
       dplyr::filter(speaker_B==partner_wise_baseline$fake_speaker_B[fake_dyad]) %>%
       select(speaker_B, cond, fw_quantiles_B, Segment, conv.no)
-    
+
     # join them together to make sure only compare equal turns
     temp_data=full_join(temp_A, temp_B,
                         by = c("cond", "Segment", "conv.no")) %>%
       tidyr::drop_na()
-    
+
     # run CRQA only for a minimum of 10 observations
     if(nrow(temp_data)>9){
-      
+
       crqa_for_sur = crqa(ts1=temp_data$fw_quantiles_A,
                           ts2=temp_data$fw_quantiles_B,
                           delay=1,
@@ -971,7 +972,7 @@ for (fake_dyad in 1:nrow(partner_wise_baseline)) {
                           tw=0,
                           whiteline=FALSE,
                           recpt=FALSE)
-      
+
       # save plot-level information to dataframe
       speaker_A = unique(temp_data$speaker_A)
       speaker_B = unique(temp_data$speaker_B)
@@ -1010,16 +1011,16 @@ split_h2 = split(h2_data,
 # cycle through all dyads
 drp_real = data.frame()
 for (next_conv in split_h2) {
-  
+
   # only proceed if we have data for this conversation
   if (dim(next_conv)[1]>9){
-    
+
     # calculate diagonal recurrence profile using categorical recurrence
     drp_for_conv = drpdfromts(next_conv$fw_quantiles_A,
                               next_conv$fw_quantiles_B,
                               ws = wsz,
                               datatype="categorical")
-    
+
     # save plot-level information to dataframe
     dyad_id = unique(next_conv$dyad_id)
     cond = unique(next_conv$cond)
@@ -1033,28 +1034,28 @@ for (next_conv in split_h2) {
              cond = cond,
              conv.no = conv.no,
              data_type = data_type)
-    
+
     # get the mean RR for the left side of the plot
     mean_left_rr = drps %>%
       dplyr::filter(raw < 0) %>%
       summarize(mean_rr = mean(rr)) %>%
       .$mean_rr
-    
+
     # get the mean RR for the right side of the plot
     mean_right_rr = drps %>%
       dplyr::filter(raw > 0) %>%
       summarize(mean_rr = mean(rr)) %>%
       .$mean_rr
-    
+
     # flip arrangement if leader is not on left
     if (mean_left_rr < mean_right_rr) {
       drps = drps %>%
         mutate(rr = rev(rr))
     }
-    
+
     # append to dataframe
     drp_real = rbind.data.frame(drp_real, drps)
-    
+
   }
 }
 ```
@@ -1070,30 +1071,30 @@ dyad_list = unique(sample_wise_baseline$dyad_id)
 drp_sample_shuffle = data.frame()
 for (next_dyad in dyad_list){
   for (next_conv in 1:max(h2_data$conv.no)) {
-    
+
     # get the next participant's data
     next_dyad_df = sample_wise_baseline %>%
       dplyr::filter(dyad_id == next_dyad, conv.no == next_conv)
     if (dim(next_dyad_df)[1] > 0){
-      
+
       # cycle through all sample-wise shuffle runs
       for (run in 1:max(next_dyad_df$run)) {
-        
+
         # get next Speaker A data
         temp_AB = next_dyad_df %>% ungroup() %>%
           dplyr::filter(run == run) %>%
           select(speaker_A, speaker_B, cond,
                  sur_fw_quantiles_A, sur_fw_quantiles_B, run, conv.no)
-        
+
         # run DRP if we have enough talk-turns
         if (dim(temp_AB)[1]>9){
-          
+
           # calculate diagonal recurrence profile using categorical recurrence
           drp_for_sample = drpdfromts(ts1 = temp_AB$sur_fw_quantiles_A,
                                       ts2 = temp_AB$sur_fw_quantiles_B,
                                       ws = wsz,
                                       datatype = "categorical")
-          
+
           # save plot-level information to dataframe
           cond = unique(temp_AB$cond)
           next_data = data.frame(raw = timeVals$raw,
@@ -1104,25 +1105,25 @@ for (next_dyad in dyad_list){
                    run = run,
                    conv.no = next_conv,
                    dyad_id = next_dyad)
-          
+
           # get the mean RR for the left side of the plot
           mean_left_rr = next_data %>%
             dplyr::filter(raw < 0) %>%
             summarize(mean_rr = mean(rr)) %>%
             .$mean_rr
-          
+
           # get the mean RR for the right side of the plot
           mean_right_rr = next_data %>%
             dplyr::filter(raw > 0) %>%
             summarize(mean_rr = mean(rr)) %>%
             .$mean_rr
-          
+
           # flip arrangement if leader is not on left
           if (mean_left_rr < mean_right_rr) {
             next_data = next_data %>%
               mutate(rr = rev(rr))
           }
-          
+
           # save to overall dataframe
           drp_sample_shuffle = rbind.data.frame(drp_sample_shuffle, next_data)
         }}
@@ -1146,13 +1147,13 @@ CRQA metrics.
 ```r
 # prepare real data dataframe
 crqa_real = crqa_real %>% ungroup() %>%
-  
+
   # recode "condition" values to be -.5 and +.5
   dplyr::rename(condition = cond) %>%
   mutate(condition = dplyr::if_else(condition=="P",
                                     -.5,      # personal = -.5
                                     .5)) %>%  # conflict = .5
-  
+
   # convert variables to factor
   mutate(condition = as.factor(condition),
          dyad_id = as.factor(dyad_id),
@@ -1161,13 +1162,13 @@ crqa_real = crqa_real %>% ungroup() %>%
 
 # prepare baseline dataframe
 crqa_partner_shuffle = crqa_partner_shuffle %>% ungroup() %>%
-  
+
   # recode "condition" values to be -.5 and +.5
   dplyr::rename(condition = cond) %>%
   mutate(condition = dplyr::if_else(condition=="P",
                                     -.5,      # personal = -.5
                                     .5)) %>%  # conflict = .5
-  
+
   # convert variables to factor
   mutate(condition = as.factor(condition),
          dyad_id = paste0(speaker_A, '_', speaker_B),
@@ -1184,13 +1185,13 @@ We'll also need prepare for the models using diagonal recurrence profiles.
 ```r
 # prepare real data dataframe
 drp_real = drp_real %>% ungroup() %>%
-  
+
   # recode "condition" values to be -.5 and +.5
   dplyr::rename(condition = cond) %>%
   mutate(condition = dplyr::if_else(condition=="P",
                                     -.5,      # personal = -.5
                                     .5)) %>%  # conflict = .5
-  
+
   # convert variables to factor
   mutate(condition = as.factor(condition),
          dyad_id = as.factor(dyad_id),
@@ -1201,13 +1202,13 @@ drp_real = drp_real %>% ungroup() %>%
 ```r
 # prepare sample-wise baseline dataframe
 drp_sample_shuffle = drp_sample_shuffle %>% ungroup() %>%
-  
+
   # recode "condition" values to be -.5 and +.5
   dplyr::rename(condition = cond) %>%
   mutate(condition = dplyr::if_else(condition=="P",
                                     -.5,      # personal = -.5
                                     .5)) %>%  # conflict = .5
-  
+
   # convert variables to factor
   mutate(condition = as.factor(condition),
          dyad_id = as.factor(dyad_id),
@@ -1239,10 +1240,10 @@ h2_analyses_rr <- lm(RR ~ condition + conv.no,
 ## -7.5758 -1.4323  0.7145  1.6119  4.2871 
 ## 
 ## Coefficients:
-##              Estimate Std. Error t value Pr(>|t|)    
-## (Intercept)   17.4488     0.3361  51.915   <2e-16 ***
-## condition0.5  -0.6013     0.3755  -1.601    0.112    
-## conv.no2      -0.5296     0.3755  -1.410    0.161    
+##              Estimate Std. Error t value            Pr(>|t|)    
+## (Intercept)   17.4488     0.3361  51.915 <0.0000000000000002 ***
+## condition0.5  -0.6013     0.3755  -1.601               0.112    
+## conv.no2      -0.5296     0.3755  -1.410               0.161    
 ## ---
 ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 ## 
