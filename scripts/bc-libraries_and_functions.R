@@ -37,10 +37,6 @@ set.seed(9)
 # specify width of the diagonal recurrence profile
 wsz = 5 
 
-# create frame for data
-drps = data.frame()
-descriptives = data.frame()
-
 #create the values for the quadratic analyses
 raw = -wsz:wsz
 timeVals = data.frame(raw)
@@ -54,3 +50,24 @@ options(scipen=999)
 pander_lme_url = "https://raw.githubusercontent.com/a-paxton/stats-tools/2a1bf715097bbcc966ab612af3a9e0b14408d4ff/pander_lme.R"
 pander_lme_file = getURL(pander_lme_url, ssl.verifypeer = FALSE)
 eval(parse(text = pander_lme_file))
+
+#' Welch t-test
+compute_t_statistics = function(means, standard_error,
+                                contrasts){
+  all_tests = data.frame()
+  for(contrast in contrasts){
+    splits = unlist(strsplit(contrast, "-"))
+    if(length(splits) != 2){
+      error("Dunno how to deal with this just yet") 
+    }
+    
+    group1 = splits[1]
+    group2 = splits[2]
+    
+    t = ((means[group1] - means[group2]) /
+           (standard_error[group1]**2 +
+              standard_error[group2]**2)**.5)
+    all_tests[contrast, "t_stats"] = t
+  }
+  return(all_tests) 
+}
