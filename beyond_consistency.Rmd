@@ -128,24 +128,24 @@ for (next_mon in split_mon){
     mutate(NRLINE_norm = NRLINE / dim(next_mon)[1]) # normalize NRLINE by number of words
   rqa_mon = rbind.data.frame(rqa_mon,next_data_line)
 
-  # # save the RPs -- including LOI/LOS for plotting (commenting for time/speed)
-  # rqa_for_mon = crqa(ts1=next_mon$function_words,
-  #                    ts2=next_mon$function_contrast,
-  #                    delay=1,
-  #                    embed=1,
-  #                    r=0.1,
-  #                    normalize=0,
-  #                    rescale=0,
-  #                    mindiagline=2,
-  #                    minvertline=2,
-  #                    tw=0, # include LOI/LOS
-  #                    whiteline=FALSE,
-  #                    recpt=FALSE)
-  # png(filename = paste0('./figures/h1-rqa/rp-speaker_',speaker_code,'-monologue.png'))
-  # plotRP(rqa_for_mon$RP,
-  #        list(unit = 2, labelx = "Speaker A", labely = "Speaker A",
-  #             cols = "black", pcex = .5))
-  # dev.off()
+  # save the RPs -- including LOI/LOS for plotting (commenting for time/speed)
+  rqa_for_mon = crqa(ts1=next_mon$function_words,
+                     ts2=next_mon$function_contrast,
+                     delay=1,
+                     embed=1,
+                     r=0.1,
+                     normalize=0,
+                     rescale=0,
+                     mindiagline=2,
+                     minvertline=2,
+                     tw=0, # include LOI/LOS
+                     whiteline=FALSE,
+                     recpt=FALSE)
+  png(filename = paste0('./figures/h1-rqa/rp-speaker_',speaker_code,'-monologue.png'))
+  plotRP(rqa_for_mon$RP,
+         list(unit = 2, labelx = "Speaker A", labely = "Speaker A",
+              cols = "black", pcex = .5))
+  dev.off()
 }
 
 # clean up what we don't need
@@ -231,24 +231,24 @@ for (next_conv in split_conv){
     mutate(NRLINE_norm = NRLINE / dim(next_conv)[1]) # normalize NRLINE by number of words
   rqa_conv = rbind.data.frame(rqa_conv,next_data_line)
 
-  # # plot the RPs -- include LOI/LOS (removing for speed/time)
-  # rqa_for_conv = crqa(ts1=next_conv$function_words,
-  #                     ts2=next_conv$function_contrast,
-  #                     delay=1,
-  #                     embed=1,
-  #                     r=0.1,
-  #                     normalize=0,
-  #                     rescale=0,
-  #                     mindiagline=2,
-  #                     minvertline=2,
-  #                     tw=0, # retain LOI for plotting only
-  #                     whiteline=FALSE,
-  #                     recpt=FALSE)
-  # png(filename = paste0('./figures/h1-rqa/rp-speaker_',speaker_code,'-conversation.png'))
-  # plotRP(rqa_for_conv$RP,
-  #        list(unit = 2, labelx = "Speaker A", labely = "Speaker A",
-  #             cols = "black", pcex = .5))
-  # dev.off()
+  # plot the RPs -- include LOI/LOS (removing for speed/time)
+  rqa_for_conv = crqa(ts1=next_conv$function_words,
+                      ts2=next_conv$function_contrast,
+                      delay=1,
+                      embed=1,
+                      r=0.1,
+                      normalize=0,
+                      rescale=0,
+                      mindiagline=2,
+                      minvertline=2,
+                      tw=0, # retain LOI for plotting only
+                      whiteline=FALSE,
+                      recpt=FALSE)
+  png(filename = paste0('./figures/h1-rqa/rp-speaker_',speaker_code,'-conversation.png'))
+  plotRP(rqa_for_conv$RP,
+         list(unit = 2, labelx = "Speaker A", labely = "Speaker A",
+              cols = "black", pcex = .01))
+  dev.off()
 }
 
 # clean up what we don't need

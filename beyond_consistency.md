@@ -119,24 +119,24 @@ for (next_mon in split_mon){
     mutate(NRLINE_norm = NRLINE / dim(next_mon)[1]) # normalize NRLINE by number of words
   rqa_mon = rbind.data.frame(rqa_mon,next_data_line)
 
-  # # save the RPs -- including LOI/LOS for plotting (commenting for time/speed)
-  # rqa_for_mon = crqa(ts1=next_mon$function_words,
-  #                    ts2=next_mon$function_contrast,
-  #                    delay=1,
-  #                    embed=1,
-  #                    r=0.1,
-  #                    normalize=0,
-  #                    rescale=0,
-  #                    mindiagline=2,
-  #                    minvertline=2,
-  #                    tw=0, # include LOI/LOS
-  #                    whiteline=FALSE,
-  #                    recpt=FALSE)
-  # png(filename = paste0('./figures/h1-rqa/rp-speaker_',speaker_code,'-monologue.png'))
-  # plotRP(rqa_for_mon$RP,
-  #        list(unit = 2, labelx = "Speaker A", labely = "Speaker A",
-  #             cols = "black", pcex = .5))
-  # dev.off()
+  # save the RPs -- including LOI/LOS for plotting (commenting for time/speed)
+  rqa_for_mon = crqa(ts1=next_mon$function_words,
+                     ts2=next_mon$function_contrast,
+                     delay=1,
+                     embed=1,
+                     r=0.1,
+                     normalize=0,
+                     rescale=0,
+                     mindiagline=2,
+                     minvertline=2,
+                     tw=0, # include LOI/LOS
+                     whiteline=FALSE,
+                     recpt=FALSE)
+  png(filename = paste0('./figures/h1-rqa/rp-speaker_',speaker_code,'-monologue.png'))
+  plotRP(rqa_for_mon$RP,
+         list(unit = 2, labelx = "Speaker A", labely = "Speaker A",
+              cols = "black", pcex = .5))
+  dev.off()
 }
 
 # clean up what we don't need
@@ -219,24 +219,24 @@ for (next_conv in split_conv){
     mutate(NRLINE_norm = NRLINE / dim(next_conv)[1]) # normalize NRLINE by number of words
   rqa_conv = rbind.data.frame(rqa_conv,next_data_line)
 
-  # # plot the RPs -- include LOI/LOS (removing for speed/time)
-  # rqa_for_conv = crqa(ts1=next_conv$function_words,
-  #                     ts2=next_conv$function_contrast,
-  #                     delay=1,
-  #                     embed=1,
-  #                     r=0.1,
-  #                     normalize=0,
-  #                     rescale=0,
-  #                     mindiagline=2,
-  #                     minvertline=2,
-  #                     tw=0, # retain LOI for plotting only
-  #                     whiteline=FALSE,
-  #                     recpt=FALSE)
-  # png(filename = paste0('./figures/h1-rqa/rp-speaker_',speaker_code,'-conversation.png'))
-  # plotRP(rqa_for_conv$RP,
-  #        list(unit = 2, labelx = "Speaker A", labely = "Speaker A",
-  #             cols = "black", pcex = .5))
-  # dev.off()
+  # plot the RPs -- include LOI/LOS (removing for speed/time)
+  rqa_for_conv = crqa(ts1=next_conv$function_words,
+                      ts2=next_conv$function_contrast,
+                      delay=1,
+                      embed=1,
+                      r=0.1,
+                      normalize=0,
+                      rescale=0,
+                      mindiagline=2,
+                      minvertline=2,
+                      tw=0, # retain LOI for plotting only
+                      whiteline=FALSE,
+                      recpt=FALSE)
+  png(filename = paste0('./figures/h1-rqa/rp-speaker_',speaker_code,'-conversation.png'))
+  plotRP(rqa_for_conv$RP,
+         list(unit = 2, labelx = "Speaker A", labely = "Speaker A",
+              cols = "black", pcex = .01))
+  dev.off()
 }
 
 # clean up what we don't need
@@ -289,35 +289,35 @@ h1_analyses <- lmer(RR ~ conv.type + (1|speaker_code),
 ##    Data: h1_data
 ## 
 ##      AIC      BIC   logLik deviance df.resid 
-##   1469.1   1483.0   -730.6   1461.1      232 
+##   1470.0   1483.8   -731.0   1462.0      232 
 ## 
 ## Scaled residuals: 
 ##     Min      1Q  Median      3Q     Max 
-## -3.6500 -0.5747 -0.0145  0.6198  2.6340 
+## -3.6419 -0.5827 -0.0083  0.6212  2.6381 
 ## 
 ## Random effects:
 ##  Groups       Name        Variance Std.Dev.
-##  speaker_code (Intercept)  5.697   2.387   
-##  Residual                 23.464   4.844   
+##  speaker_code (Intercept)  5.627   2.372   
+##  Residual                 23.621   4.860   
 ## Number of obs: 236, groups:  speaker_code, 118
 ## 
 ## Fixed effects:
-##             Estimate Std. Error       df t value Pr(>|t|)    
-## (Intercept)  29.3813     0.4971 227.3241  59.104  < 2e-16 ***
-## conv.typeC    4.6582     0.6306 117.9998   7.387 2.34e-11 ***
+##             Estimate Std. Error       df t value             Pr(>|t|)    
+## (Intercept)  29.3813     0.4979 227.5761  59.015 < 0.0000000000000002 ***
+## conv.typeC    4.7168     0.6327 117.9998   7.455      0.0000000000165 ***
 ## ---
 ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 ## 
 ## Correlation of Fixed Effects:
 ##            (Intr)
-## conv.typeC -0.634
+## conv.typeC -0.635
 ```
 
 
 |     &nbsp;      | Estimate | Std..Error |  df   | t.value |   p    | p_adj  | sig |
 |:---------------:|:--------:|:----------:|:-----:|:-------:|:------:|:------:|:---:|
-| **(Intercept)** |  29.38   |   0.4971   | 227.3 |  59.1   | 0.0001 | 0.0001 | *** |
-| **conv.typeC**  |  4.658   |   0.6306   |  118  |  7.387  | 0.0001 | 0.0001 | *** |
+| **(Intercept)** |  29.38   |   0.4979   | 227.6 |  59.01  | 0.0001 | 0.0001 | *** |
+| **conv.typeC**  |  4.717   |   0.6327   |  118  |  7.455  | 0.0001 | 0.0001 | *** |
 
 As predicted, we do see a difference in linguistic style between conversations
 and monologues. Specifically, we find that conversations tend to have more
@@ -394,25 +394,25 @@ h1_analyses_post_RR = lm(Diff_RR ~ cond_c,
 ## 
 ## Residuals:
 ##      Min       1Q   Median       3Q      Max 
-## -23.1390  -4.1330   0.7717   4.3963  16.6707 
+## -23.0275  -4.1330   0.7886   4.5077  16.6707 
 ## 
 ## Coefficients:
 ##             Estimate Std. Error t value            Pr(>|t|)    
-## (Intercept)  -7.2987     0.8021  -9.100 0.00000000000000304 ***
-## cond_cP       5.5638     1.1643   4.779 0.00000521049786764 ***
+## (Intercept)  -7.4101     0.8021  -9.239 0.00000000000000144 ***
+## cond_cP       5.6753     1.1643   4.874 0.00000349642663702 ***
 ## ---
 ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 ## 
-## Residual standard error: 6.315 on 116 degrees of freedom
-## Multiple R-squared:  0.1645,	Adjusted R-squared:  0.1573 
-## F-statistic: 22.84 on 1 and 116 DF,  p-value: 0.00000521
+## Residual standard error: 6.316 on 116 degrees of freedom
+## Multiple R-squared:   0.17,	Adjusted R-squared:  0.1628 
+## F-statistic: 23.76 on 1 and 116 DF,  p-value: 0.000003496
 ```
 
 
 |     &nbsp;      | Estimate | Std..Error | t.value |   p    | p_adj  | sig |
 |:---------------:|:--------:|:----------:|:-------:|:------:|:------:|:---:|
-| **(Intercept)** |  -7.299  |   0.8021   |  -9.1   | 0.0001 | 0.0001 | *** |
-|   **cond_cP**   |  5.564   |   1.164    |  4.779  | 0.0001 | 0.0001 | *** |
+| **(Intercept)** |  -7.41   |   0.8021   | -9.239  | 0.0001 | 0.0001 | *** |
+|   **cond_cP**   |  5.675   |   1.164    |  4.874  | 0.0001 | 0.0001 | *** |
 
 We do see that there are significant effects in the change in the overall
 amount of recurrence (RR) by conversation: The change in language style from
@@ -443,26 +443,26 @@ h1_analyses_post_DET = lm(Diff_DET ~ cond_c,
 ## 
 ## Residuals:
 ##     Min      1Q  Median      3Q     Max 
-## -33.125  -7.437  -0.201   7.657  33.981 
+## -33.125  -7.420  -0.410   7.736  34.060 
 ## 
 ## Coefficients:
 ##             Estimate Std. Error t value         Pr(>|t|)    
-## (Intercept)  -11.300      1.479  -7.640 0.00000000000705 ***
-## cond_cP        4.236      2.138   1.982           0.0499 *  
+## (Intercept)  -11.379      1.480  -7.691 0.00000000000543 ***
+## cond_cP        4.315      2.139   2.018           0.0459 *  
 ## ---
 ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 ## 
-## Residual standard error: 11.55 on 115 degrees of freedom
+## Residual standard error: 11.56 on 115 degrees of freedom
 ##   (1 observation deleted due to missingness)
-## Multiple R-squared:  0.03302,	Adjusted R-squared:  0.02461 
-## F-statistic: 3.926 on 1 and 115 DF,  p-value: 0.04992
+## Multiple R-squared:  0.03419,	Adjusted R-squared:  0.02579 
+## F-statistic: 4.071 on 1 and 115 DF,  p-value: 0.04594
 ```
 
 
 |     &nbsp;      | Estimate | Std..Error | t.value |   p    | p_adj  | sig |
 |:---------------:|:--------:|:----------:|:-------:|:------:|:------:|:---:|
-| **(Intercept)** |  -11.3   |   1.479    |  -7.64  | 0.0001 | 0.0001 | *** |
-|   **cond_cP**   |  4.236   |   2.138    |  1.982  |  0.05  |  0.05  |  .  |
+| **(Intercept)** |  -11.38  |    1.48    | -7.691  | 0.0001 | 0.0001 | *** |
+|   **cond_cP**   |  4.315   |   2.139    |  2.018  | 0.046  | 0.046  |  *  |
 
 We also see that there are significant effects in the change in the determinism
 (DET) by conversation---in other words, the structure in the patterns of
@@ -500,26 +500,26 @@ h1_analyses_post_rENTR = lm(Diff_rENTR ~ cond_c,
 ## 
 ## Residuals:
 ##      Min       1Q   Median       3Q      Max 
-## -0.30919 -0.08640 -0.01154  0.06985  0.60921 
+## -0.30906 -0.08633 -0.01154  0.06998  0.60921 
 ## 
 ## Coefficients:
 ##             Estimate Std. Error t value Pr(>|t|)  
-## (Intercept)  0.01842    0.01786   1.032    0.304  
-## cond_cP      0.04657    0.02582   1.804    0.074 .
+## (Intercept)  0.01829    0.01786   1.024   0.3081  
+## cond_cP      0.04670    0.02583   1.808   0.0732 .
 ## ---
 ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 ## 
-## Residual standard error: 0.1383 on 113 degrees of freedom
+## Residual standard error: 0.1384 on 113 degrees of freedom
 ##   (3 observations deleted due to missingness)
-## Multiple R-squared:  0.02798,	Adjusted R-squared:  0.01938 
-## F-statistic: 3.253 on 1 and 113 DF,  p-value: 0.07395
+## Multiple R-squared:  0.02812,	Adjusted R-squared:  0.01952 
+## F-statistic: 3.269 on 1 and 113 DF,  p-value: 0.07325
 ```
 
 
 |     &nbsp;      | Estimate | Std..Error | t.value |   p   | p_adj | sig |
 |:---------------:|:--------:|:----------:|:-------:|:-----:|:-----:|:---:|
-| **(Intercept)** | 0.01842  |  0.01786   |  1.032  |  0.3  |  0.3  |     |
-|   **cond_cP**   | 0.04657  |  0.02582   |  1.804  | 0.074 | 0.148 |     |
+| **(Intercept)** | 0.01829  |  0.01786   |  1.024  | 0.31  | 0.31  |     |
+|   **cond_cP**   |  0.0467  |  0.02583   |  1.808  | 0.073 | 0.146 |     |
 
 Unlike RR and DET, we do not see a difference in normalized entropy by
 conversation type. Normalized entropy essentially captures the degree to which
@@ -554,25 +554,25 @@ h1_analyses_post_NRLINE = lm(Diff_NRLINE_norm ~ cond_c,
 ## 
 ## Residuals:
 ##     Min      1Q  Median      3Q     Max 
-## -152.12  -22.44   10.98   30.91   76.61 
+## -152.12  -22.44   11.07   30.62   76.78 
 ## 
 ## Coefficients:
 ##             Estimate Std. Error t value            Pr(>|t|)    
-## (Intercept)  -75.269      5.767 -13.053 <0.0000000000000002 ***
-## cond_cP        6.337      8.371   0.757               0.451    
+## (Intercept)  -75.436      5.758 -13.101 <0.0000000000000002 ***
+## cond_cP        6.504      8.358   0.778               0.438    
 ## ---
 ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 ## 
-## Residual standard error: 45.41 on 116 degrees of freedom
-## Multiple R-squared:  0.004917,	Adjusted R-squared:  -0.003661 
-## F-statistic: 0.5732 on 1 and 116 DF,  p-value: 0.4505
+## Residual standard error: 45.34 on 116 degrees of freedom
+## Multiple R-squared:  0.005193,	Adjusted R-squared:  -0.003383 
+## F-statistic: 0.6055 on 1 and 116 DF,  p-value: 0.4381
 ```
 
 
 |     &nbsp;      | Estimate | Std..Error | t.value |   p    | p_adj  | sig |
 |:---------------:|:--------:|:----------:|:-------:|:------:|:------:|:---:|
-| **(Intercept)** |  -75.27  |   5.767    | -13.05  | 0.0001 | 0.0001 | *** |
-|   **cond_cP**   |  6.337   |   8.371    | 0.7571  |  0.45  |  0.45  |     |
+| **(Intercept)** |  -75.44  |   5.758    |  -13.1  | 0.0001 | 0.0001 | *** |
+|   **cond_cP**   |  6.504   |   8.358    | 0.7781  |  0.44  |  0.44  |     |
 
 
 ![](beyond_consistency_files/figure-html/plot-h1-post-nrline-data-1.png)<!-- -->
