@@ -739,7 +739,6 @@ h2_data = full_join(A_dfs, B_dfs,
   tidyr::drop_na()
 ```
 
-
 ***
 
 ## Creation of baselines
@@ -1172,7 +1171,11 @@ crqa_partner_shuffle = crqa_partner_shuffle %>% ungroup() %>%
   # convert variables to factor
   mutate(condition = as.factor(condition),
          dyad_id = paste0(speaker_A, '_', speaker_B),
-         conv.no = as.factor(conv.no))
+         conv.no = as.factor(conv.no),
+         data = "shuffled")
+
+# combine the real and baseline dataframes
+crqa_baseline = rbind.data.frame(crqa_real, crqa_partner_shuffle)
 ```
 
 ***
@@ -1196,10 +1199,7 @@ drp_real = drp_real %>% ungroup() %>%
   mutate(condition = as.factor(condition),
          dyad_id = as.factor(dyad_id),
          conv.no = as.factor(conv.no))
-```
 
-
-```r
 # prepare sample-wise baseline dataframe
 drp_sample_shuffle = drp_sample_shuffle %>% ungroup() %>%
 
@@ -1212,7 +1212,14 @@ drp_sample_shuffle = drp_sample_shuffle %>% ungroup() %>%
   # convert variables to factor
   mutate(condition = as.factor(condition),
          dyad_id = as.factor(dyad_id),
-         conv.no = as.factor(conv.no))
+         conv.no = as.factor(conv.no),
+         data_type = "shuffled") %>%
+
+  # remove run
+  select(-run)
+
+# combine the two
+drp_baseline = rbind.data.frame(drp_real, drp_sample_shuffle)
 ```
 
 ***
@@ -1240,10 +1247,10 @@ h2_analyses_rr <- lm(RR ~ condition + conv.no,
 ## -7.5758 -1.4323  0.7145  1.6119  4.2871 
 ## 
 ## Coefficients:
-##              Estimate Std. Error t value            Pr(>|t|)    
-## (Intercept)   17.4488     0.3361  51.915 <0.0000000000000002 ***
-## condition0.5  -0.6013     0.3755  -1.601               0.112    
-## conv.no2      -0.5296     0.3755  -1.410               0.161    
+##              Estimate Std. Error t value Pr(>|t|)    
+## (Intercept)   17.4488     0.3361  51.915   <2e-16 ***
+## condition0.5  -0.6013     0.3755  -1.601    0.112    
+## conv.no2      -0.5296     0.3755  -1.410    0.161    
 ## ---
 ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 ## 

@@ -701,7 +701,6 @@ h2_data = full_join(A_dfs, B_dfs,
 
 ```
 
-
 ***
 
 ## Creation of baselines
@@ -1140,7 +1139,11 @@ crqa_partner_shuffle = crqa_partner_shuffle %>% ungroup() %>%
   # convert variables to factor
   mutate(condition = as.factor(condition),
          dyad_id = paste0(speaker_A, '_', speaker_B),
-         conv.no = as.factor(conv.no))
+         conv.no = as.factor(conv.no),
+         data = "shuffled")
+
+# combine the real and baseline dataframes
+crqa_baseline = rbind.data.frame(crqa_real, crqa_partner_shuffle)
 
 ```
 
@@ -1150,7 +1153,7 @@ crqa_partner_shuffle = crqa_partner_shuffle %>% ungroup() %>%
 
 We'll also need prepare for the models using diagonal recurrence profiles.
 
-```{r prepare-drp-variables-real}
+```{r prepare-drp-variables}
 
 # prepare real data dataframe
 drp_real = drp_real %>% ungroup() %>%
@@ -1166,10 +1169,6 @@ drp_real = drp_real %>% ungroup() %>%
          dyad_id = as.factor(dyad_id),
          conv.no = as.factor(conv.no))
 
-```
-
-```{r prepare-drp-variables-baseline}
-
 # prepare sample-wise baseline dataframe
 drp_sample_shuffle = drp_sample_shuffle %>% ungroup() %>%
 
@@ -1182,7 +1181,14 @@ drp_sample_shuffle = drp_sample_shuffle %>% ungroup() %>%
   # convert variables to factor
   mutate(condition = as.factor(condition),
          dyad_id = as.factor(dyad_id),
-         conv.no = as.factor(conv.no))
+         conv.no = as.factor(conv.no),
+         data_type = "shuffled") %>%
+
+  # remove run
+  select(-run)
+
+# combine the two
+drp_baseline = rbind.data.frame(drp_real, drp_sample_shuffle)
 
 ```
 
