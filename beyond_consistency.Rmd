@@ -19,7 +19,7 @@ creates new functions for our analyses.
 **Code written by**: L. C. Mueller-Frommeyer (Technische Universitaet
 Braunschweig) & A. Paxton (University of Connecticut)
 
-**Date last modified**: 18 June 2019
+**Date last modified**: 29 June 2019
 
 ```{r silent-setup, include=FALSE}
 
@@ -45,15 +45,11 @@ source('./scripts/bc-libraries_and_functions.r')
 
 ***
 
-# Hypothesis 1
+# Data preparation
 
 ***
 
-## Data preparation
-
-***
-
-### Recurrence quantification analysis: Monologues
+## Recurrence quantification analysis: Monologues
 
 ```{r monologue-load-data}
 
@@ -69,7 +65,7 @@ mon_dfs = plyr::ldply(mon_files,
 
 # prepare monologues for RQA
 mon_dfs = mon_dfs %>%
-
+  
   # separate 'Filename' column into separate columns
   tidyr::separate(Filename,
                   into = c("dyad_id", "dyad_position", "speaker_code"),
@@ -77,16 +73,16 @@ mon_dfs = mon_dfs %>%
                   remove = FALSE,
                   extra = "drop",
                   fill = "warn") %>%
-
+  
   # extract speaker number ID and conversation type from variable
   mutate(cond = gsub("[[:digit:]]+","",dyad_id)) %>%
-
+  
   # create new variable function_contrast with all 0 replaced by -1
   dplyr::rename(function_words = function.) %>%
   mutate(function_contrast = dplyr::if_else(function_words==0,
                                             -1,
                                             function_words)) %>%
-
+  
   #add new variable specifying conversation type
   mutate(conv.type = "M")
 
@@ -100,7 +96,7 @@ split_mon = split(mon_dfs, list(mon_dfs$Filename))
 # cycle through the individual monologues
 rqa_mon = data.frame()
 for (next_mon in split_mon){
-
+  
   # run (auto-)recurrence
   rqa_for_mon = crqa(ts1=next_mon$function_words,
                      ts2=next_mon$function_contrast,
@@ -114,7 +110,7 @@ for (next_mon in split_mon){
                      tw=1, # exclude line of identity
                      whiteline=FALSE,
                      recpt=FALSE)
-
+  
   # save plot-level information to dataframe
   dyad_id = unique(next_mon$dyad_id)
   speaker_code = unique(next_mon$speaker_code)
@@ -127,8 +123,8 @@ for (next_mon in split_mon){
                               rqa_for_mon[1:9]) %>%
     mutate(NRLINE_norm = NRLINE / dim(next_mon)[1]) # normalize NRLINE by number of words
   rqa_mon = rbind.data.frame(rqa_mon,next_data_line)
-
-  # save the RPs -- including LOI/LOS for plotting (commenting for time/speed)
+  
+  # save the RPs -- including LOI/LOS for plotting
   rqa_for_mon = crqa(ts1=next_mon$function_words,
                      ts2=next_mon$function_contrast,
                      delay=1,
@@ -141,7 +137,7 @@ for (next_mon in split_mon){
                      tw=0, # include LOI/LOS
                      whiteline=FALSE,
                      recpt=FALSE)
-  png(filename = paste0('./figures/h1-rqa/rp-speaker_',speaker_code,'-monologue.png'))
+  png(filename = paste0('./figures/monologue/rp-speaker_',speaker_code,'-monologue.png'))
   plotRP(rqa_for_mon$RP,
          list(unit = 2, labelx = "Speaker A", labely = "Speaker A",
               cols = "black", pcex = .5))
@@ -156,7 +152,7 @@ rm(split_mon, next_mon, rqa_for_mon,
 
 ***
 
-### Recurrrence quantification analysis: Conversations
+## Recurrrence quantification analysis: Conversations
 
 ```{r conversations-load-data}
 
@@ -172,7 +168,7 @@ conv_dfs = plyr::ldply(conv_files,
 
 # prepare conversations for RQA
 conv_dfs = conv_dfs %>%
-
+  
   # separate 'Filename' column into separate columns
   tidyr::separate(Filename,
                   into = c("dyad_id", "dyad_position", "speaker_code"),
@@ -180,16 +176,16 @@ conv_dfs = conv_dfs %>%
                   remove = FALSE,
                   extra = "drop",
                   fill = "warn") %>%
-
+  
   # extract speaker number ID and conversation type from variable
   mutate(cond = gsub("[[:digit:]]+","",dyad_id)) %>%
-
+  
   # create new variable function_contrast with all 0 replaced by -1
   dplyr::rename(function_words = function.) %>%
   mutate(function_contrast = dplyr::if_else(function_words==0,
                                             -1,
                                             function_words)) %>%
-
+  
   # add new variable specifying conversation type
   mutate(conv.type = "C")
 
@@ -203,7 +199,7 @@ split_conv = split(conv_dfs, list(conv_dfs$Filename))
 # cycle through the individual conversations
 rqa_conv = data.frame()
 for (next_conv in split_conv){
-
+  
   # run recurrence
   rqa_for_conv = crqa(ts1=next_conv$function_words,
                       ts2=next_conv$function_contrast,
@@ -217,7 +213,7 @@ for (next_conv in split_conv){
                       tw=1, # exclude line of identity
                       whiteline=FALSE,
                       recpt=FALSE)
-
+  
   # save plot-level information to dataframe
   dyad_id = unique(next_conv$dyad_id)
   speaker_code = unique(next_conv$speaker_code)
@@ -230,8 +226,8 @@ for (next_conv in split_conv){
                               rqa_for_conv[1:9]) %>%
     mutate(NRLINE_norm = NRLINE / dim(next_conv)[1]) # normalize NRLINE by number of words
   rqa_conv = rbind.data.frame(rqa_conv,next_data_line)
-
-  # plot the RPs -- include LOI/LOS (removing for speed/time)
+  
+  # plot the RPs -- include LOI/LOS
   rqa_for_conv = crqa(ts1=next_conv$function_words,
                       ts2=next_conv$function_contrast,
                       delay=1,
@@ -244,7 +240,7 @@ for (next_conv in split_conv){
                       tw=0, # retain LOI for plotting only
                       whiteline=FALSE,
                       recpt=FALSE)
-  png(filename = paste0('./figures/h1-rqa/rp-speaker_',speaker_code,'-conversation.png'))
+  png(filename = paste0('./figures/conversation/rp-speaker_',speaker_code,'-conversation.png'))
   plotRP(rqa_for_conv$RP,
          list(unit = 2, labelx = "Speaker A", labely = "Speaker A",
               cols = "black", pcex = .01))
@@ -259,25 +255,61 @@ rm(split_conv, next_conv, rqa_for_conv,
 
 ***
 
-### Create dataframe for H1
+## Create dataframes
 
-```{r create-h1-dataframe}
+We'll need to create two dataframes: an unstandardized dataframe
+(`analysis_df`) and a standardized one (`standardized_df`).
+
+```{r create-analysis-dataframe}
 
 # bring together the monologue and conversation data
-h1_data = rbind(rqa_mon, rqa_conv)
+analysis_df = rbind(rqa_mon, rqa_conv) %>%
+  
+  # update coding for conversation type and condition
+  mutate(conv.type = as.factor(dplyr::if_else(conv.type == "M",
+                                              -.5,
+                                              .5)),
+         cond = as.factor(dplyr::if_else(cond == "P",
+                                         -.5,
+                                         .5)))
 
-#save results to file
-write.table(h1_data,'./data/h1_data.csv',sep=",")
+# save dataframe to file
+write.table(analysis_df, './data/analysis_df.csv', 
+            sep=",", row.names=FALSE, col.names=TRUE)
+
+```
+
+```{r create-standardized-dataframe}
+
+# standardize the analysis dataframe
+standardized_df = analysis_df %>%
+  
+  # convert things as needed to numeric
+  mutate(dyad_id = as.numeric(as.factor(dyad_id)),
+         speaker_code = as.numeric(as.factor(speaker_code))) %>%
+  
+  # standardize
+  mutate_all(funs(as.numeric(scale(as.numeric(.))))) %>%
+  
+  # convert to factors as needed
+  mutate(dyad_id = as.factor(dyad_id),
+         speaker_code = as.factor(speaker_code),
+         conv.type = as.factor(conv.type),
+         cond = as.factor(cond))
+
+# save dataframe to file
+write.table(standardized_df, './data/standardized_df.csv', 
+            sep=",", row.names=FALSE, col.names=TRUE)
 
 ```
 
 ***
 
-## Data analysis
+# Data analysis
 
 ***
 
-### Planned analysis
+## Planned analysis
 
 Here, we perform a linear mixed-effects model to analyze how conversation
 type---whether a monologue (M) or conversation (C)---changes a person's
@@ -288,25 +320,45 @@ We attempted to analyze the data using maximal random effects structures and
 an uncorrelated random intercept within the random slope, but both models
 failed to converge. As a result, we use only the random intercept in our model.
 
-```{r model-h1}
+```{r main-model}
 
-# does linguistic style change based on the conversational context?
-h1_analyses <- lmer(RR ~ conv.type + (1|speaker_code),
-                    data = h1_data, REML = FALSE)
+# raw: does linguistic style change based on the conversational context?
+planned_analyses_raw <- lmer(RR ~ conv.type + (1|speaker_code),
+                             data = analysis_df, REML = FALSE)
 
 ```
+
+```{r}
+
+# standardized: does linguistic style change based on the conversational context?
+planned_analyses_st <- lmer(RR ~ conv.type + (1|speaker_code),
+                            data = standardized_df, REML = FALSE)
+
+```
+
 
 ```{r silently-print-summary, eval=TRUE, echo=FALSE}
 
 # print summary table
-summary(h1_analyses)
+summary(planned_analyses_raw)
 
 ```
 
-```{r silently-print-table, eval=TRUE, echo=FALSE}
+Raw model results:
+
+```{r silently-print-raw-table, eval=TRUE, echo=FALSE}
 
 # neatly print output
-pander_lme(h1_analyses)
+pander_lme(planned_analyses_raw)
+
+```
+
+Standardized model results:
+
+```{r silently-print-standardized-table, eval=TRUE, echo=FALSE}
+
+# neatly print output
+pander_lme(planned_analyses_st)
 
 ```
 
@@ -320,11 +372,15 @@ versus conflict).
 
 ***
 
-### Post-hoc analyses: Data preparation
+# Post-hoc analyses
+
+***
+
+## Data preparation
 
 First, we'll need to prepare the data by converting it from long- to wide-form.
 
-```{r post-hoc-h1-prep}
+```{r post-hoc-prep}
 
 # Preparing data for Post-hoc analyses - Bring data into wide format
 rqa_mon_post = rqa_mon %>%
@@ -354,126 +410,223 @@ rqa_conv_post = rqa_conv  %>%
                 NRLINE_norm_c = NRLINE_norm)
 
 # Calculate difference scores
-h1_post_hoc = full_join(rqa_mon_post, rqa_conv_post,
+post_hoc_df = full_join(rqa_mon_post, rqa_conv_post,
                         by=c("dyad_id", "speaker_code")) %>%
   mutate(Diff_RR = RR_m - RR_c,           # positive means higher RR in mon
          Diff_DET = DET_m - DET_c,        # positive means more DET in mon
          Diff_rENTR = rENTR_m - rENTR_c,  # positive means more line diversity in mon
-         Diff_NRLINE_norm = NRLINE_norm_m - NRLINE_norm_c)
+         Diff_NRLINE_norm = NRLINE_norm_m - NRLINE_norm_c)  %>% # positive means more lines in monologue
+  
+  # drop uninformative variables
+  select(-conv.type_c, -conv.type_m, -cond) %>%
+  
+  # update coding for condition
+  mutate(cond_c = as.factor(dplyr::if_else(cond_c == "P",
+                                           -.5,
+                                           .5)))
+
+# save dataframe to file
+write.table(post_hoc_df, './data/post_hoc_df.csv', 
+            sep=",", row.names=FALSE, col.names=TRUE)
 
 # clean up what we don't need
 rm(rqa_mon_post, rqa_conv_post)
 
 ```
 
+We'll then go ahead and create the raw and standardized dataframes.
+
+```{r create-standardized-post-hoc-dataframe}
+
+# standardize the analysis dataframe
+post_hoc_standardized_df = post_hoc_df %>%
+  
+  # convert things as needed to numeric
+  mutate(dyad_id = as.numeric(as.factor(dyad_id)),
+         speaker_code = as.numeric(as.factor(speaker_code))) %>%
+  
+  # standardize
+  mutate_all(funs(as.numeric(scale(as.numeric(.))))) %>%
+  
+  # convert to factors as needed
+  mutate(dyad_id = as.factor(dyad_id),
+         speaker_code = as.factor(speaker_code),
+         cond_c = as.factor(cond_c))
+
+# save dataframe to file
+write.table(post_hoc_standardized_df, './data/post_hoc_standardized_df.csv', 
+            sep=",", row.names=FALSE, col.names=TRUE)
+
+```
+
 ***
 
-### Post-hoc analysis: Recurrence rate
+## Post-hoc analysis: Recurrence rate
 
-```{r post-hoc-h1-rr-model}
+```{r post-hoc-rr-raw-model}
 
-# do changes in linguistic style between monologues and dialogues differ by
-# conversation type?
-h1_analyses_post_RR = lm(Diff_RR ~ cond_c,
-                         data = h1_post_hoc)
+# raw: do changes in linguistic style between monologues and dialogues 
+#       differ by conversation type?
+post_hoc_RR_raw = lm(Diff_RR ~ cond_c,
+                     data = post_hoc_df)
 
 ```
 
-```{r silently-print-post-hoc-h1-rr-summary, eval=TRUE, echo=FALSE}
+```{r post-hoc-rr-st-model}
+
+# standardized: do changes in linguistic style between monologues and dialogues 
+#       differ by conversation type?
+post_hoc_RR_st = lm(Diff_RR ~ cond_c,
+                    data = post_hoc_standardized_df)
+
+```
+
+```{r silently-print-post-hoc-rr-summary, eval=TRUE, echo=FALSE}
 
 # print summary table
-summary(h1_analyses_post_RR)
+summary(post_hoc_RR_raw)
 
 ```
 
-```{r silently-print-posthoc-h1-rr-table, echo=FALSE}
+Raw model results:
+
+```{r silently-print-post-hoc-rr-raw-table, echo=FALSE}
 
 # neatly print output
-pander_lme(h1_analyses_post_RR)
+pander_lme(post_hoc_RR_raw)
+
+```
+
+Standardized model results:
+
+```{r silently-print-post-hoc-rr-st-table, echo=FALSE}
+
+# neatly print output
+pander_lme(post_hoc_RR_st)
 
 ```
 
 We do see that there are significant effects in the change in the overall
 amount of recurrence (RR) by conversation: The change in language style from
-monologues to conversation is significantly *greater* when having a friendly
+monologues to conversation is significantly *lower* when having a friendly
 conversation about personal topics (compared to having a conflict conversation
-about political topics). In other words, people are *more likely* to change their
-langauge style when having a friendly conversation as compared to an argument.
+about political topics). In other words, people are *less likely* to change their
+language style when having a friendly conversation compared to an argument.
 
-```{r plot-h1-post-rr-data, echo=FALSE}
+```{r plot-post-rr-data, echo=FALSE}
 
-qplot(data=h1_post_hoc, x=RR_m, y=RR_c, colour=cond_c) +
+qplot(data=post_hoc_df, x=RR_m, y=RR_c, colour=cond_c) +
   geom_abline()
 
 ```
 
 ***
 
-### Post-hoc analysis: Determinism
+## Post-hoc analysis: Determinism
 
-```{r post-hoc-h1-det-model}
+```{r post-hoc-det-raw-model}
 
-# do changes in structure of linguistic style between monologues and dialogues
-# differ by conversation type?
-h1_analyses_post_DET = lm(Diff_DET ~ cond_c,
-                          data = h1_post_hoc)
+# raw: do changes in structure of linguistic style between monologues and dialogues
+#      differ by conversation type?
+post_hoc_DET_raw = lm(Diff_DET ~ cond_c,
+                      data = post_hoc_df)
 
 ```
 
-```{r silently-print-post-hoc-h1-det-summary, eval=TRUE, echo=FALSE}
+```{r post-hoc-det-st-model}
+
+# standardized: do changes in structure of linguistic style between monologues and dialogues
+#      differ by conversation type?
+post_hoc_DET_st = lm(Diff_DET ~ cond_c,
+                     data = post_hoc_standardized_df)
+
+```
+
+```{r silently-print-post-hoc-det-summary, eval=TRUE, echo=FALSE}
 
 # print summary table
-summary(h1_analyses_post_DET)
+summary(post_hoc_DET_raw)
 
 ```
 
-```{r silently-print-posthoc-h1-det-table, echo=FALSE}
+Raw model results:
+
+```{r silently-print-post-hoc-det-raw-table, echo=FALSE}
 
 # neatly print output
-pander_lme(h1_analyses_post_DET)
+pander_lme(post_hoc_DET_raw)
+
+```
+
+Standardized model results:
+
+```{r silently-print-post-hoc-det-st-table, echo=FALSE}
+
+# neatly print output
+pander_lme(post_hoc_DET_st)
 
 ```
 
 We also see that there are significant effects in the change in the determinism
 (DET) by conversation---in other words, the structure in the patterns of
 recurrence. Specifically, we see that the change in language style structure
-from monologues to conversation is significantly *greater* when followed by a
+from monologues to conversation is significantly *lower* when followed by a
 friendly conversation (compared to a conflict conversation). In other words,
-people are *more likely* to change the structure in their langauge style when
+people are *less likely* to change the structure in their language style when
 having a friendly conversation as compared to an argumentative one---consistent
 with the results found in the post-hoc analysis of RR.
 
-```{r plot-h1-post-det-data, echo=FALSE}
+```{r plot-post-det-data, echo=FALSE}
 
-qplot(data=h1_post_hoc, x=DET_m, y=DET_c, colour=cond_c) +
+qplot(data=post_hoc_df, x=DET_m, y=DET_c, colour=cond_c) +
   geom_abline()
 
 ```
 
 ***
 
-### Post-hoc analysis: Normalized entropy
+## Post-hoc analysis: Normalized entropy
 
-```{r post-hoc-h1-rentr-model}
+```{r post-hoc-rentr-model-raw}
 
-# do changes in uniformity of structure of linguistic style between monologues
-# and dialogues differ by conversation type?
-h1_analyses_post_rENTR = lm(Diff_rENTR ~ cond_c,
-                            data = h1_post_hoc)
+# raw: do changes in uniformity of structure of linguistic style between monologues
+#       and dialogues differ by conversation type?
+post_hoc_rENTR_raw = lm(Diff_rENTR ~ cond_c,
+                        data = post_hoc_df)
 
 ```
 
-```{r silently-print-post-hoc-h1-rentr-summary, eval=TRUE, echo=FALSE}
+```{r post-hoc-rentr-model-st}
+
+# standardized: do changes in uniformity of structure of linguistic style between monologues
+#       and dialogues differ by conversation type?
+post_hoc_rENTR_st = lm(Diff_rENTR ~ cond_c,
+                       data = post_hoc_standardized_df)
+
+```
+
+```{r silently-print-post-hoc-rentr-summary, eval=TRUE, echo=FALSE}
 
 # print summary table
-summary(h1_analyses_post_rENTR)
+summary(post_hoc_rENTR_raw)
 
 ```
 
-```{r silently-print-posthoc-h1-rentr-table, echo=FALSE}
+Raw model results:
+
+```{r silently-print-post-hoc-rentr-raw-table, echo=FALSE}
 
 # neatly print output
-pander_lme(h1_analyses_post_rENTR)
+pander_lme(post_hoc_rENTR_raw)
+
+```
+
+Standardized model results:
+
+```{r silently-print-post-hoc-rentr-st-table, echo=FALSE}
+
+# neatly print output
+pander_lme(post_hoc_rENTR_st)
 
 ```
 
@@ -483,44 +636,64 @@ the structure of the line lengths are uniform (i.e., lower variety in line
 lengths means lower `rENTR`) or more heterogenous (i.e., higher variety in line
 lengths means higher `rENTR`).
 
-```{r plot-h1-post-retnr-data, echo=FALSE}
+```{r plot-post-retnr-data, echo=FALSE}
 
-qplot(data=h1_post_hoc, x=rENTR_m, y=rENTR_c, colour=cond_c) +
+qplot(data=post_hoc_df, x=rENTR_m, y=rENTR_c, colour=cond_c) +
   geom_abline()
 
 ```
 
 ***
 
-### Post-hoc analysis: Number of lines (normalized)
+## Post-hoc analysis: Number of lines (normalized)
 
-```{r post-hoc-h1-nrline-model}
+```{r post-hoc-nrline-raw-model}
 
-# do changes in amount of structure of linguistic style between monologues and
-# dialogues differ by conversation type?
-h1_analyses_post_NRLINE = lm(Diff_NRLINE_norm ~ cond_c,
-                          data = h1_post_hoc)
+# raw: do changes in amount of structure of linguistic style between 
+#      monologues and dialogues differ by conversation type?
+post_hoc_NRLINE_raw = lm(Diff_NRLINE_norm ~ cond_c,
+                         data = post_hoc_df)
 
 ```
 
-```{r silently-print-post-hoc-h1-nrline-summary, eval=TRUE, echo=FALSE}
+```{r post-hoc-nrline-st-model}
+
+# standardized: do changes in amount of structure of linguistic style between 
+#      monologues and dialogues differ by conversation type?
+post_hoc_NRLINE_st = lm(Diff_NRLINE_norm ~ cond_c,
+                        data = post_hoc_standardized_df)
+
+```
+
+```{r silently-print-post-hoc-nrline-summary, eval=TRUE, echo=FALSE}
 
 # print summary table
-summary(h1_analyses_post_NRLINE)
+summary(post_hoc_NRLINE_raw)
 
 ```
 
-```{r silently-print-posthoc-h1-nrline-table, echo=FALSE}
+Raw model results:
+
+```{r silently-print-post-hoc-nrline-raw-table, echo=FALSE}
 
 # neatly print output
-pander_lme(h1_analyses_post_NRLINE)
+pander_lme(post_hoc_NRLINE_raw)
+
+```
+
+Standardized model results:
+
+```{r silently-print-post-hoc-nrline-st-table, echo=FALSE}
+
+# neatly print output
+pander_lme(post_hoc_NRLINE_st)
 
 ```
 
 
-```{r plot-h1-post-nrline-data, echo=FALSE}
+```{r plot-post-nrline-data, echo=FALSE}
 
-qplot(data=h1_post_hoc, x=NRLINE_norm_m, y=NRLINE_norm_c, colour=cond_c) +
+qplot(data=post_hoc_df, x=NRLINE_norm_m, y=NRLINE_norm_c, colour=cond_c) +
   geom_abline()
 
 ```
