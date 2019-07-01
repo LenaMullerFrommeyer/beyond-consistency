@@ -125,23 +125,23 @@ for (next_mon in split_mon){
   rqa_mon = rbind.data.frame(rqa_mon,next_data_line)
   
   # save the RPs -- including LOI/LOS for plotting
-  rqa_for_mon = crqa(ts1=next_mon$function_words,
-                     ts2=next_mon$function_contrast,
-                     delay=1,
-                     embed=1,
-                     r=0.1,
-                     normalize=0,
-                     rescale=0,
-                     mindiagline=2,
-                     minvertline=2,
-                     tw=0, # include LOI/LOS
-                     whiteline=FALSE,
-                     recpt=FALSE)
-  png(filename = paste0('./figures/monologue/rp-speaker_',speaker_code,'-monologue.png'))
-  plotRP(rqa_for_mon$RP,
-         list(unit = 2, labelx = "Speaker A", labely = "Speaker A",
-              cols = "black", pcex = .5))
-  dev.off()
+  #rqa_for_mon = crqa(ts1=next_mon$function_words,
+                    # ts2=next_mon$function_contrast,
+                    # delay=1,
+                    # embed=1,
+                    # r=0.1,
+                    # normalize=0,
+                    # rescale=0,
+                    # mindiagline=2,
+                    # minvertline=2,
+                    # tw=0, # include LOI/LOS
+                    # whiteline=FALSE,
+                    # recpt=FALSE)
+  #png(filename = paste0('./figures/monologue/rp-speaker_',speaker_code,'-monologue.png'))
+ # plotRP(rqa_for_mon$RP,
+        # list(unit = 2, labelx = "Speaker A", labely = "Speaker A",
+          #    cols = "black", pcex = .5))
+ # dev.off()
 }
 
 # clean up what we don't need
@@ -228,23 +228,23 @@ for (next_conv in split_conv){
   rqa_conv = rbind.data.frame(rqa_conv,next_data_line)
   
   # plot the RPs -- include LOI/LOS
-  rqa_for_conv = crqa(ts1=next_conv$function_words,
-                      ts2=next_conv$function_contrast,
-                      delay=1,
-                      embed=1,
-                      r=0.1,
-                      normalize=0,
-                      rescale=0,
-                      mindiagline=2,
-                      minvertline=2,
-                      tw=0, # retain LOI for plotting only
-                      whiteline=FALSE,
-                      recpt=FALSE)
-  png(filename = paste0('./figures/conversation/rp-speaker_',speaker_code,'-conversation.png'))
-  plotRP(rqa_for_conv$RP,
-         list(unit = 2, labelx = "Speaker A", labely = "Speaker A",
-              cols = "black", pcex = .01))
-  dev.off()
+  #rqa_for_conv = crqa(ts1=next_conv$function_words,
+                    #  ts2=next_conv$function_contrast,
+                    #  delay=1,
+                   #   embed=1,
+                   #   r=0.1,
+                   #   normalize=0,
+                   #   rescale=0,
+                   #   mindiagline=2,
+                   #   minvertline=2,
+                   #   tw=0, # retain LOI for plotting only
+                  #    whiteline=FALSE,
+                    #  recpt=FALSE)
+ # png(filename = paste0('./figures/conversation/rp-speaker_',speaker_code,'-conversation.png'))
+ # plotRP(rqa_for_conv$RP,
+        # list(unit = 2, labelx = "Speaker A", labely = "Speaker A",
+          #    cols = "black", pcex = .01))
+ # dev.off()
 }
 
 # clean up what we don't need
@@ -326,6 +326,11 @@ failed to converge. As a result, we use only the random intercept in our model.
 planned_analyses_raw <- lmer(RR ~ conv.type + (1|speaker_code),
                              data = analysis_df, REML = FALSE)
 
+#calculate 95%CI for data
+library(lsmeans)
+CI_easy <- confint(planned_analyses_raw)
+CI <- with(summary(lsmeans(planned_analyses_raw,spec="conv.type")),cbind(lower.CL,upper.CL))
+CI
 ```
 
 ```{r}
@@ -369,6 +374,46 @@ structure in their use of function words than monologues do.
 Next, we'll do some post-hoc analyses to explore whether these changes depend
 on the kind of conversation that participants have (i.e., personal
 versus conflict).
+
+
+```{r Power analyses, eval=TRUE, echo=FALSE}
+
+library(simr)
+fit <- planned_analyses_raw
+power <- powerSim(fit,nsim = 200)
+power
+
+#Find out which combination of speakers and conv.types are appropriate
+part <- unique(analysis_df$speaker_code)
+
+#calculate the power of 100 samples of 40 participants
+pow = list()
+for (i in 1:100) {
+print(i)
+selectionpart <- sample(part,30)
+df_2 <- analysis_df[which(analysis_df$speaker_code %in% selectionpart), ]
+fit <- lmer(RR ~ conv.type + (1|speaker_code),
+                             data = df_2, REML = FALSE)
+power <- powerSim(fit,nsim = 20)
+pow[i] <- power[1]
+}
+p <- unlist(pow)
+p = p*5
+mean(p)
+hist(p)
+
+```
+
+``` {r calculate effect size d}
+#subset mon
+mon <- subset(analysis_df, conv.type==0.5)
+con <- subset(analysis_df, conv.type == -0.5)
+M_RR_mon <- mean(mon$RR)
+M_RR_con <- mean(con$RR)
+
+#calculate effect size following Westfall, Judd & Kenny, 2014
+effect_size = ((M_RR_mon) - (M_RR_con))/(sqrt(5.267+23.621)) #variances of random intercepts
+effect_size
 
 ***
 
