@@ -327,10 +327,11 @@ planned_analyses_raw <- lmer(RR ~ conv.type + (1|speaker_code),
                              data = analysis_df, REML = FALSE)
 
 #calculate 95%CI for data
-library(lsmeans)
-CI_easy <- confint(planned_analyses_raw)
-CI <- with(summary(lsmeans(planned_analyses_raw,spec="conv.type")),cbind(lower.CL,upper.CL))
-CI
+library(emmeans)
+CI_easy_raw <- confint(planned_analyses_raw)
+CI_easy_raw
+CI_raw <- with(summary(lsmeans(planned_analyses_raw,spec="conv.type")),cbind(lower.CL,upper.CL))
+CI_raw
 ```
 
 ```{r}
@@ -338,6 +339,11 @@ CI
 # standardized: does linguistic style change based on the conversational context?
 planned_analyses_st <- lmer(RR ~ conv.type + (1|speaker_code),
                             data = standardized_df, REML = FALSE)
+
+CI_easy_st <- confint(planned_analyses_st)
+CI_easy_st
+CI_st <- with(summary(lsmeans(planned_analyses_st,spec="conv.type")),cbind(lower.CL,upper.CL))
+CI_st
 
 ```
 
