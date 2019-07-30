@@ -308,7 +308,25 @@ write.table(standardized_df, './data/standardized_df.csv',
 # Data analysis
 
 ***
+```{r Power analyses, eval=TRUE, echo=FALSE}
+#PWR analyses for the standardized model
 
+planned_analyses_st <- lmer(RR ~ conv.type + (1|speaker_code),
+                            data = standardized_df, REML = FALSE)
+
+library(simr)
+
+#get access to the effect size of the fixed effect
+fixef(planned_analyses_st)["conv.type0.997879106838302"]
+
+#change the fixed effect to the assumed effect size of .4 (Brysbaert & Stevens, 2018)
+fixef(planned_analyses_st)["conv.type0.997879106838302"]<--0.4
+
+#run power analysis for our current sample,a default significance criterion of .05 and an effect size of .4
+power <- powerSim(planned_analyses_st,nsim = 1000)
+power
+
+```
 ## Planned analysis
 
 Here, we perform a linear mixed-effects model to analyze how conversation
@@ -326,12 +344,13 @@ failed to converge. As a result, we use only the random intercept in our model.
 planned_analyses_raw <- lmer(RR ~ conv.type + (1|speaker_code),
                              data = analysis_df, REML = FALSE)
 
-#calculate 95%CI for data
-library(emmeans)
-CI_easy_raw <- confint(planned_analyses_raw)
-CI_easy_raw
-CI_raw <- with(summary(lsmeans(planned_analyses_raw,spec="conv.type")),cbind(lower.CL,upper.CL))
-CI_raw
+#calculate 95%CI for model
+CI_planned_analyses_raw <- confint(planned_analyses_raw)
+CI_planned_analyses_raw
+
+#calculate effect size for model
+es_planned_analyses_raw <- lme.dscore(planned_analyses_raw, data = analysis_df, type = "lme4")
+es_planned_analyses_raw
 ```
 
 ```{r}
@@ -339,19 +358,22 @@ CI_raw
 # standardized: does linguistic style change based on the conversational context?
 planned_analyses_st <- lmer(RR ~ conv.type + (1|speaker_code),
                             data = standardized_df, REML = FALSE)
+#calculate 95%CI for model
+CI_planned_analyses_st <- confint(planned_analyses_raw)
+CI_planned_analyses_st
 
-CI_easy_st <- confint(planned_analyses_st)
-CI_easy_st
-CI_st <- with(summary(lsmeans(planned_analyses_st,spec="conv.type")),cbind(lower.CL,upper.CL))
-CI_st
+#calculate effect size for model
+es_planned_analyses_st <- lme.dscore(planned_analyses_st, data = standardized_df, type = "lme4")
+es_planned_analyses_st
 
 ```
 
 
 ```{r silently-print-summary, eval=TRUE, echo=FALSE}
 
-# print summary table
+# print summary tables
 summary(planned_analyses_raw)
+summary(planned_analyses_st)
 
 ```
 
@@ -382,46 +404,7 @@ on the kind of conversation that participants have (i.e., personal
 versus conflict).
 
 
-```{r Power analyses, eval=TRUE, echo=FALSE}
-
-library(simr)
-fit <- planned_analyses_raw
-power <- powerSim(fit,nsim = 200)
-power
-
-#Find out which combination of speakers and conv.types are appropriate
-part <- unique(analysis_df$speaker_code)
-
-#calculate the power of 100 samples of 40 participants
-pow = list()
-for (i in 1:100) {
-print(i)
-selectionpart <- sample(part,30)
-df_2 <- analysis_df[which(analysis_df$speaker_code %in% selectionpart), ]
-fit <- lmer(RR ~ conv.type + (1|speaker_code),
-                             data = df_2, REML = FALSE)
-power <- powerSim(fit,nsim = 20)
-pow[i] <- power[1]
-}
-p <- unlist(pow)
-p = p*5
-mean(p)
-hist(p)
-
-```
-
-``` {r calculate effect size d}
-#subset mon
-mon <- subset(analysis_df, conv.type==0.5)
-con <- subset(analysis_df, conv.type == -0.5)
-M_RR_mon <- mean(mon$RR)
-M_RR_con <- mean(con$RR)
-
-#calculate effect size following Westfall, Judd & Kenny, 2014
-effect_size = ((M_RR_mon) - (M_RR_con))/(sqrt(5.267+23.621)) #variances of random intercepts
-effect_size
-
-***
+``` {r post-hoc analyses}
 
 # Post-hoc analyses
 
