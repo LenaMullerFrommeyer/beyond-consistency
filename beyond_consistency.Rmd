@@ -348,6 +348,8 @@ planned_analyses_raw <- lmer(RR ~ conv.type + (1|speaker_code),
 CI_planned_analyses_raw <- confint(planned_analyses_raw)
 CI_planned_analyses_raw
 
+library('EMAtools')
+
 #calculate effect size for model
 es_planned_analyses_raw <- lme.dscore(planned_analyses_raw, data = analysis_df, type = "lme4")
 es_planned_analyses_raw
@@ -404,7 +406,7 @@ on the kind of conversation that participants have (i.e., personal
 versus conflict).
 
 
-``` {r post-hoc analyses}
+
 
 # Post-hoc analyses
 
@@ -416,7 +418,7 @@ First, we'll need to prepare the data by converting it from long- to wide-form.
 
 ```{r post-hoc-prep}
 
-# Preparing data for Post-hoc analyses - Bring data into wide format
+#Preparing data for Post-hoc analyses - Bring data into wide format
 rqa_mon_post = rqa_mon %>%
   dplyr::rename(conv.type_m = conv.type,
                 RR_m = RR,
@@ -504,6 +506,10 @@ write.table(post_hoc_standardized_df, './data/post_hoc_standardized_df.csv',
 post_hoc_RR_raw = lm(Diff_RR ~ cond_c,
                      data = post_hoc_df)
 
+#calculate 95%CI for model
+CI_posthoc_raw_RR <- confint(post_hoc_RR_raw)
+CI_posthoc_raw_RR
+
 ```
 
 ```{r post-hoc-rr-st-model}
@@ -512,6 +518,15 @@ post_hoc_RR_raw = lm(Diff_RR ~ cond_c,
 #       differ by conversation type?
 post_hoc_RR_st = lm(Diff_RR ~ cond_c,
                     data = post_hoc_standardized_df)
+
+CI_posthoc_st_RR <- confint(post_hoc_RR_st)
+CI_posthoc_st_RR
+#install.packages("lsr")
+library('lsr')
+
+#calculate effect size for model
+es_post_hoc_RR_st <- cohensD(x = Diff_RR~cond_c, data = post_hoc_standardized_df)
+es_post_hoc_RR_st
 
 ```
 
@@ -573,6 +588,14 @@ post_hoc_DET_raw = lm(Diff_DET ~ cond_c,
 #      differ by conversation type?
 post_hoc_DET_st = lm(Diff_DET ~ cond_c,
                      data = post_hoc_standardized_df)
+
+#calculate 95% CI
+CI_posthoc_st_DET <- confint(post_hoc_DET_st)
+CI_posthoc_st_DET
+
+#calculate effect size
+es_post_hoc_DET_st <- cohensD(x = Diff_DET~cond_c, data = post_hoc_standardized_df)
+es_post_hoc_DET_st
 
 ```
 
@@ -636,6 +659,8 @@ post_hoc_rENTR_raw = lm(Diff_rENTR ~ cond_c,
 #       and dialogues differ by conversation type?
 post_hoc_rENTR_st = lm(Diff_rENTR ~ cond_c,
                        data = post_hoc_standardized_df)
+CI_posthoc_st_rENTR <- confint(post_hoc_rENTR_st)
+CI_posthoc_st_rENTR
 
 ```
 
@@ -688,6 +713,9 @@ qplot(data=post_hoc_df, x=rENTR_m, y=rENTR_c, colour=cond_c) +
 post_hoc_NRLINE_raw = lm(Diff_NRLINE_norm ~ cond_c,
                          data = post_hoc_df)
 
+CI_posthoc_raw_NRLINE <- confint(post_hoc_NRLINE_raw)
+CI_posthoc_raw_NRLINE
+
 ```
 
 ```{r post-hoc-nrline-st-model}
@@ -696,6 +724,9 @@ post_hoc_NRLINE_raw = lm(Diff_NRLINE_norm ~ cond_c,
 #      monologues and dialogues differ by conversation type?
 post_hoc_NRLINE_st = lm(Diff_NRLINE_norm ~ cond_c,
                         data = post_hoc_standardized_df)
+
+CI_posthoc_st_NRLINE <- confint(post_hoc_NRLINE_st)
+CI_posthoc_st_NRLINE
 
 ```
 
