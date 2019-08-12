@@ -541,59 +541,79 @@ write.table(post_hoc_standardized_df, './data/post_hoc_standardized_df.csv',
 
 ### Post-hoc analysis: Recurrence rate
 
-```{r post-hoc-rr-raw-model}
+#### Raw model
+
+```{r post-hoc-rr-raw-model, results="hide", message = FALSE}
 
 # raw: do changes in linguistic style between monologues and dialogues 
 #       differ by conversation type?
 post_hoc_RR_raw = lm(Diff_RR ~ cond_c,
                      data = post_hoc_df)
 
-#calculate 95%CI for model
-CI_posthoc_raw_RR <- confint(post_hoc_RR_raw)
-CI_posthoc_raw_RR
+# calculate 95% CI
+CI_posthoc_RR_raw <- confint(post_hoc_RR_raw)
+
+# calculate effect size for model
+es_post_hoc_RR_raw <- cohensD(x = Diff_RR~cond_c, 
+                              data = post_hoc_df)
 
 ```
 
-```{r post-hoc-rr-st-model}
+```{r silently-print-post-hoc-rr-raw-summary, eval=TRUE, echo=FALSE}
+
+# print summary table
+summary(post_hoc_RR_raw)
+
+# print confidence intervals
+CI_posthoc_RR_raw
+
+# print effect sizes
+es_post_hoc_RR_raw
+
+```
+
+```{r silently-print-post-hoc-rr-raw-table, echo=FALSE}
+
+# neatly print output
+pander_lm(post_hoc_RR_raw)
+
+```
+
+#### Standardized model
+
+```{r post-hoc-rr-st-model, results="hide", message = FALSE}
 
 # standardized: do changes in linguistic style between monologues and dialogues 
 #       differ by conversation type?
 post_hoc_RR_st = lm(Diff_RR ~ cond_c,
                     data = post_hoc_standardized_df)
 
-CI_posthoc_st_RR <- confint(post_hoc_RR_st)
-CI_posthoc_st_RR
-#install.packages("lsr")
-library('lsr')
+# calculate 95% CI
+CI_posthoc_RR_st <- confint(post_hoc_RR_st)
 
-#calculate effect size for model
-es_post_hoc_RR_st <- cohensD(x = Diff_RR~cond_c, data = post_hoc_standardized_df)
+# calculate effect size for model
+es_post_hoc_RR_st <- cohensD(x = Diff_RR~cond_c, 
+                             data = post_hoc_standardized_df)
+
+```
+
+```{r silently-print-post-hoc-rr-st-summary, eval=TRUE, echo=FALSE}
+
+# print summary table
+summary(post_hoc_RR_st)
+
+# print confidence intervals
+CI_posthoc_RR_st
+
+# print effect sizes
 es_post_hoc_RR_st
 
 ```
 
-```{r silently-print-post-hoc-rr-summary, eval=TRUE, echo=FALSE}
-
-# print summary table
-summary(post_hoc_RR_raw)
-
-```
-
-Raw model results:
-
-```{r silently-print-post-hoc-rr-raw-table, echo=FALSE}
-
-# neatly print output
-pander_lme(post_hoc_RR_raw)
-
-```
-
-Standardized model results:
-
 ```{r silently-print-post-hoc-rr-st-table, echo=FALSE}
 
 # neatly print output
-pander_lme(post_hoc_RR_st)
+pander_lm(post_hoc_RR_st)
 
 ```
 
@@ -618,29 +638,19 @@ qplot(data=post_hoc_df, x=RR_m, y=RR_c, colour=cond_c) +
 
 #### Raw model
 
-```{r post-hoc-det-raw-model}
+```{r post-hoc-det-raw-model, results="hide", message = FALSE}
 
 # raw: do changes in structure of linguistic style between monologues and dialogues
 #      differ by conversation type?
 post_hoc_DET_raw = lm(Diff_DET ~ cond_c,
                       data = post_hoc_df)
 
-```
+# calculate 95% CI
+CI_posthoc_DET_raw <- confint(post_hoc_DET_raw)
 
-```{r post-hoc-det-st-model}
-
-# standardized: do changes in structure of linguistic style between monologues and dialogues
-#      differ by conversation type?
-post_hoc_DET_st = lm(Diff_DET ~ cond_c,
-                     data = post_hoc_standardized_df)
-
-#calculate 95% CI
-CI_posthoc_st_DET <- confint(post_hoc_DET_st)
-CI_posthoc_st_DET
-
-#calculate effect size
-es_post_hoc_DET_st <- cohensD(x = Diff_DET~cond_c, data = post_hoc_standardized_df)
-es_post_hoc_DET_st
+# calculate effect size
+es_post_hoc_DET_raw <- cohensD(x = Diff_DET~cond_c, 
+                               data = post_hoc_df)
 
 ```
 
@@ -649,23 +659,56 @@ es_post_hoc_DET_st
 # print summary table
 summary(post_hoc_DET_raw)
 
-```
+# print confidence intervals
+CI_posthoc_DET_raw
 
-Raw model results:
+# print effect sizes
+es_post_hoc_DET_raw
+
+```
 
 ```{r silently-print-post-hoc-det-raw-table, echo=FALSE}
 
 # neatly print output
-pander_lme(post_hoc_DET_raw)
+pander_lm(post_hoc_DET_raw)
 
 ```
 
-Standardized model results:
+#### Standardized model
+
+```{r post-hoc-det-st-model, results="hide", message = FALSE}
+
+# standardized: do changes in structure of linguistic style between monologues and dialogues
+#      differ by conversation type?
+post_hoc_DET_st = lm(Diff_DET ~ cond_c,
+                     data = post_hoc_standardized_df)
+
+# calculate 95% CI
+CI_posthoc_DET_st <- confint(post_hoc_DET_st)
+
+# calculate effect size
+es_post_hoc_DET_st <- cohensD(x = Diff_DET~cond_c, 
+                              data = post_hoc_standardized_df)
+
+```
+
+```{r silently-print-post-hoc-det-st-summary, eval=TRUE, echo=FALSE}
+
+# print summary table
+summary(post_hoc_DET_st)
+
+# print confidence intervals
+CI_posthoc_DET_st
+
+# print effect sizes
+es_post_hoc_DET_st
+
+```
 
 ```{r silently-print-post-hoc-det-st-table, echo=FALSE}
 
 # neatly print output
-pander_lme(post_hoc_DET_st)
+pander_lm(post_hoc_DET_st)
 
 ```
 
@@ -689,48 +732,80 @@ qplot(data=post_hoc_df, x=DET_m, y=DET_c, colour=cond_c) +
 
 ### Post-hoc analysis: Normalized entropy
 
-```{r post-hoc-rentr-model-raw}
+#### Raw model
+
+```{r post-hoc-rentr-model-raw, results="hide", message = FALSE}
 
 # raw: do changes in uniformity of structure of linguistic style between monologues
 #       and dialogues differ by conversation type?
 post_hoc_rENTR_raw = lm(Diff_rENTR ~ cond_c,
                         data = post_hoc_df)
 
+# calculate 95% CI
+CI_posthoc_rENTR_raw <- confint(post_hoc_rENTR_raw)
+
+# calculate effect size
+es_post_hoc_rENTR_raw <- cohensD(x = Diff_rENTR~cond_c, 
+                                 data = post_hoc_standardized_df)
+
 ```
 
-```{r post-hoc-rentr-model-st}
+```{r silently-print-post-hoc-rentr-raw-summary, eval=TRUE, echo=FALSE}
+
+# print summary table
+summary(post_hoc_rENTR_raw)
+
+# print confidence intervals
+CI_posthoc_rENTR_raw
+
+# print effect sizes
+es_post_hoc_rENTR_raw
+
+```
+
+```{r silently-print-post-hoc-rentr-raw-table, echo=FALSE}
+
+# neatly print output
+pander_lm(post_hoc_rENTR_raw)
+
+```
+
+#### Standardized model
+
+```{r post-hoc-rentr-model-st, results="hide", message = FALSE}
 
 # standardized: do changes in uniformity of structure of linguistic style between monologues
 #       and dialogues differ by conversation type?
 post_hoc_rENTR_st = lm(Diff_rENTR ~ cond_c,
                        data = post_hoc_standardized_df)
-CI_posthoc_st_rENTR <- confint(post_hoc_rENTR_st)
-CI_posthoc_st_rENTR
+
+# calculate 95% CI
+CI_posthoc_rENTR_st <- confint(post_hoc_rENTR_st)
+
+# calculate effect size
+es_post_hoc_rENTR_st <- cohensD(x = Diff_rENTR~cond_c, 
+                                data = post_hoc_standardized_df)
 
 ```
 
-```{r silently-print-post-hoc-rentr-summary, eval=TRUE, echo=FALSE}
+```{r silently-print-post-hoc-rentr-st-summary, eval=TRUE, echo=FALSE}
 
 # print summary table
-summary(post_hoc_rENTR_raw)
+summary(post_hoc_rENTR_st)
+
+# print confidence intervals
+CI_posthoc_rENTR_st
+
+# print effect sizes
+es_post_hoc_rENTR_st
 
 ```
 
-Raw model results:
-
-```{r silently-print-post-hoc-rentr-raw-table, echo=FALSE}
-
-# neatly print output
-pander_lme(post_hoc_rENTR_raw)
-
-```
-
-Standardized model results:
 
 ```{r silently-print-post-hoc-rentr-st-table, echo=FALSE}
 
 # neatly print output
-pander_lme(post_hoc_rENTR_st)
+pander_lm(post_hoc_rENTR_st)
 
 ```
 
@@ -751,55 +826,82 @@ qplot(data=post_hoc_df, x=rENTR_m, y=rENTR_c, colour=cond_c) +
 
 ### Post-hoc analysis: Number of lines (normalized)
 
-```{r post-hoc-nrline-raw-model}
+#### Raw model
+
+```{r post-hoc-nrline-raw-model, results="hide", message = FALSE}
 
 # raw: do changes in amount of structure of linguistic style between 
 #      monologues and dialogues differ by conversation type?
 post_hoc_NRLINE_raw = lm(Diff_NRLINE_norm ~ cond_c,
                          data = post_hoc_df)
 
-CI_posthoc_raw_NRLINE <- confint(post_hoc_NRLINE_raw)
-CI_posthoc_raw_NRLINE
+# calculate 95% CI
+CI_posthoc_NRLINE_raw <- confint(post_hoc_NRLINE_raw)
+
+# calculate effect size
+es_post_hoc_NRLINE_raw <- cohensD(x = Diff_NRLINE_norm~cond_c, 
+                                  data = post_hoc_df)
 
 ```
 
-```{r post-hoc-nrline-st-model}
+```{r silently-print-post-hoc-nrline-raw-summary, eval=TRUE, echo=FALSE}
+
+# print summary table
+summary(post_hoc_NRLINE_raw)
+
+# print confidence intervals
+CI_posthoc_NRLINE_raw
+
+# print effect sizes
+es_post_hoc_NRLINE_raw
+
+```
+
+```{r silently-print-post-hoc-nrline-raw-table, echo=FALSE}
+
+# neatly print output
+pander_lm(post_hoc_NRLINE_raw)
+
+```
+
+#### Standardized model
+
+```{r post-hoc-nrline-st-model, results="hide", message = FALSE}
 
 # standardized: do changes in amount of structure of linguistic style between 
 #      monologues and dialogues differ by conversation type?
 post_hoc_NRLINE_st = lm(Diff_NRLINE_norm ~ cond_c,
                         data = post_hoc_standardized_df)
 
-CI_posthoc_st_NRLINE <- confint(post_hoc_NRLINE_st)
-CI_posthoc_st_NRLINE
+# calculate 95% CI
+CI_posthoc_NRLINE_st <- confint(post_hoc_NRLINE_st)
+
+# calculate effect size
+es_post_hoc_NRLINE_st <- cohensD(x = Diff_NRLINE_norm~cond_c, 
+                                 data = post_hoc_standardized_df)
+
 
 ```
 
-```{r silently-print-post-hoc-nrline-summary, eval=TRUE, echo=FALSE}
+```{r silently-print-post-hoc-nrline-st-summary, eval=TRUE, echo=FALSE}
 
 # print summary table
 summary(post_hoc_NRLINE_raw)
 
-```
+# print confidence intervals
+CI_posthoc_NRLINE_st
 
-Raw model results:
-
-```{r silently-print-post-hoc-nrline-raw-table, echo=FALSE}
-
-# neatly print output
-pander_lme(post_hoc_NRLINE_raw)
+# print effect sizes
+es_post_hoc_NRLINE_st
 
 ```
-
-Standardized model results:
 
 ```{r silently-print-post-hoc-nrline-st-table, echo=FALSE}
 
 # neatly print output
-pander_lme(post_hoc_NRLINE_st)
+pander_lm(post_hoc_NRLINE_st)
 
 ```
-
 
 ```{r plot-post-nrline-data, echo=FALSE}
 
