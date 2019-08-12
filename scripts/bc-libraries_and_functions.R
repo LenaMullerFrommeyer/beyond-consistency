@@ -53,3 +53,8 @@ options(scipen=999)
 pander_lme_url = "https://raw.githubusercontent.com/a-paxton/stats-tools/2a1bf715097bbcc966ab612af3a9e0b14408d4ff/pander_lme.R"
 pander_lme_file = getURL(pander_lme_url, ssl.verifypeer = FALSE)
 eval(parse(text = pander_lme_file))
+
+# read in pander_lm
+pander_lm_url = "https://raw.githubusercontent.com/a-paxton/stats-tools/fb4f67ac8f4572b38bad2cd749b4e6de46d5cd23/pander_lm.R"
+pander_lm_file = getURL(pander_lm_url, ssl.verifypeer = FALSE)
+eval(parse(text = pander_lm_file))
