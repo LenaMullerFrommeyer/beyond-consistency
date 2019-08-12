@@ -19,7 +19,7 @@ creates new functions for our analyses.
 **Code written by**: L. C. Mueller-Frommeyer (Technische Universitaet
 Braunschweig) & A. Paxton (University of Connecticut)
 
-**Date last modified**: 29 June 2019
+**Date last modified**: 12 August 2019
 
 ```{r silent-setup, include=FALSE}
 
@@ -125,23 +125,23 @@ for (next_mon in split_mon){
   rqa_mon = rbind.data.frame(rqa_mon,next_data_line)
   
   # save the RPs -- including LOI/LOS for plotting
-  #rqa_for_mon = crqa(ts1=next_mon$function_words,
-                    # ts2=next_mon$function_contrast,
-                    # delay=1,
-                    # embed=1,
-                    # r=0.1,
-                    # normalize=0,
-                    # rescale=0,
-                    # mindiagline=2,
-                    # minvertline=2,
-                    # tw=0, # include LOI/LOS
-                    # whiteline=FALSE,
-                    # recpt=FALSE)
-  #png(filename = paste0('./figures/monologue/rp-speaker_',speaker_code,'-monologue.png'))
- # plotRP(rqa_for_mon$RP,
-        # list(unit = 2, labelx = "Speaker A", labely = "Speaker A",
-          #    cols = "black", pcex = .5))
- # dev.off()
+  # rqa_for_mon = crqa(ts1=next_mon$function_words,
+  #                    ts2=next_mon$function_contrast,
+  #                    delay=1,
+  #                    embed=1,
+  #                    r=0.1,
+  #                    normalize=0,
+  #                    rescale=0,
+  #                    mindiagline=2,
+  #                    minvertline=2,
+  #                    tw=0, # include LOI/LOS
+  #                    whiteline=FALSE,
+  #                    recpt=FALSE)
+  # png(filename = paste0('./figures/monologue/rp-speaker_',speaker_code,'-monologue.png'))
+  # plotRP(rqa_for_mon$RP,
+  #        list(unit = 2, labelx = "Speaker A", labely = "Speaker A",
+  #             cols = "black", pcex = .5))
+  # dev.off()
 }
 
 # clean up what we don't need
@@ -227,24 +227,24 @@ for (next_conv in split_conv){
     mutate(NRLINE_norm = NRLINE / dim(next_conv)[1]) # normalize NRLINE by number of words
   rqa_conv = rbind.data.frame(rqa_conv,next_data_line)
   
-  # plot the RPs -- include LOI/LOS
-  #rqa_for_conv = crqa(ts1=next_conv$function_words,
-                    #  ts2=next_conv$function_contrast,
-                    #  delay=1,
-                   #   embed=1,
-                   #   r=0.1,
-                   #   normalize=0,
-                   #   rescale=0,
-                   #   mindiagline=2,
-                   #   minvertline=2,
-                   #   tw=0, # retain LOI for plotting only
-                  #    whiteline=FALSE,
-                    #  recpt=FALSE)
- # png(filename = paste0('./figures/conversation/rp-speaker_',speaker_code,'-conversation.png'))
- # plotRP(rqa_for_conv$RP,
-        # list(unit = 2, labelx = "Speaker A", labely = "Speaker A",
-          #    cols = "black", pcex = .01))
- # dev.off()
+  # # plot the RPs -- include LOI/LOS
+  # rqa_for_conv = crqa(ts1=next_conv$function_words,
+  #                     ts2=next_conv$function_contrast,
+  #                     delay=1,
+  #                     embed=1,
+  #                     r=0.1,
+  #                     normalize=0,
+  #                     rescale=0,
+  #                     mindiagline=2,
+  #                     minvertline=2,
+  #                     tw=0, # retain LOI for plotting only
+  #                     whiteline=FALSE,
+  #                     recpt=FALSE)
+  # png(filename = paste0('./figures/conversation/rp-speaker_',speaker_code,'-conversation.png'))
+  # plotRP(rqa_for_conv$RP,
+  #        list(unit = 2, labelx = "Speaker A", labely = "Speaker A",
+  #             cols = "black", pcex = .01))
+  # dev.off()
 }
 
 # clean up what we don't need
@@ -330,13 +330,16 @@ power
 ## Planned analysis
 
 Here, we perform a linear mixed-effects model to analyze how conversation
-type---whether a monologue (M) or conversation (C)---changes a person's
+setting---whether a monologue (M) or conversation (C)---changes a person's
 language style, specifically looking at their use of function words (often a
 measure of syntactic complexity and structure).
 
 We attempted to analyze the data using maximal random effects structures and
 an uncorrelated random intercept within the random slope, but both models
-failed to converge. As a result, we use only the random intercept in our model.
+failed to converge. As a result, we use only the random intercept in our 
+models. We include both raw and standardized models below.
+
+***
 
 ```{r main-model}
 
@@ -401,24 +404,32 @@ As predicted, we do see a difference in linguistic style between conversations
 and monologues. Specifically, we find that conversations tend to have more
 structure in their use of function words than monologues do.
 
-Next, we'll do some post-hoc analyses to explore whether these changes depend
-on the kind of conversation that participants have (i.e., personal
-versus conflict).
+***
 
+## Post-hoc analyses
 
+Next, we perform several post-hoc analyses to explore whether the changes 
+observed in the planned model depend on the conversation type (i.e., personal 
+topics versus conflict).
 
+Again, we do so by creating a series of linear models to analyze whether 
+conversation type---whether a personal conversation topic (P) or conflict
+conversation topic (K)---is connected to the amount of change in a person's 
+language style from monologue to conversation.
 
-# Post-hoc analyses
+Because each individual contributes only one datapoint to the planned dataset,
+we cannot include participant identifier as a random effect in the model. As
+a result, we do not include any random effects in the model.
 
 ***
 
-## Data preparation
+### Data preparation
 
 First, we'll need to prepare the data by converting it from long- to wide-form.
 
 ```{r post-hoc-prep}
 
-#Preparing data for Post-hoc analyses - Bring data into wide format
+# preparing data for Post-hoc analyses - Bring data into wide format
 rqa_mon_post = rqa_mon %>%
   dplyr::rename(conv.type_m = conv.type,
                 RR_m = RR,
@@ -497,7 +508,7 @@ write.table(post_hoc_standardized_df, './data/post_hoc_standardized_df.csv',
 
 ***
 
-## Post-hoc analysis: Recurrence rate
+### Post-hoc analysis: Recurrence rate
 
 ```{r post-hoc-rr-raw-model}
 
@@ -556,11 +567,12 @@ pander_lme(post_hoc_RR_st)
 ```
 
 We do see that there are significant effects in the change in the overall
-amount of recurrence (RR) by conversation: The change in language style from
-monologues to conversation is significantly *lower* when having a friendly
+amount of recurrence (RR) by conversation type: The change in language style 
+from monologues to conversation is significantly *lower* when having a friendly
 conversation about personal topics (compared to having a conflict conversation
-about political topics). In other words, people are *less likely* to change their
-language style when having a friendly conversation compared to an argument.
+about political topics). In other words, people are *less likely* to change 
+their language style when having a friendly conversation compared to an 
+argument. 
 
 ```{r plot-post-rr-data, echo=FALSE}
 
@@ -571,7 +583,9 @@ qplot(data=post_hoc_df, x=RR_m, y=RR_c, colour=cond_c) +
 
 ***
 
-## Post-hoc analysis: Determinism
+### Post-hoc analysis: Determinism
+
+#### Raw model
 
 ```{r post-hoc-det-raw-model}
 
@@ -642,7 +656,7 @@ qplot(data=post_hoc_df, x=DET_m, y=DET_c, colour=cond_c) +
 
 ***
 
-## Post-hoc analysis: Normalized entropy
+### Post-hoc analysis: Normalized entropy
 
 ```{r post-hoc-rentr-model-raw}
 
@@ -692,8 +706,8 @@ pander_lme(post_hoc_rENTR_st)
 Unlike RR and DET, we do not see a difference in normalized entropy by
 conversation type. Normalized entropy essentially captures the degree to which
 the structure of the line lengths are uniform (i.e., lower variety in line
-lengths means lower `rENTR`) or more heterogenous (i.e., higher variety in line
-lengths means higher `rENTR`).
+lengths means lower rENTR) or more heterogenous (i.e., higher variety in line
+lengths means higher rENTR).
 
 ```{r plot-post-retnr-data, echo=FALSE}
 
@@ -704,7 +718,7 @@ qplot(data=post_hoc_df, x=rENTR_m, y=rENTR_c, colour=cond_c) +
 
 ***
 
-## Post-hoc analysis: Number of lines (normalized)
+### Post-hoc analysis: Number of lines (normalized)
 
 ```{r post-hoc-nrline-raw-model}
 
@@ -762,3 +776,8 @@ qplot(data=post_hoc_df, x=NRLINE_norm_m, y=NRLINE_norm_c, colour=cond_c) +
   geom_abline()
 
 ```
+
+Again, as with rENTR (and in contrast with RR and DET), we do not see a 
+difference in the number of lines on the RP by conversation type. Essentially,
+this is another measure of continued structure within a system by capturing
+the total number of lines in the plot.
