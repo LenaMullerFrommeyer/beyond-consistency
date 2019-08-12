@@ -4,7 +4,7 @@
 # additional functions to facilitate data prep and analysis.
 #
 # Written by: A. Paxton (University of Connecticut)
-# Date last modified: 10 June 2019
+# Date last modified: 12 August 2019
 #####################################################################################
 
 #### Load necessary packages ####
@@ -23,7 +23,10 @@ required_packages = c(
   'lmerTest',
   'crqa',
   'gtools',
-  'tidyr'
+  'tidyr',
+  'simr',
+  'EMAtools',
+  'lsr'
 )
 
 # load required packages using pacman
