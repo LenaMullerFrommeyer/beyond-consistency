@@ -308,25 +308,38 @@ write.table(standardized_df, './data/standardized_df.csv',
 # Data analysis
 
 ***
-```{r Power analyses, eval=TRUE, echo=FALSE}
-#PWR analyses for the standardized model
 
+## Power analyses
+
+First, we run a power analysis for our model using recommendations from 
+Brysbaert and Stevens (2018). We use the power analysis for the standardized
+model.
+
+```{r power-analyses, eval=TRUE, results="hide", message = FALSE}
+
+# power analyses for the standardized model
 planned_analyses_st <- lmer(RR ~ conv.type + (1|speaker_code),
                             data = standardized_df, REML = FALSE)
 
-library(simr)
+# change the fixed effect to the assumed effect size of .4 (Brysbaert & Stevens, 2018)
+#   (although with a negative sign)
+fixef(planned_analyses_st)["conv.type0.997879106838302"] = -0.4
 
-#get access to the effect size of the fixed effect
-fixef(planned_analyses_st)["conv.type0.997879106838302"]
+# run power analysis for our current sample, with a default significance 
+#   criterion of .05 and an effect size of .4
+power <- powerSim(planned_analyses_st,
+                  nsim = 1000)
 
-#change the fixed effect to the assumed effect size of .4 (Brysbaert & Stevens, 2018)
-fixef(planned_analyses_st)["conv.type0.997879106838302"]<--0.4
+```
 
-#run power analysis for our current sample,a default significance criterion of .05 and an effect size of .4
-power <- powerSim(planned_analyses_st,nsim = 1000)
+```{r display-power-results, echo=FALSE}
+
 power
 
 ```
+
+***
+
 ## Planned analysis
 
 Here, we perform a linear mixed-effects model to analyze how conversation
