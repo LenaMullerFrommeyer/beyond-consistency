@@ -354,48 +354,35 @@ models. We include both raw and standardized models below.
 
 ***
 
-```{r main-model}
+### Raw model
 
-# raw: does linguistic style change based on the conversational context?
+```{r main-model-raw, results="hide", message = FALSE}
+
+# raw: does linguistic style change based on the conversation setting?
 planned_analyses_raw <- lmer(RR ~ conv.type + (1|speaker_code),
                              data = analysis_df, REML = FALSE)
 
-#calculate 95%CI for model
+# calculate 95% CI for model
 CI_planned_analyses_raw <- confint(planned_analyses_raw)
-CI_planned_analyses_raw
 
-library('EMAtools')
 
-#calculate effect size for model
-es_planned_analyses_raw <- lme.dscore(planned_analyses_raw, data = analysis_df, type = "lme4")
-es_planned_analyses_raw
+# calculate effect size for model
+es_planned_analyses_raw <- lme.dscore(planned_analyses_raw, 
+                                      data = analysis_df, type = "lme4")
 ```
 
-```{r}
-
-# standardized: does linguistic style change based on the conversational context?
-planned_analyses_st <- lmer(RR ~ conv.type + (1|speaker_code),
-                            data = standardized_df, REML = FALSE)
-#calculate 95%CI for model
-CI_planned_analyses_st <- confint(planned_analyses_raw)
-CI_planned_analyses_st
-
-#calculate effect size for model
-es_planned_analyses_st <- lme.dscore(planned_analyses_st, data = standardized_df, type = "lme4")
-es_planned_analyses_st
-
-```
-
-
-```{r silently-print-summary, eval=TRUE, echo=FALSE}
+```{r silently-print-raw-summary, eval=TRUE, echo=FALSE}
 
 # print summary tables
 summary(planned_analyses_raw)
-summary(planned_analyses_st)
+
+# print effect sizes
+es_planned_analyses_raw
+
+# print confidence intervals
+CI_planned_analyses_raw
 
 ```
-
-Raw model results:
 
 ```{r silently-print-raw-table, eval=TRUE, echo=FALSE}
 
@@ -404,7 +391,38 @@ pander_lme(planned_analyses_raw)
 
 ```
 
-Standardized model results:
+***
+
+### Standardized model
+
+```{r main-model-standardized, results="hide", message = FALSE}
+
+# standardized: does linguistic style change based on the conversation setting?
+planned_analyses_st <- lmer(RR ~ conv.type + (1|speaker_code),
+                            data = standardized_df, REML = FALSE)
+
+# calculate 95%CI for model
+CI_planned_analyses_st <- confint(planned_analyses_st)
+
+# calculate effect size for model
+es_planned_analyses_st <- lme.dscore(planned_analyses_st, 
+                                     data = standardized_df, type = "lme4")
+
+```
+
+```{r silently-print-standardized-summary, eval=TRUE, echo=FALSE}
+
+# print summary tables
+summary(planned_analyses_st)
+
+# print effect sizes
+es_planned_analyses_st
+
+# print confidence intervals
+CI_planned_analyses_st
+
+```
+
 
 ```{r silently-print-standardized-table, eval=TRUE, echo=FALSE}
 
