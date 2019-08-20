@@ -12,7 +12,7 @@ This R markdown provides the data preparation for our forthcoming manuscript.
 
 To run this from scratch, you will need the following files:
 
-* [This is where a description of the data setup goes]
+* The data is accessible in our OSF project (https://osf.io/3jx2g/). Please create a folder called data, with a subfolder LIWC-results, with a subfolder RQA with two sub-folders monologues and conversations in your working directory. Add the data from OSF to the monologue and conversation folders.
 * `./scripts/bc-libraries_and_functions.r`: Loads in necessary libraries and
 creates new functions for our analyses.
 
