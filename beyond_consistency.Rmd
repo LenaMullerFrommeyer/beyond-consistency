@@ -19,7 +19,7 @@ creates new functions for our analyses.
 **Code written by**: L. C. Mueller-Frommeyer (Technische Universitaet
 Braunschweig) & A. Paxton (University of Connecticut)
 
-**Date last modified**: 12 August 2019
+**Date last modified**: 16 January 2020
 
 ```{r silent-setup, include=FALSE}
 
@@ -74,6 +74,7 @@ mon_dfs = mon_dfs %>%
                   extra = "drop",
                   fill = "warn") %>%
   
+  
   # extract speaker number ID and conversation type from variable
   mutate(cond = gsub("[[:digit:]]+","",dyad_id)) %>%
   
@@ -87,6 +88,7 @@ mon_dfs = mon_dfs %>%
   mutate(conv.type = "M")
 
 ```
+
 
 ```{r monologues-rqa}
 
@@ -253,6 +255,41 @@ rm(split_conv, next_conv, rqa_for_conv,
 
 ```
 
+```{r extract-function-word-frequency-per-speaker for monologues and conversations}
+
+split_mon = split(mon_dfs, list(mon_dfs$Filename))
+
+FW_freq_mon = data.frame()
+for (next_mon in split_mon) {
+  
+  #count frequency of function words
+  freq = sum(next_mon$function_words == 100)
+  
+  speaker_code = unique(next_mon$speaker_code)
+  data_temp = data.frame(freq, speaker_code)
+  
+  
+  FW_freq_mon = rbind.data.frame(FW_freq_mon, data_temp)}
+
+
+split_conv = split(conv_dfs, list(conv_dfs$Filename))
+
+FW_freq_conv = data.frame()
+
+for (next_conv in split_conv) {
+  
+  #count frequency of function words
+  freq = sum(next_conv$function_words == 100)
+  
+  speaker_code = unique(next_conv$speaker_code)
+  data_temp = data.frame(freq, speaker_code)
+  
+  
+  FW_freq_conv = rbind.data.frame(FW_freq_conv, data_temp)}
+
+
+fw_freq = rbind(FW_freq_mon, FW_freq_conv)
+```
 ***
 
 ## Create dataframes
@@ -261,9 +298,14 @@ We'll need to create two dataframes: an unstandardized dataframe
 (`analysis_df`) and a standardized one (`standardized_df`).
 
 ```{r create-analysis-dataframe}
+#bring together monologue rqa and freq data
+data_mon = dplyr::left_join(rqa_mon, FW_freq_mon, by = "speaker_code")
+
+#bring togehter conversation rqa and freq data
+data_conv = dplyr::left_join(rqa_conv, FW_freq_conv, by = "speaker_code")
 
 # bring together the monologue and conversation data
-analysis_df = rbind(rqa_mon, rqa_conv) %>%
+analysis_df = rbind(data_mon, data_conv) %>%
   
   # update coding for conversation type and condition
   mutate(conv.type = as.factor(dplyr::if_else(conv.type == "M",
@@ -437,6 +479,568 @@ structure in their use of function words than monologues do.
 
 ***
 
+## Additional exploratory analyses
+
+Next, we repreat our analyses for all available CRQA parameters to exploratorily 
+investigate the influence of conversational setting on aspects of language style 
+structure in addition to RR.
+
+***
+#### Exploratory analyses: Determinism 
+
+### Raw model
+
+```{r main-model-raw, results="hide", message = FALSE}
+
+# raw: does linguistic style change based on the conversation setting?
+exploratory_analyses_raw_DET <- lmer(DET ~ conv.type + (1|speaker_code),
+                             data = analysis_df, REML = FALSE)
+
+# calculate 95% CI for model
+CI_exploratory_analyses_raw_DET <- confint(exploratory_analyses_raw_DET)
+
+
+# calculate effect size for model
+es_exploratory_analyses_raw_DET <- lme.dscore(exploratory_analyses_raw_DET, 
+                                      data = analysis_df, type = "lme4")
+```
+
+```{r silently-print-raw-summary, eval=TRUE, echo=FALSE}
+
+# print summary tables
+summary(exploratory_analyses_raw_DET)
+
+# print effect sizes
+es_exploratory_analyses_raw_DET
+
+# print confidence intervals
+CI_exploratory_analyses_raw_DET
+
+```
+
+```{r silently-print-raw-table, eval=TRUE, echo=FALSE}
+
+# neatly print output
+pander_lme(exploratory_analyses_raw_DET)
+
+```
+
+***
+
+### Standardized model
+
+```{r main-model-standardized, results="hide", message = FALSE}
+
+# standardized: does linguistic style change based on the conversation setting?
+exploratory_analyses_st_DET <- lmer(DET ~ conv.type + (1|speaker_code),
+                            data = standardized_df, REML = FALSE)
+
+# calculate 95%CI for model
+CI_exploratory_analyses_st_DET <- confint(exploratory_analyses_st_DET)
+
+# calculate effect size for model
+es_exploratory_analyses_st_DET <- lme.dscore(exploratory_analyses_st_DET, 
+                                     data = standardized_df, type = "lme4")
+
+```
+
+```{r silently-print-standardized-summary, eval=TRUE, echo=FALSE}
+
+# print summary tables
+summary(exploratory_analyses_st_DET)
+
+# print effect sizes
+es_exploratory_analyses_st_DET
+
+# print confidence intervals
+CI_exploratory_analyses_st_DET
+
+```
+
+
+```{r silently-print-standardized-table, eval=TRUE, echo=FALSE}
+
+# neatly print output
+pander_lme(exploratory_analyses_st_DET)
+
+```
+#### Exploratory analyses: NRLINE_norm
+
+### Raw model
+
+```{r main-model-raw, results="hide", message = FALSE}
+
+# raw: does linguistic style change based on the conversation setting?
+exploratory_analyses_raw_NRLINE_norm <- lmer(NRLINE_norm ~ conv.type + (1|speaker_code),
+                             data = analysis_df, REML = FALSE)
+
+# calculate 95% CI for model
+CI_exploratory_analyses_raw_NRLINE_norm <- confint(exploratory_analyses_raw_NRLINE_norm)
+
+
+# calculate effect size for model
+es_exploratory_analyses_raw_NRLINE_norm <- lme.dscore(exploratory_analyses_raw_NRLINE_norm, 
+                                      data = analysis_df, type = "lme4")
+```
+
+```{r silently-print-raw-summary, eval=TRUE, echo=FALSE}
+
+# print summary tables
+summary(exploratory_analyses_raw_NRLINE_norm)
+
+# print effect sizes
+es_exploratory_analyses_raw_NRLINE_norm
+
+# print confidence intervals
+CI_exploratory_analyses_raw_NRLINE_norm
+
+```
+
+```{r silently-print-raw-table, eval=TRUE, echo=FALSE}
+
+# neatly print output
+pander_lme(exploratory_analyses_raw_NRLINE_norm)
+
+```
+
+***
+
+### Standardized model
+
+```{r main-model-standardized, results="hide", message = FALSE}
+
+# standardized: does linguistic style change based on the conversation setting?
+exploratory_analyses_st_NRLINE_norm <- lmer(NRLINE_norm ~ conv.type + (1|speaker_code),
+                            data = standardized_df, REML = FALSE)
+
+# calculate 95%CI for model
+CI_exploratory_analyses_st_NRLINE_norm <- confint(exploratory_analyses_st_NRLINE_norm)
+
+# calculate effect size for model
+es_exploratory_analyses_st_NRLINE_norm <- lme.dscore(exploratory_analyses_st_NRLINE_norm, 
+                                     data = standardized_df, type = "lme4")
+
+```
+
+```{r silently-print-standardized-summary, eval=TRUE, echo=FALSE}
+
+# print summary tables
+summary(exploratory_analyses_st_NRLINE_norm)
+
+# print effect sizes
+es_exploratory_analyses_st_NRLINE_norm
+
+# print confidence intervals
+CI_exploratory_analyses_st_NRLINE_norm
+
+```
+
+
+```{r silently-print-standardized-table, eval=TRUE, echo=FALSE}
+
+# neatly print output
+pander_lme(exploratory_analyses_st_NRLINE_norm)
+
+```
+#### Exploratory analyses: MaxL
+
+### Raw model
+
+```{r main-model-raw, results="hide", message = FALSE}
+
+# raw: does linguistic style change based on the conversation setting?
+exploratory_analyses_raw_maxL <- lmer(maxL ~ conv.type + (1|speaker_code),
+                             data = analysis_df, REML = FALSE)
+
+# calculate 95% CI for model
+CI_exploratory_analyses_raw_maxL <- confint(exploratory_analyses_raw_NRLINE_norm)
+
+
+# calculate effect size for model
+es_exploratory_analyses_raw_maxL <- lme.dscore(exploratory_analyses_raw_maxL, 
+                                      data = analysis_df, type = "lme4")
+```
+
+```{r silently-print-raw-summary, eval=TRUE, echo=FALSE}
+
+# print summary tables
+summary(exploratory_analyses_raw_maxL)
+
+# print effect sizes
+es_exploratory_analyses_raw_maxL
+
+# print confidence intervals
+CI_exploratory_analyses_raw_maxL
+
+```
+
+```{r silently-print-raw-table, eval=TRUE, echo=FALSE}
+
+# neatly print output
+pander_lme(exploratory_analyses_raw_maxL)
+
+```
+
+***
+
+### Standardized model
+
+```{r main-model-standardized, results="hide", message = FALSE}
+
+# standardized: does linguistic style change based on the conversation setting?
+exploratory_analyses_st_maxL <- lmer(maxL ~ conv.type + (1|speaker_code),
+                            data = standardized_df, REML = FALSE)
+
+# calculate 95%CI for model
+CI_exploratory_analyses_st_maxL <- confint(exploratory_analyses_st_maxL)
+
+# calculate effect size for model
+es_exploratory_analyses_st_maxL <- lme.dscore(exploratory_analyses_st_maxL, 
+                                     data = standardized_df, type = "lme4")
+
+```
+
+```{r silently-print-standardized-summary, eval=TRUE, echo=FALSE}
+
+# print summary tables
+summary(exploratory_analyses_st_maxL)
+
+# print effect sizes
+es_exploratory_analyses_st_maxL
+
+# print confidence intervals
+CI_exploratory_analyses_st_maxL
+
+```
+
+
+```{r silently-print-standardized-table, eval=TRUE, echo=FALSE}
+
+# neatly print output
+pander_lme(exploratory_analyses_st_maxL)
+
+```
+
+#### Exploratory analyses: L
+
+### Raw model
+
+```{r main-model-raw, results="hide", message = FALSE}
+
+# raw: does linguistic style change based on the conversation setting?
+exploratory_analyses_raw_L <- lmer(L ~ conv.type + (1|speaker_code),
+                             data = analysis_df, REML = FALSE)
+
+# calculate 95% CI for model
+CI_exploratory_analyses_raw_L <- confint(exploratory_analyses_raw_NRLINE_norm)
+
+
+# calculate effect size for model
+es_exploratory_analyses_raw_L <- lme.dscore(exploratory_analyses_raw_L, 
+                                      data = analysis_df, type = "lme4")
+```
+
+```{r silently-print-raw-summary, eval=TRUE, echo=FALSE}
+
+# print summary tables
+summary(exploratory_analyses_raw_L)
+
+# print effect sizes
+es_exploratory_analyses_raw_L
+
+# print confidence intervals
+CI_exploratory_analyses_raw_L
+
+```
+
+```{r silently-print-raw-table, eval=TRUE, echo=FALSE}
+
+# neatly print output
+pander_lme(exploratory_analyses_raw_L)
+
+```
+
+***
+
+### Standardized model
+
+```{r main-model-standardized, results="hide", message = FALSE}
+
+# standardized: does linguistic style change based on the conversation setting?
+exploratory_analyses_st_L <- lmer(L ~ conv.type + (1|speaker_code),
+                            data = standardized_df, REML = FALSE)
+
+# calculate 95%CI for model
+CI_exploratory_analyses_st_L <- confint(exploratory_analyses_st_L)
+
+# calculate effect size for model
+es_exploratory_analyses_st_L <- lme.dscore(exploratory_analyses_st_L, 
+                                     data = standardized_df, type = "lme4")
+
+```
+
+```{r silently-print-standardized-summary, eval=TRUE, echo=FALSE}
+
+# print summary tables
+summary(exploratory_analyses_st_L)
+
+# print effect sizes
+es_exploratory_analyses_st_L
+
+# print confidence intervals
+CI_exploratory_analyses_st_L
+
+```
+
+
+```{r silently-print-standardized-table, eval=TRUE, echo=FALSE}
+
+# neatly print output
+pander_lme(exploratory_analyses_st_L)
+
+```
+
+
+#### Exploratory analyses: rENTR
+
+### Raw model
+
+```{r main-model-raw, results="hide", message = FALSE}
+
+# raw: does linguistic style change based on the conversation setting?
+exploratory_analyses_rENTR <- lmer(rENTR ~ conv.type + (1|speaker_code),
+                             data = analysis_df, REML = FALSE)
+
+# calculate 95% CI for model
+CI_exploratory_analyses_rENTR <- confint(exploratory_analyses_raw_rENTR)
+
+
+# calculate effect size for model
+es_exploratory_analyses_rENTR <- lme.dscore(exploratory_analyses_raw_rENTR, 
+                                      data = analysis_df, type = "lme4")
+```
+
+```{r silently-print-raw-summary, eval=TRUE, echo=FALSE}
+
+# print summary tables
+summary(exploratory_analyses_raw_rENTR)
+
+# print effect sizes
+es_exploratory_analyses_raw_rENTR
+
+# print confidence intervals
+CI_exploratory_analyses_raw_rENTR
+
+```
+
+```{r silently-print-raw-table, eval=TRUE, echo=FALSE}
+
+# neatly print output
+pander_lme(exploratory_analyses_raw_rENTR)
+
+```
+
+***
+
+### Standardized model
+
+```{r main-model-standardized, results="hide", message = FALSE}
+
+# standardized: does linguistic style change based on the conversation setting?
+exploratory_analyses_st_rENTR <- lmer(rENTR ~ conv.type + (1|speaker_code),
+                            data = standardized_df, REML = FALSE)
+
+# calculate 95%CI for model
+CI_exploratory_analyses_st_rENTR <- confint(exploratory_analyses_st_rENTR)
+
+# calculate effect size for model
+es_exploratory_analyses_st_rENTR <- lme.dscore(exploratory_analyses_st_rENTR, 
+                                     data = standardized_df, type = "lme4")
+
+```
+
+```{r silently-print-standardized-summary, eval=TRUE, echo=FALSE}
+
+# print summary tables
+summary(exploratory_analyses_st_rENTR)
+
+# print effect sizes
+es_exploratory_analyses_st_rENTR
+
+# print confidence intervals
+CI_exploratory_analyses_st_rENTR
+
+```
+
+
+```{r silently-print-standardized-table, eval=TRUE, echo=FALSE}
+
+# neatly print output
+pander_lme(exploratory_analyses_st_rENTR)
+
+```
+
+
+#### Exploratory analyses: LAM
+
+### Raw model
+
+```{r main-model-raw, results="hide", message = FALSE}
+
+# raw: does linguistic style change based on the conversation setting?
+exploratory_analyses_LAM <- lmer(LAM ~ conv.type + (1|speaker_code),
+                             data = analysis_df, REML = FALSE)
+
+# calculate 95% CI for model
+CI_exploratory_analyses_LAM <- confint(exploratory_analyses_raw_LAM)
+
+
+# calculate effect size for model
+es_exploratory_analyses_LAM <- lme.dscore(exploratory_analyses_raw_LAM, 
+                                      data = analysis_df, type = "lme4")
+```
+
+```{r silently-print-raw-summary, eval=TRUE, echo=FALSE}
+
+# print summary tables
+summary(exploratory_analyses_raw_LAM)
+
+# print effect sizes
+es_exploratory_analyses_raw_LAM
+
+# print confidence intervals
+CI_exploratory_analyses_raw_LAM
+
+```
+
+```{r silently-print-raw-table, eval=TRUE, echo=FALSE}
+
+# neatly print output
+pander_lme(exploratory_analyses_raw_LAM)
+
+```
+
+***
+
+### Standardized model
+
+```{r main-model-standardized, results="hide", message = FALSE}
+
+# standardized: does linguistic style change based on the conversation setting?
+exploratory_analyses_st_LAM <- lmer(LAM ~ conv.type + (1|speaker_code),
+                            data = standardized_df, REML = FALSE)
+
+# calculate 95%CI for model
+CI_exploratory_analyses_st_LAM <- confint(exploratory_analyses_st_LAM)
+
+# calculate effect size for model
+es_exploratory_analyses_st_LAM <- lme.dscore(exploratory_analyses_st_LAM, 
+                                     data = standardized_df, type = "lme4")
+
+```
+
+```{r silently-print-standardized-summary, eval=TRUE, echo=FALSE}
+
+# print summary tables
+summary(exploratory_analyses_st_LAM)
+
+# print effect sizes
+es_exploratory_analyses_st_LAM
+
+# print confidence intervals
+CI_exploratory_analyses_st_LAM
+
+```
+
+
+```{r silently-print-standardized-table, eval=TRUE, echo=FALSE}
+
+# neatly print output
+pander_lme(exploratory_analyses_st_LAM)
+
+```
+
+#### Exploratory analyses: TT
+
+### Raw model
+
+```{r main-model-raw, results="hide", message = FALSE}
+
+# raw: does linguistic style change based on the conversation setting?
+exploratory_analyses_TT <- lmer(TT ~ conv.type + (1|speaker_code),
+                             data = analysis_df, REML = FALSE)
+
+# calculate 95% CI for model
+CI_exploratory_analyses_TT <- confint(exploratory_analyses_raw_TT)
+
+
+# calculate effect size for model
+es_exploratory_analyses_TT <- lme.dscore(exploratory_analyses_raw_TT, 
+                                      data = analysis_df, type = "lme4")
+```
+
+```{r silently-print-raw-summary, eval=TRUE, echo=FALSE}
+
+# print summary tables
+summary(exploratory_analyses_raw_TT)
+
+# print effect sizes
+es_exploratory_analyses_raw_TT
+
+# print confidence intervals
+CI_exploratory_analyses_raw_TT
+
+```
+
+```{r silently-print-raw-table, eval=TRUE, echo=FALSE}
+
+# neatly print output
+pander_lme(exploratory_analyses_raw_TT)
+
+```
+
+***
+
+### Standardized model
+
+```{r main-model-standardized, results="hide", message = FALSE}
+
+# standardized: does linguistic style change based on the conversation setting?
+exploratory_analyses_st_TT <- lmer(TT ~ conv.type + (1|speaker_code),
+                            data = standardized_df, REML = FALSE)
+
+# calculate 95%CI for model
+CI_exploratory_analyses_st_TT <- confint(exploratory_analyses_st_TT)
+
+# calculate effect size for model
+es_exploratory_analyses_st_TT <- lme.dscore(exploratory_analyses_st_TT, 
+                                     data = standardized_df, type = "lme4")
+
+```
+
+```{r silently-print-standardized-summary, eval=TRUE, echo=FALSE}
+
+# print summary tables
+summary(exploratory_analyses_st_TT)
+
+# print effect sizes
+es_exploratory_analyses_st_TT
+
+# print confidence intervals
+CI_exploratory_analyses_st_TT
+
+```
+
+
+```{r silently-print-standardized-table, eval=TRUE, echo=FALSE}
+
+# neatly print output
+pander_lme(exploratory_analyses_st_TT)
+
+```
+
+***
+
 ## Post-hoc analyses
 
 Next, we perform several post-hoc analyses to explore whether the changes 
@@ -492,8 +1096,13 @@ post_hoc_df = full_join(rqa_mon_post, rqa_conv_post,
                         by=c("dyad_id", "speaker_code")) %>%
   mutate(Diff_RR = RR_m - RR_c,           # positive means higher RR in mon
          Diff_DET = DET_m - DET_c,        # positive means more DET in mon
-         Diff_rENTR = rENTR_m - rENTR_c,  # positive means more line diversity in mon
-         Diff_NRLINE_norm = NRLINE_norm_m - NRLINE_norm_c)  %>% # positive means more lines in monologue
+         Diff_NRLINE_norm = NRLINE_norm_m - NRLINE_norm_c, # positive means more lines in monologue
+         Diff_maxL = maxL_m - maxL_c, # positive means a longer  maximal line in monologue
+         Diff_L = L_m - L_c, # positive means on average longer lines in monologue
+         Diff_rENTR = rENTR_m - rENTR_c,  # positive means more line diversity in monologue
+         Diff_LAM = LAM_m - LAM_c, # positive means proportion of points on vertical line is higher in monologue
+         Diff_TT = TT_m - TT_c) %>% #positive means on average longer vertical lines in monologue
+        
   
   # drop uninformative variables
   select(-conv.type_c, -conv.type_m, -cond) %>%
@@ -730,6 +1339,277 @@ qplot(data=post_hoc_df, x=DET_m, y=DET_c, colour=cond_c) +
 
 ***
 
+### Post-hoc analysis: Number of lines (normalized)
+
+#### Raw model
+
+```{r post-hoc-nrline-raw-model, results="hide", message = FALSE}
+
+# raw: do changes in amount of structure of linguistic style between 
+#      monologues and dialogues differ by conversation type?
+post_hoc_NRLINE_raw = lm(Diff_NRLINE_norm ~ cond_c,
+                         data = post_hoc_df)
+
+# calculate 95% CI
+CI_posthoc_NRLINE_raw <- confint(post_hoc_NRLINE_raw)
+
+# calculate effect size
+es_post_hoc_NRLINE_raw <- cohensD(x = Diff_NRLINE_norm~cond_c, 
+                                  data = post_hoc_df)
+
+```
+
+```{r silently-print-post-hoc-nrline-raw-summary, eval=TRUE, echo=FALSE}
+
+# print summary table
+summary(post_hoc_NRLINE_raw)
+
+# print confidence intervals
+CI_posthoc_NRLINE_raw
+
+# print effect sizes
+es_post_hoc_NRLINE_raw
+
+```
+
+```{r silently-print-post-hoc-nrline-raw-table, echo=FALSE}
+
+# neatly print output
+pander_lm(post_hoc_NRLINE_raw)
+
+```
+
+#### Standardized model
+
+```{r post-hoc-nrline-st-model, results="hide", message = FALSE}
+
+# standardized: do changes in amount of structure of linguistic style between 
+#      monologues and dialogues differ by conversation type?
+post_hoc_NRLINE_st = lm(Diff_NRLINE_norm ~ cond_c,
+                        data = post_hoc_standardized_df)
+
+# calculate 95% CI
+CI_posthoc_NRLINE_st <- confint(post_hoc_NRLINE_st)
+
+# calculate effect size
+es_post_hoc_NRLINE_st <- cohensD(x = Diff_NRLINE_norm~cond_c, 
+                                 data = post_hoc_standardized_df)
+
+
+```
+
+```{r silently-print-post-hoc-nrline-st-summary, eval=TRUE, echo=FALSE}
+
+# print summary table
+summary(post_hoc_NRLINE_raw)
+
+# print confidence intervals
+CI_posthoc_NRLINE_st
+
+# print effect sizes
+es_post_hoc_NRLINE_st
+
+```
+
+```{r silently-print-post-hoc-nrline-st-table, echo=FALSE}
+
+# neatly print output
+pander_lm(post_hoc_NRLINE_st)
+
+```
+
+```{r plot-post-nrline-data, echo=FALSE}
+
+qplot(data=post_hoc_df, x=NRLINE_norm_m, y=NRLINE_norm_c, colour=cond_c) +
+  geom_abline()
+
+```
+
+Again, as with rENTR (and in contrast with RR and DET), we do not see a 
+difference in the number of lines on the RP by conversation type. Essentially,
+this is another measure of continued structure within a system by capturing
+the total number of lines in the plot.
+
+***
+### Post-hoc analysis: MaxL
+
+#### Raw model
+
+```{r post-hoc-rentr-model-raw, results="hide", message = FALSE}
+
+# raw: do changes in uniformity of structure of linguistic style between monologues
+#       and dialogues differ by conversation type?
+post_hoc_maxL_raw = lm(Diff_maxL ~ cond_c,
+                        data = post_hoc_df)
+
+# calculate 95% CI
+CI_posthoc_maxL_raw <- confint(post_hoc_maxL_raw)
+
+# calculate effect size
+es_post_hoc_maxL_raw <- cohensD(x = Diff_maxL~cond_c, 
+                                 data = post_hoc_standardized_df)
+
+```
+
+```{r silently-print-post-hoc-rentr-raw-summary, eval=TRUE, echo=FALSE}
+
+# print summary table
+summary(post_hoc_maxL_raw)
+
+# print confidence intervals
+CI_posthoc_maxL_raw
+
+# print effect sizes
+es_post_hoc_maxL_raw
+
+```
+
+```{r silently-print-post-hoc-rentr-raw-table, echo=FALSE}
+
+# neatly print output
+pander_lm(post_hoc_maxL_raw)
+
+```
+
+#### Standardized model
+
+```{r post-hoc-rentr-model-st, results="hide", message = FALSE}
+
+# standardized: do changes in uniformity of structure of linguistic style between monologues
+#       and dialogues differ by conversation type?
+post_hoc_maxL_st = lm(Diff_maxL ~ cond_c,
+                       data = post_hoc_standardized_df)
+
+# calculate 95% CI
+CI_posthoc_maxL_st <- confint(post_hoc_maxL_st)
+
+# calculate effect size
+es_post_hoc_maxL_st <- cohensD(x = Diff_maxL~cond_c, 
+                                data = post_hoc_standardized_df)
+
+```
+
+```{r silently-print-post-hoc-rentr-st-summary, eval=TRUE, echo=FALSE}
+
+# print summary table
+summary(post_hoc_maxL_st)
+
+# print confidence intervals
+CI_posthoc_maxL_st
+
+# print effect sizes
+es_post_hoc_maxL_st
+
+```
+
+
+```{r silently-print-post-hoc-rentr-st-table, echo=FALSE}
+
+# neatly print output
+pander_lm(post_hoc_maxL_st)
+
+```
+
+Add description of the results!
+
+```{r plot-post-retnr-data, echo=FALSE}
+
+qplot(data=post_hoc_df, x=maxL_m, y=maxL_c, colour=cond_c) +
+  geom_abline()
+
+```
+
+***
+### Post-hoc analysis: L
+
+#### Raw model
+
+```{r post-hoc-rentr-model-raw, results="hide", message = FALSE}
+
+# raw: do changes in uniformity of structure of linguistic style between monologues
+#       and dialogues differ by conversation type?
+post_hoc_L_raw = lm(Diff_L ~ cond_c,
+                        data = post_hoc_df)
+
+# calculate 95% CI
+CI_posthoc_L_raw <- confint(post_hoc_L_raw)
+
+# calculate effect size
+es_post_hoc_L_raw <- cohensD(x = Diff_L~cond_c, 
+                                 data = post_hoc_standardized_df)
+
+```
+
+```{r silently-print-post-hoc-rentr-raw-summary, eval=TRUE, echo=FALSE}
+
+# print summary table
+summary(post_hoc_L_raw)
+
+# print confidence intervals
+CI_posthoc_L_raw
+
+# print effect sizes
+es_post_hoc_L_raw
+
+```
+
+```{r silently-print-post-hoc-rentr-raw-table, echo=FALSE}
+
+# neatly print output
+pander_lm(post_hoc_L_raw)
+
+```
+
+#### Standardized model
+
+```{r post-hoc-rentr-model-st, results="hide", message = FALSE}
+
+# standardized: do changes in uniformity of structure of linguistic style between monologues
+#       and dialogues differ by conversation type?
+post_hoc_L_st = lm(Diff_L ~ cond_c,
+                       data = post_hoc_standardized_df)
+
+# calculate 95% CI
+CI_posthoc_L_st <- confint(post_hoc_L_st)
+
+# calculate effect size
+es_post_hoc_L_st <- cohensD(x = Diff_L~cond_c, 
+                                data = post_hoc_standardized_df)
+
+```
+
+```{r silently-print-post-hoc-rentr-st-summary, eval=TRUE, echo=FALSE}
+
+# print summary table
+summary(post_hoc_L_st)
+
+# print confidence intervals
+CI_posthoc_L_st
+
+# print effect sizes
+es_post_hoc_L_st
+
+```
+
+
+```{r silently-print-post-hoc-rentr-st-table, echo=FALSE}
+
+# neatly print output
+pander_lm(post_hoc_L_st)
+
+```
+
+Add description of the results!
+
+```{r plot-post-retnr-data, echo=FALSE}
+
+qplot(data=post_hoc_df, x=L_m, y=L_c, colour=cond_c) +
+  geom_abline()
+
+```
+
+***
+
 ### Post-hoc analysis: Normalized entropy
 
 #### Raw model
@@ -821,10 +1701,9 @@ qplot(data=post_hoc_df, x=rENTR_m, y=rENTR_c, colour=cond_c) +
   geom_abline()
 
 ```
-
 ***
 
-### Post-hoc analysis: Number of lines (normalized)
+### Post-hoc analysis: Laminarity
 
 #### Raw model
 
@@ -832,14 +1711,14 @@ qplot(data=post_hoc_df, x=rENTR_m, y=rENTR_c, colour=cond_c) +
 
 # raw: do changes in amount of structure of linguistic style between 
 #      monologues and dialogues differ by conversation type?
-post_hoc_NRLINE_raw = lm(Diff_NRLINE_norm ~ cond_c,
+post_hoc_LAM_raw = lm(Diff_LAM_norm ~ cond_c,
                          data = post_hoc_df)
 
 # calculate 95% CI
-CI_posthoc_NRLINE_raw <- confint(post_hoc_NRLINE_raw)
+CI_posthoc_LAM_raw <- confint(post_hoc_LAM_raw)
 
 # calculate effect size
-es_post_hoc_NRLINE_raw <- cohensD(x = Diff_NRLINE_norm~cond_c, 
+es_post_hoc_LAM_raw <- cohensD(x = Diff_LAM_norm~cond_c, 
                                   data = post_hoc_df)
 
 ```
@@ -847,20 +1726,20 @@ es_post_hoc_NRLINE_raw <- cohensD(x = Diff_NRLINE_norm~cond_c,
 ```{r silently-print-post-hoc-nrline-raw-summary, eval=TRUE, echo=FALSE}
 
 # print summary table
-summary(post_hoc_NRLINE_raw)
+summary(post_hoc_LAM_raw)
 
 # print confidence intervals
-CI_posthoc_NRLINE_raw
+CI_posthoc_LAM_raw
 
 # print effect sizes
-es_post_hoc_NRLINE_raw
+es_post_hoc_LAM_raw
 
 ```
 
 ```{r silently-print-post-hoc-nrline-raw-table, echo=FALSE}
 
 # neatly print output
-pander_lm(post_hoc_NRLINE_raw)
+pander_lm(post_hoc_LAM_raw)
 
 ```
 
@@ -870,14 +1749,14 @@ pander_lm(post_hoc_NRLINE_raw)
 
 # standardized: do changes in amount of structure of linguistic style between 
 #      monologues and dialogues differ by conversation type?
-post_hoc_NRLINE_st = lm(Diff_NRLINE_norm ~ cond_c,
+post_hoc_LAM_st = lm(Diff_LAM_norm ~ cond_c,
                         data = post_hoc_standardized_df)
 
 # calculate 95% CI
-CI_posthoc_NRLINE_st <- confint(post_hoc_NRLINE_st)
+CI_posthoc_LAM_st <- confint(post_hoc_LAM_st)
 
 # calculate effect size
-es_post_hoc_NRLINE_st <- cohensD(x = Diff_NRLINE_norm~cond_c, 
+es_post_hoc_LAM_st <- cohensD(x = Diff_LAM_norm~cond_c, 
                                  data = post_hoc_standardized_df)
 
 
@@ -886,31 +1765,120 @@ es_post_hoc_NRLINE_st <- cohensD(x = Diff_NRLINE_norm~cond_c,
 ```{r silently-print-post-hoc-nrline-st-summary, eval=TRUE, echo=FALSE}
 
 # print summary table
-summary(post_hoc_NRLINE_raw)
+summary(post_hoc_LAM_raw)
 
 # print confidence intervals
-CI_posthoc_NRLINE_st
+CI_posthoc_LAM_st
 
 # print effect sizes
-es_post_hoc_NRLINE_st
+es_post_hoc_LAM_st
 
 ```
 
 ```{r silently-print-post-hoc-nrline-st-table, echo=FALSE}
 
 # neatly print output
-pander_lm(post_hoc_NRLINE_st)
+pander_lm(post_hoc_LAM_st)
 
 ```
 
 ```{r plot-post-nrline-data, echo=FALSE}
 
-qplot(data=post_hoc_df, x=NRLINE_norm_m, y=NRLINE_norm_c, colour=cond_c) +
+qplot(data=post_hoc_df, x=LAM_norm_m, y=LAM_norm_c, colour=cond_c) +
   geom_abline()
 
 ```
 
-Again, as with rENTR (and in contrast with RR and DET), we do not see a 
-difference in the number of lines on the RP by conversation type. Essentially,
-this is another measure of continued structure within a system by capturing
-the total number of lines in the plot.
+Add description after we have the results.
+
+***
+
+### Post-hoc analysis: TT
+
+#### Raw model
+
+```{r post-hoc-nrline-raw-model, results="hide", message = FALSE}
+
+# raw: do changes in amount of structure of linguistic style between 
+#      monologues and dialogues differ by conversation type?
+post_hoc_TT_raw = lm(Diff_TT_norm ~ cond_c,
+                         data = post_hoc_df)
+
+# calculate 95% CI
+CI_posthoc_TT_raw <- confint(post_hoc_TT_raw)
+
+# calculate effect size
+es_post_hoc_TT_raw <- cohensD(x = Diff_TT_norm~cond_c, 
+                                  data = post_hoc_df)
+
+```
+
+```{r silently-print-post-hoc-nrline-raw-summary, eval=TRUE, echo=FALSE}
+
+# print summary table
+summary(post_hoc_TT_raw)
+
+# print confidence intervals
+CI_posthoc_TT_raw
+
+# print effect sizes
+es_post_hoc_TT_raw
+
+```
+
+```{r silently-print-post-hoc-nrline-raw-table, echo=FALSE}
+
+# neatly print output
+pander_lm(post_hoc_TT_raw)
+
+```
+
+#### Standardized model
+
+```{r post-hoc-nrline-st-model, results="hide", message = FALSE}
+
+# standardized: do changes in amount of structure of linguistic style between 
+#      monologues and dialogues differ by conversation type?
+post_hoc_TT_st = lm(Diff_TT_norm ~ cond_c,
+                        data = post_hoc_standardized_df)
+
+# calculate 95% CI
+CI_posthoc_TT_st <- confint(post_hoc_TT_st)
+
+# calculate effect size
+es_post_hoc_TT_st <- cohensD(x = Diff_TT_norm~cond_c, 
+                                 data = post_hoc_standardized_df)
+
+
+```
+
+```{r silently-print-post-hoc-nrline-st-summary, eval=TRUE, echo=FALSE}
+
+# print summary table
+summary(post_hoc_TT_raw)
+
+# print confidence intervals
+CI_posthoc_TT_st
+
+# print effect sizes
+es_post_hoc_TT_st
+
+```
+
+```{r silently-print-post-hoc-nrline-st-table, echo=FALSE}
+
+# neatly print output
+pander_lm(post_hoc_TT_st)
+
+```
+
+```{r plot-post-nrline-data, echo=FALSE}
+
+qplot(data=post_hoc_df, x=TT_norm_m, y=TT_norm_c, colour=cond_c) +
+  geom_abline()
+
+```
+
+Add description after we have the results.
+
+
