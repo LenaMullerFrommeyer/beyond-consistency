@@ -552,7 +552,7 @@ CI_exploratory_analyses_raw_prop
 ```{r silently-print-raw-table, eval=TRUE, echo=FALSE}
 
 # neatly print output
-pander_lme(exploratory_analyses_raw_freq)
+pander_lme(exploratory_analyses_raw_prop)
 
 ```
 
@@ -563,14 +563,14 @@ pander_lme(exploratory_analyses_raw_freq)
 ```{r main-model-standardized, results="hide", message = FALSE}
 
 # standardized: does linguistic style change based on the conversation setting?
-exploratory_analyses_st_freq <- lmer(freq ~ conv.type + (1|speaker_code),
+exploratory_analyses_st_prop <- lmer(freq ~ conv.type + (1|speaker_code),
                             data = standardized_df, REML = FALSE)
 
 # calculate 95%CI for model
-CI_exploratory_analyses_st_freq <- confint(exploratory_analyses_st_freq)
+CI_exploratory_analyses_st_prop <- confint(exploratory_analyses_st_freq)
 
 # calculate effect size for model
-es_exploratory_analyses_st_freq <- lme.dscore(exploratory_analyses_st_freq, 
+es_exploratory_analyses_st_prop <- lme.dscore(exploratory_analyses_st_freq, 
                                      data = standardized_df, type = "lme4")
 
 ```
@@ -578,13 +578,13 @@ es_exploratory_analyses_st_freq <- lme.dscore(exploratory_analyses_st_freq,
 ```{r silently-print-standardized-summary, eval=TRUE, echo=FALSE}
 
 # print summary tables
-summary(exploratory_analyses_st_freq)
+summary(exploratory_analyses_st_prop)
 
 # print effect sizes
-es_exploratory_analyses_st_freq
+es_exploratory_analyses_st_prop
 
 # print confidence intervals
-CI_exploratory_analyses_st_freq
+CI_exploratory_analyses_st_prop
 
 ```
 
@@ -592,7 +592,7 @@ CI_exploratory_analyses_st_freq
 ```{r silently-print-standardized-table, eval=TRUE, echo=FALSE}
 
 # neatly print output
-pander_lme(exploratory_analyses_st_freq)
+pander_lme(exploratory_analyses_st_prop)
 
 ```
 ***
@@ -1151,7 +1151,25 @@ pander_lme(exploratory_analyses_st_TT)
 ```
 
 ***
+##Model comparisons
 
+```{r model comparison static and dynamic}
+
+#compare AIC
+AIC(planned_analyses_raw, exploratory_analyses_raw_prop, exploratory_analyses_raw_DET)
+
+#Model comparison proportion + RR
+anRR_prop = anova(exploratory_analyses_raw_prop, planned_analyses_raw)
+anRR_prop
+
+
+#Model comparison proportion + DET
+anDET_prop = anova(exploratory_analyses_raw_prop, exploratory_analyses_raw_DET)
+anDET_prop
+
+
+```
+***
 ## Post-hoc analyses
 
 Next, we perform several post-hoc analyses to explore whether the changes 
