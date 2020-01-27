@@ -2,3 +2,4 @@
 data/
 *.html
 *.Rhistory
+beyond_consistency_cache/
