@@ -565,10 +565,10 @@ exploratory_analyses_st_prop <- lmer(freq ~ conv.type + (1|speaker_code),
                             data = standardized_df, REML = FALSE)
 
 # calculate 95%CI for model
-CI_exploratory_analyses_st_prop <- confint(exploratory_analyses_st_freq)
+CI_exploratory_analyses_st_prop <- confint(exploratory_analyses_st_prop)
 
 # calculate effect size for model
-es_exploratory_analyses_st_prop <- lme.dscore(exploratory_analyses_st_freq, 
+es_exploratory_analyses_st_prop <- lme.dscore(exploratory_analyses_st_prop, 
                                      data = standardized_df, type = "lme4")
 
 ```
@@ -918,15 +918,15 @@ pander_lme(exploratory_analyses_st_L)
 ```{r exploratory-rentr-model-raw, results="hide", message = FALSE}
 
 # raw: does linguistic style change based on the conversation setting?
-exploratory_analyses_rENTR <- lmer(rENTR ~ conv.type + (1|speaker_code),
+exploratory_analyses_raw_rENTR <- lmer(rENTR ~ conv.type + (1|speaker_code),
                              data = analysis_df, REML = FALSE)
 
 # calculate 95% CI for model
-CI_exploratory_analyses_rENTR <- confint(exploratory_analyses_raw_rENTR)
+CI_exploratory_analyses_raw_rENTR <- confint(exploratory_analyses_raw_rENTR)
 
 
 # calculate effect size for model
-es_exploratory_analyses_rENTR <- lme.dscore(exploratory_analyses_raw_rENTR, 
+es_exploratory_analyses_raw_rENTR <- lme.dscore(exploratory_analyses_raw_rENTR, 
                                       data = analysis_df, type = "lme4")
 ```
 
@@ -997,15 +997,15 @@ pander_lme(exploratory_analyses_st_rENTR)
 ```{r exploratory-lam-model-raw, results="hide", message = FALSE}
 
 # raw: does linguistic style change based on the conversation setting?
-exploratory_analyses_LAM <- lmer(LAM ~ conv.type + (1|speaker_code),
+exploratory_analyses_raw_LAM <- lmer(LAM ~ conv.type + (1|speaker_code),
                              data = analysis_df, REML = FALSE)
 
 # calculate 95% CI for model
-CI_exploratory_analyses_LAM <- confint(exploratory_analyses_raw_LAM)
+CI_exploratory_analyses_raw_LAM <- confint(exploratory_analyses_raw_LAM)
 
 
 # calculate effect size for model
-es_exploratory_analyses_LAM <- lme.dscore(exploratory_analyses_raw_LAM, 
+es_exploratory_analyses_raw_LAM <- lme.dscore(exploratory_analyses_raw_LAM, 
                                       data = analysis_df, type = "lme4")
 ```
 
@@ -1076,15 +1076,15 @@ pander_lme(exploratory_analyses_st_LAM)
 ```{r exploratory-tt-model-raw, results="hide", message = FALSE}
 
 # raw: does linguistic style change based on the conversation setting?
-exploratory_analyses_TT <- lmer(TT ~ conv.type + (1|speaker_code),
+exploratory_analyses_raw_TT <- lmer(TT ~ conv.type + (1|speaker_code),
                              data = analysis_df, REML = FALSE)
 
 # calculate 95% CI for model
-CI_exploratory_analyses_TT <- confint(exploratory_analyses_raw_TT)
+CI_exploratory_analyses_raw_TT <- confint(exploratory_analyses_raw_TT)
 
 
 # calculate effect size for model
-es_exploratory_analyses_TT <- lme.dscore(exploratory_analyses_raw_TT, 
+es_exploratory_analyses_raw_TT <- lme.dscore(exploratory_analyses_raw_TT, 
                                       data = analysis_df, type = "lme4")
 ```
 
@@ -1839,14 +1839,14 @@ qplot(data=post_hoc_df, x=rENTR_m, y=rENTR_c, colour=cond_c) +
 
 # raw: do changes in amount of structure of linguistic style between 
 #      monologues and dialogues differ by conversation type?
-post_hoc_LAM_raw = lm(Diff_LAM_norm ~ cond_c,
+post_hoc_LAM_raw = lm(Diff_LAM ~ cond_c,
                          data = post_hoc_df)
 
 # calculate 95% CI
 CI_posthoc_LAM_raw <- confint(post_hoc_LAM_raw)
 
 # calculate effect size
-es_post_hoc_LAM_raw <- cohensD(x = Diff_LAM_norm~cond_c, 
+es_post_hoc_LAM_raw <- cohensD(x = Diff_LAM~cond_c, 
                                   data = post_hoc_df)
 
 ```
@@ -1877,14 +1877,14 @@ pander_lm(post_hoc_LAM_raw)
 
 # standardized: do changes in amount of structure of linguistic style between 
 #      monologues and dialogues differ by conversation type?
-post_hoc_LAM_st = lm(Diff_LAM_norm ~ cond_c,
+post_hoc_LAM_st = lm(Diff_LAM ~ cond_c,
                         data = post_hoc_standardized_df)
 
 # calculate 95% CI
 CI_posthoc_LAM_st <- confint(post_hoc_LAM_st)
 
 # calculate effect size
-es_post_hoc_LAM_st <- cohensD(x = Diff_LAM_norm~cond_c, 
+es_post_hoc_LAM_st <- cohensD(x = Diff_LAM~cond_c, 
                                  data = post_hoc_standardized_df)
 
 
@@ -1912,7 +1912,7 @@ pander_lm(post_hoc_LAM_st)
 
 ```{r, echo=FALSE}
 
-qplot(data=post_hoc_df, x=LAM_norm_m, y=LAM_norm_c, colour=cond_c) +
+qplot(data=post_hoc_df, x=LAM_m, y=LAM_c, colour=cond_c) +
   geom_abline()
 
 ```
@@ -1929,14 +1929,14 @@ Add description after we have the results.
 
 # raw: do changes in amount of structure of linguistic style between 
 #      monologues and dialogues differ by conversation type?
-post_hoc_TT_raw = lm(Diff_TT_norm ~ cond_c,
+post_hoc_TT_raw = lm(Diff_TT ~ cond_c,
                          data = post_hoc_df)
 
 # calculate 95% CI
 CI_posthoc_TT_raw <- confint(post_hoc_TT_raw)
 
 # calculate effect size
-es_post_hoc_TT_raw <- cohensD(x = Diff_TT_norm~cond_c, 
+es_post_hoc_TT_raw <- cohensD(x = Diff_TT~cond_c, 
                                   data = post_hoc_df)
 
 ```
@@ -1967,14 +1967,14 @@ pander_lm(post_hoc_TT_raw)
 
 # standardized: do changes in amount of structure of linguistic style between 
 #      monologues and dialogues differ by conversation type?
-post_hoc_TT_st = lm(Diff_TT_norm ~ cond_c,
+post_hoc_TT_st = lm(Diff_TT ~ cond_c,
                         data = post_hoc_standardized_df)
 
 # calculate 95% CI
 CI_posthoc_TT_st <- confint(post_hoc_TT_st)
 
 # calculate effect size
-es_post_hoc_TT_st <- cohensD(x = Diff_TT_norm~cond_c, 
+es_post_hoc_TT_st <- cohensD(x = Diff_TT~cond_c, 
                                  data = post_hoc_standardized_df)
 
 
@@ -2002,7 +2002,7 @@ pander_lm(post_hoc_TT_st)
 
 ```{r, echo=FALSE}
 
-qplot(data=post_hoc_df, x=TT_norm_m, y=TT_norm_c, colour=cond_c) +
+qplot(data=post_hoc_df, x=TT_m, y=TT_c, colour=cond_c) +
   geom_abline()
 
 ```
