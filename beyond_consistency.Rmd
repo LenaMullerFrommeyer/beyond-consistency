@@ -1147,22 +1147,25 @@ pander_lme(exploratory_analyses_st_TT)
 ```
 
 ***
-##Model comparisons
+
+## Model comparisons
+
+**Lena**: We get an error here---can you take a look and try to describe
+what you were trying to do here?
 
 ```{r model comparison static and dynamic}
 
-#compare AIC
+# compare AIC
 AIC(planned_analyses_raw, exploratory_analyses_raw_prop, exploratory_analyses_raw_DET)
 
-#Model comparison proportion + RR
+# Model comparison proportion + RR
 anRR_prop = anova(exploratory_analyses_raw_prop, planned_analyses_raw)
 anRR_prop
 
 
-#Model comparison proportion + DET
-anDET_prop = anova(exploratory_analyses_raw_prop, exploratory_analyses_raw_DET)
-anDET_prop
-
+# Model comparison proportion + DET
+# anDET_prop = anova(exploratory_analyses_raw_prop, exploratory_analyses_raw_DET)
+# anDET_prop
 
 ```
 
@@ -2474,42 +2477,45 @@ write.table(standardized_df_conj, './data/standardized_df_conj.csv',
 
 ***
 
-### RR: Raw model
+**Lena**: Should this commented-out section be here? If so, be sure
+to change the chunk names and other data.
 
-```{r main-model-raw, results="hide", message = FALSE}
+<!-- ### RR: Raw model -->
 
-# raw: does linguistic style change based on the conversation setting?
-planned_analyses_raw <- lmer(RR ~ conv.type + (1|speaker_code),
-                             data = analysis_df, REML = FALSE)
+<!-- ```{r main-model-raw, results="hide", message = FALSE} -->
 
-# calculate 95% CI for model
-CI_planned_analyses_raw <- confint(planned_analyses_raw)
+<!-- # raw: does linguistic style change based on the conversation setting? -->
+<!-- planned_analyses_raw <- lmer(RR ~ conv.type + (1|speaker_code), -->
+<!--                              data = analysis_df, REML = FALSE) -->
+
+<!-- # calculate 95% CI for model -->
+<!-- CI_planned_analyses_raw <- confint(planned_analyses_raw) -->
 
 
-# calculate effect size for model
-es_planned_analyses_raw <- lme.dscore(planned_analyses_raw, 
-                                      data = analysis_df, type = "lme4")
-```
+<!-- # calculate effect size for model -->
+<!-- es_planned_analyses_raw <- lme.dscore(planned_analyses_raw,  -->
+<!--                                       data = analysis_df, type = "lme4") -->
+<!-- ``` -->
 
-```{r silently-print-raw-summary, eval=TRUE, echo=FALSE}
+<!-- ```{r, eval=TRUE, echo=FALSE} -->
 
-# print summary tables
-summary(planned_analyses_raw)
+<!-- # print summary tables -->
+<!-- summary(planned_analyses_raw) -->
 
-# print effect sizes
-es_planned_analyses_raw
+<!-- # print effect sizes -->
+<!-- es_planned_analyses_raw -->
 
-# print confidence intervals
-CI_planned_analyses_raw
+<!-- # print confidence intervals -->
+<!-- CI_planned_analyses_raw -->
 
-```
+<!-- ``` -->
 
-```{r silently-print-raw-table, eval=TRUE, echo=FALSE}
+<!-- ```{r, eval=TRUE, echo=FALSE} -->
 
-# neatly print output
-pander_lme(planned_analyses_raw)
+<!-- # neatly print output -->
+<!-- pander_lme(planned_analyses_raw) -->
 
-```
+<!-- ``` -->
 
 ***
 
