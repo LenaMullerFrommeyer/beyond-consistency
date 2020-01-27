@@ -443,7 +443,7 @@ es_planned_analyses_raw <- lme.dscore(planned_analyses_raw,
                                       data = analysis_df, type = "lme4")
 ```
 
-```{r silently-print-raw-summary, eval=TRUE, echo=FALSE}
+```{r, eval=TRUE, echo=FALSE}
 
 # print summary tables
 summary(planned_analyses_raw)
@@ -456,7 +456,7 @@ CI_planned_analyses_raw
 
 ```
 
-```{r silently-print-raw-table, eval=TRUE, echo=FALSE}
+```{r, eval=TRUE, echo=FALSE}
 
 # neatly print output
 pander_lme(planned_analyses_raw)
@@ -467,7 +467,7 @@ pander_lme(planned_analyses_raw)
 
 ### RR: Standardized model
 
-```{r main-model-standardized, results="hide", message = FALSE}
+```{r, results="hide", message = FALSE}
 
 # standardized: does linguistic style change based on the conversation setting?
 planned_analyses_st <- lmer(RR ~ conv.type + (1|speaker_code),
@@ -482,7 +482,7 @@ es_planned_analyses_st <- lme.dscore(planned_analyses_st,
 
 ```
 
-```{r silently-print-standardized-summary, eval=TRUE, echo=FALSE}
+```{r, eval=TRUE, echo=FALSE}
 
 # print summary tables
 summary(planned_analyses_st)
@@ -496,7 +496,7 @@ CI_planned_analyses_st
 ```
 
 
-```{r silently-print-standardized-table, eval=TRUE, echo=FALSE}
+```{r, eval=TRUE, echo=FALSE}
 
 # neatly print output
 pander_lme(planned_analyses_st)
@@ -519,9 +519,9 @@ structure in addition to RR.
 
 #### Prop: Exploratory analyses
 
-### Raw model
+##### Raw model
 
-```{r main-model-raw, results="hide", message = FALSE}
+```{r exploratory-prop-model-raw, results="hide", message = FALSE}
 
 # raw: does linguistic style change based on the conversation setting?
 exploratory_analyses_raw_prop <- lmer(prop ~ conv.type + (1|speaker_code),
@@ -536,7 +536,7 @@ es_exploratory_analyses_raw_prop <- lme.dscore(exploratory_analyses_raw_prop,
                                       data = analysis_df, type = "lme4")
 ```
 
-```{r silently-print-raw-summary, eval=TRUE, echo=FALSE}
+```{r, eval=TRUE, echo=FALSE}
 
 # print summary tables
 summary(exploratory_analyses_raw_prop)
@@ -549,18 +549,16 @@ CI_exploratory_analyses_raw_prop
 
 ```
 
-```{r silently-print-raw-table, eval=TRUE, echo=FALSE}
+```{r, eval=TRUE, echo=FALSE}
 
 # neatly print output
 pander_lme(exploratory_analyses_raw_prop)
 
 ```
 
-***
+##### Standardized model
 
-### Standardized model
-
-```{r main-model-standardized, results="hide", message = FALSE}
+```{r, results="hide", message = FALSE}
 
 # standardized: does linguistic style change based on the conversation setting?
 exploratory_analyses_st_prop <- lmer(freq ~ conv.type + (1|speaker_code),
@@ -575,7 +573,7 @@ es_exploratory_analyses_st_prop <- lme.dscore(exploratory_analyses_st_freq,
 
 ```
 
-```{r silently-print-standardized-summary, eval=TRUE, echo=FALSE}
+```{r, eval=TRUE, echo=FALSE}
 
 # print summary tables
 summary(exploratory_analyses_st_prop)
@@ -589,7 +587,7 @@ CI_exploratory_analyses_st_prop
 ```
 
 
-```{r silently-print-standardized-table, eval=TRUE, echo=FALSE}
+```{r, eval=TRUE, echo=FALSE}
 
 # neatly print output
 pander_lme(exploratory_analyses_st_prop)
@@ -599,9 +597,9 @@ pander_lme(exploratory_analyses_st_prop)
 
 #### DET: Exploratory analyses
 
-### Raw model
+##### Raw model
 
-```{r main-model-raw, results="hide", message = FALSE}
+```{r exploratory-det-model-raw, results="hide", message = FALSE}
 
 # raw: does linguistic style change based on the conversation setting?
 exploratory_analyses_raw_DET <- lmer(DET ~ conv.type + (1|speaker_code),
@@ -616,7 +614,7 @@ es_exploratory_analyses_raw_DET <- lme.dscore(exploratory_analyses_raw_DET,
                                       data = analysis_df, type = "lme4")
 ```
 
-```{r silently-print-raw-summary, eval=TRUE, echo=FALSE}
+```{r, eval=TRUE, echo=FALSE}
 
 # print summary tables
 summary(exploratory_analyses_raw_DET)
@@ -629,18 +627,16 @@ CI_exploratory_analyses_raw_DET
 
 ```
 
-```{r silently-print-raw-table, eval=TRUE, echo=FALSE}
+```{r, eval=TRUE, echo=FALSE}
 
 # neatly print output
 pander_lme(exploratory_analyses_raw_DET)
 
 ```
 
-***
+##### Standardized model
 
-### Standardized model
-
-```{r main-model-standardized, results="hide", message = FALSE}
+```{r, results="hide", message = FALSE}
 
 # standardized: does linguistic style change based on the conversation setting?
 exploratory_analyses_st_DET <- lmer(DET ~ conv.type + (1|speaker_code),
@@ -655,7 +651,7 @@ es_exploratory_analyses_st_DET <- lme.dscore(exploratory_analyses_st_DET,
 
 ```
 
-```{r silently-print-standardized-summary, eval=TRUE, echo=FALSE}
+```{r, eval=TRUE, echo=FALSE}
 
 # print summary tables
 summary(exploratory_analyses_st_DET)
@@ -669,17 +665,20 @@ CI_exploratory_analyses_st_DET
 ```
 
 
-```{r silently-print-standardized-table, eval=TRUE, echo=FALSE}
+```{r, eval=TRUE, echo=FALSE}
 
 # neatly print output
 pander_lme(exploratory_analyses_st_DET)
 
 ```
+
+***
+
 #### NRLINE_norm: Exploratory analyses 
 
-### Raw model
+##### Raw model
 
-```{r main-model-raw, results="hide", message = FALSE}
+```{r exploratory-nrline-model-raw, results="hide", message = FALSE}
 
 # raw: does linguistic style change based on the conversation setting?
 exploratory_analyses_raw_NRLINE_norm <- lmer(NRLINE_norm ~ conv.type + (1|speaker_code),
@@ -694,7 +693,7 @@ es_exploratory_analyses_raw_NRLINE_norm <- lme.dscore(exploratory_analyses_raw_N
                                       data = analysis_df, type = "lme4")
 ```
 
-```{r silently-print-raw-summary, eval=TRUE, echo=FALSE}
+```{r, eval=TRUE, echo=FALSE}
 
 # print summary tables
 summary(exploratory_analyses_raw_NRLINE_norm)
@@ -707,18 +706,16 @@ CI_exploratory_analyses_raw_NRLINE_norm
 
 ```
 
-```{r silently-print-raw-table, eval=TRUE, echo=FALSE}
+```{r, eval=TRUE, echo=FALSE}
 
 # neatly print output
 pander_lme(exploratory_analyses_raw_NRLINE_norm)
 
 ```
 
-***
+##### Standardized model
 
-### Standardized model
-
-```{r main-model-standardized, results="hide", message = FALSE}
+```{r, results="hide", message = FALSE}
 
 # standardized: does linguistic style change based on the conversation setting?
 exploratory_analyses_st_NRLINE_norm <- lmer(NRLINE_norm ~ conv.type + (1|speaker_code),
@@ -733,7 +730,7 @@ es_exploratory_analyses_st_NRLINE_norm <- lme.dscore(exploratory_analyses_st_NRL
 
 ```
 
-```{r silently-print-standardized-summary, eval=TRUE, echo=FALSE}
+```{r, eval=TRUE, echo=FALSE}
 
 # print summary tables
 summary(exploratory_analyses_st_NRLINE_norm)
@@ -747,17 +744,20 @@ CI_exploratory_analyses_st_NRLINE_norm
 ```
 
 
-```{r silently-print-standardized-table, eval=TRUE, echo=FALSE}
+```{r, eval=TRUE, echo=FALSE}
 
 # neatly print output
 pander_lme(exploratory_analyses_st_NRLINE_norm)
 
 ```
+
+***
+
 #### MaxL: Exploratory analyses
 
-### Raw model
+##### Raw model
 
-```{r main-model-raw, results="hide", message = FALSE}
+```{r exploratory-maxl-model-raw, results="hide", message = FALSE}
 
 # raw: does linguistic style change based on the conversation setting?
 exploratory_analyses_raw_maxL <- lmer(maxL ~ conv.type + (1|speaker_code),
@@ -772,7 +772,7 @@ es_exploratory_analyses_raw_maxL <- lme.dscore(exploratory_analyses_raw_maxL,
                                       data = analysis_df, type = "lme4")
 ```
 
-```{r silently-print-raw-summary, eval=TRUE, echo=FALSE}
+```{r, eval=TRUE, echo=FALSE}
 
 # print summary tables
 summary(exploratory_analyses_raw_maxL)
@@ -785,18 +785,16 @@ CI_exploratory_analyses_raw_maxL
 
 ```
 
-```{r silently-print-raw-table, eval=TRUE, echo=FALSE}
+```{r, eval=TRUE, echo=FALSE}
 
 # neatly print output
 pander_lme(exploratory_analyses_raw_maxL)
 
 ```
 
-***
+##### Standardized model
 
-### Standardized model
-
-```{r main-model-standardized, results="hide", message = FALSE}
+```{r, results="hide", message = FALSE}
 
 # standardized: does linguistic style change based on the conversation setting?
 exploratory_analyses_st_maxL <- lmer(maxL ~ conv.type + (1|speaker_code),
@@ -811,7 +809,7 @@ es_exploratory_analyses_st_maxL <- lme.dscore(exploratory_analyses_st_maxL,
 
 ```
 
-```{r silently-print-standardized-summary, eval=TRUE, echo=FALSE}
+```{r, eval=TRUE, echo=FALSE}
 
 # print summary tables
 summary(exploratory_analyses_st_maxL)
@@ -825,18 +823,20 @@ CI_exploratory_analyses_st_maxL
 ```
 
 
-```{r silently-print-standardized-table, eval=TRUE, echo=FALSE}
+```{r, eval=TRUE, echo=FALSE}
 
 # neatly print output
 pander_lme(exploratory_analyses_st_maxL)
 
 ```
 
+***
+
 #### L: Exploratory analyses
 
-### Raw model
+##### Raw model
 
-```{r main-model-raw, results="hide", message = FALSE}
+```{r exploratory-l-model-raw, results="hide", message = FALSE}
 
 # raw: does linguistic style change based on the conversation setting?
 exploratory_analyses_raw_L <- lmer(L ~ conv.type + (1|speaker_code),
@@ -851,7 +851,7 @@ es_exploratory_analyses_raw_L <- lme.dscore(exploratory_analyses_raw_L,
                                       data = analysis_df, type = "lme4")
 ```
 
-```{r silently-print-raw-summary, eval=TRUE, echo=FALSE}
+```{r, eval=TRUE, echo=FALSE}
 
 # print summary tables
 summary(exploratory_analyses_raw_L)
@@ -864,18 +864,16 @@ CI_exploratory_analyses_raw_L
 
 ```
 
-```{r silently-print-raw-table, eval=TRUE, echo=FALSE}
+```{r, eval=TRUE, echo=FALSE}
 
 # neatly print output
 pander_lme(exploratory_analyses_raw_L)
 
 ```
 
-***
+##### Standardized model
 
-### Standardized model
-
-```{r main-model-standardized, results="hide", message = FALSE}
+```{r, results="hide", message = FALSE}
 
 # standardized: does linguistic style change based on the conversation setting?
 exploratory_analyses_st_L <- lmer(L ~ conv.type + (1|speaker_code),
@@ -890,7 +888,7 @@ es_exploratory_analyses_st_L <- lme.dscore(exploratory_analyses_st_L,
 
 ```
 
-```{r silently-print-standardized-summary, eval=TRUE, echo=FALSE}
+```{r, eval=TRUE, echo=FALSE}
 
 # print summary tables
 summary(exploratory_analyses_st_L)
@@ -904,19 +902,20 @@ CI_exploratory_analyses_st_L
 ```
 
 
-```{r silently-print-standardized-table, eval=TRUE, echo=FALSE}
+```{r, eval=TRUE, echo=FALSE}
 
 # neatly print output
 pander_lme(exploratory_analyses_st_L)
 
 ```
 
+***
 
 #### rENTR: Exploratory analyses
 
-### Raw model
+##### Raw model
 
-```{r main-model-raw, results="hide", message = FALSE}
+```{r exploratory-rentr-model-raw, results="hide", message = FALSE}
 
 # raw: does linguistic style change based on the conversation setting?
 exploratory_analyses_rENTR <- lmer(rENTR ~ conv.type + (1|speaker_code),
@@ -931,7 +930,7 @@ es_exploratory_analyses_rENTR <- lme.dscore(exploratory_analyses_raw_rENTR,
                                       data = analysis_df, type = "lme4")
 ```
 
-```{r silently-print-raw-summary, eval=TRUE, echo=FALSE}
+```{r, eval=TRUE, echo=FALSE}
 
 # print summary tables
 summary(exploratory_analyses_raw_rENTR)
@@ -944,18 +943,16 @@ CI_exploratory_analyses_raw_rENTR
 
 ```
 
-```{r silently-print-raw-table, eval=TRUE, echo=FALSE}
+```{r, eval=TRUE, echo=FALSE}
 
 # neatly print output
 pander_lme(exploratory_analyses_raw_rENTR)
 
 ```
 
-***
+##### Standardized model
 
-### Standardized model
-
-```{r main-model-standardized, results="hide", message = FALSE}
+```{r, results="hide", message = FALSE}
 
 # standardized: does linguistic style change based on the conversation setting?
 exploratory_analyses_st_rENTR <- lmer(rENTR ~ conv.type + (1|speaker_code),
@@ -970,7 +967,7 @@ es_exploratory_analyses_st_rENTR <- lme.dscore(exploratory_analyses_st_rENTR,
 
 ```
 
-```{r silently-print-standardized-summary, eval=TRUE, echo=FALSE}
+```{r, eval=TRUE, echo=FALSE}
 
 # print summary tables
 summary(exploratory_analyses_st_rENTR)
@@ -984,19 +981,20 @@ CI_exploratory_analyses_st_rENTR
 ```
 
 
-```{r silently-print-standardized-table, eval=TRUE, echo=FALSE}
+```{r, eval=TRUE, echo=FALSE}
 
 # neatly print output
 pander_lme(exploratory_analyses_st_rENTR)
 
 ```
 
+***
 
 #### LAM: Exploratory analyses 
 
-### Raw model
+##### Raw model
 
-```{r main-model-raw, results="hide", message = FALSE}
+```{r exploratory-lam-model-raw, results="hide", message = FALSE}
 
 # raw: does linguistic style change based on the conversation setting?
 exploratory_analyses_LAM <- lmer(LAM ~ conv.type + (1|speaker_code),
@@ -1011,7 +1009,7 @@ es_exploratory_analyses_LAM <- lme.dscore(exploratory_analyses_raw_LAM,
                                       data = analysis_df, type = "lme4")
 ```
 
-```{r silently-print-raw-summary, eval=TRUE, echo=FALSE}
+```{r, eval=TRUE, echo=FALSE}
 
 # print summary tables
 summary(exploratory_analyses_raw_LAM)
@@ -1024,18 +1022,16 @@ CI_exploratory_analyses_raw_LAM
 
 ```
 
-```{r silently-print-raw-table, eval=TRUE, echo=FALSE}
+```{r, eval=TRUE, echo=FALSE}
 
 # neatly print output
 pander_lme(exploratory_analyses_raw_LAM)
 
 ```
 
-***
+##### Standardized model
 
-### Standardized model
-
-```{r main-model-standardized, results="hide", message = FALSE}
+```{r, results="hide", message = FALSE}
 
 # standardized: does linguistic style change based on the conversation setting?
 exploratory_analyses_st_LAM <- lmer(LAM ~ conv.type + (1|speaker_code),
@@ -1050,7 +1046,7 @@ es_exploratory_analyses_st_LAM <- lme.dscore(exploratory_analyses_st_LAM,
 
 ```
 
-```{r silently-print-standardized-summary, eval=TRUE, echo=FALSE}
+```{r, eval=TRUE, echo=FALSE}
 
 # print summary tables
 summary(exploratory_analyses_st_LAM)
@@ -1064,18 +1060,20 @@ CI_exploratory_analyses_st_LAM
 ```
 
 
-```{r silently-print-standardized-table, eval=TRUE, echo=FALSE}
+```{r, eval=TRUE, echo=FALSE}
 
 # neatly print output
 pander_lme(exploratory_analyses_st_LAM)
 
 ```
 
+***
+
 #### TT: Exploratory analyses
 
-### Raw model
+##### Raw model
 
-```{r main-model-raw, results="hide", message = FALSE}
+```{r exploratory-tt-model-raw, results="hide", message = FALSE}
 
 # raw: does linguistic style change based on the conversation setting?
 exploratory_analyses_TT <- lmer(TT ~ conv.type + (1|speaker_code),
@@ -1090,7 +1088,7 @@ es_exploratory_analyses_TT <- lme.dscore(exploratory_analyses_raw_TT,
                                       data = analysis_df, type = "lme4")
 ```
 
-```{r silently-print-raw-summary, eval=TRUE, echo=FALSE}
+```{r, eval=TRUE, echo=FALSE}
 
 # print summary tables
 summary(exploratory_analyses_raw_TT)
@@ -1103,18 +1101,16 @@ CI_exploratory_analyses_raw_TT
 
 ```
 
-```{r silently-print-raw-table, eval=TRUE, echo=FALSE}
+```{r, eval=TRUE, echo=FALSE}
 
 # neatly print output
 pander_lme(exploratory_analyses_raw_TT)
 
 ```
 
-***
+##### Standardized model
 
-### Standardized model
-
-```{r main-model-standardized, results="hide", message = FALSE}
+```{r, results="hide", message = FALSE}
 
 # standardized: does linguistic style change based on the conversation setting?
 exploratory_analyses_st_TT <- lmer(TT ~ conv.type + (1|speaker_code),
@@ -1129,7 +1125,7 @@ es_exploratory_analyses_st_TT <- lme.dscore(exploratory_analyses_st_TT,
 
 ```
 
-```{r silently-print-standardized-summary, eval=TRUE, echo=FALSE}
+```{r, eval=TRUE, echo=FALSE}
 
 # print summary tables
 summary(exploratory_analyses_st_TT)
@@ -1143,7 +1139,7 @@ CI_exploratory_analyses_st_TT
 ```
 
 
-```{r silently-print-standardized-table, eval=TRUE, echo=FALSE}
+```{r, eval=TRUE, echo=FALSE}
 
 # neatly print output
 pander_lme(exploratory_analyses_st_TT)
@@ -1169,7 +1165,9 @@ anDET_prop
 
 
 ```
+
 ***
+
 ## Post-hoc analyses
 
 Next, we perform several post-hoc analyses to explore whether the changes 
@@ -1297,7 +1295,7 @@ es_post_hoc_RR_raw <- cohensD(x = Diff_RR~cond_c,
 
 ```
 
-```{r silently-print-post-hoc-rr-raw-summary, eval=TRUE, echo=FALSE}
+```{r, eval=TRUE, echo=FALSE}
 
 # print summary table
 summary(post_hoc_RR_raw)
@@ -1310,7 +1308,7 @@ es_post_hoc_RR_raw
 
 ```
 
-```{r silently-print-post-hoc-rr-raw-table, echo=FALSE}
+```{r, echo=FALSE}
 
 # neatly print output
 pander_lm(post_hoc_RR_raw)
@@ -1319,7 +1317,7 @@ pander_lm(post_hoc_RR_raw)
 
 #### Standardized model
 
-```{r post-hoc-rr-st-model, results="hide", message = FALSE}
+```{r, results="hide", message = FALSE}
 
 # standardized: do changes in linguistic style between monologues and dialogues 
 #       differ by conversation type?
@@ -1335,7 +1333,7 @@ es_post_hoc_RR_st <- cohensD(x = Diff_RR~cond_c,
 
 ```
 
-```{r silently-print-post-hoc-rr-st-summary, eval=TRUE, echo=FALSE}
+```{r, eval=TRUE, echo=FALSE}
 
 # print summary table
 summary(post_hoc_RR_st)
@@ -1348,7 +1346,7 @@ es_post_hoc_RR_st
 
 ```
 
-```{r silently-print-post-hoc-rr-st-table, echo=FALSE}
+```{r, echo=FALSE}
 
 # neatly print output
 pander_lm(post_hoc_RR_st)
@@ -1392,7 +1390,7 @@ es_post_hoc_DET_raw <- cohensD(x = Diff_DET~cond_c,
 
 ```
 
-```{r silently-print-post-hoc-det-summary, eval=TRUE, echo=FALSE}
+```{r, eval=TRUE, echo=FALSE}
 
 # print summary table
 summary(post_hoc_DET_raw)
@@ -1405,7 +1403,7 @@ es_post_hoc_DET_raw
 
 ```
 
-```{r silently-print-post-hoc-det-raw-table, echo=FALSE}
+```{r, echo=FALSE}
 
 # neatly print output
 pander_lm(post_hoc_DET_raw)
@@ -1430,7 +1428,7 @@ es_post_hoc_DET_st <- cohensD(x = Diff_DET~cond_c,
 
 ```
 
-```{r silently-print-post-hoc-det-st-summary, eval=TRUE, echo=FALSE}
+```{r, eval=TRUE, echo=FALSE}
 
 # print summary table
 summary(post_hoc_DET_st)
@@ -1443,7 +1441,7 @@ es_post_hoc_DET_st
 
 ```
 
-```{r silently-print-post-hoc-det-st-table, echo=FALSE}
+```{r, echo=FALSE}
 
 # neatly print output
 pander_lm(post_hoc_DET_st)
@@ -1472,7 +1470,7 @@ qplot(data=post_hoc_df, x=DET_m, y=DET_c, colour=cond_c) +
 
 #### Raw model
 
-```{r post-hoc-nrline-raw-model, results="hide", message = FALSE}
+```{r, results="hide", message = FALSE}
 
 # raw: do changes in amount of structure of linguistic style between 
 #      monologues and dialogues differ by conversation type?
@@ -1488,7 +1486,7 @@ es_post_hoc_NRLINE_raw <- cohensD(x = Diff_NRLINE_norm~cond_c,
 
 ```
 
-```{r silently-print-post-hoc-nrline-raw-summary, eval=TRUE, echo=FALSE}
+```{r, eval=TRUE, echo=FALSE}
 
 # print summary table
 summary(post_hoc_NRLINE_raw)
@@ -1501,7 +1499,7 @@ es_post_hoc_NRLINE_raw
 
 ```
 
-```{r silently-print-post-hoc-nrline-raw-table, echo=FALSE}
+```{r, echo=FALSE}
 
 # neatly print output
 pander_lm(post_hoc_NRLINE_raw)
@@ -1510,7 +1508,7 @@ pander_lm(post_hoc_NRLINE_raw)
 
 #### Standardized model
 
-```{r post-hoc-nrline-st-model, results="hide", message = FALSE}
+```{r, results="hide", message = FALSE}
 
 # standardized: do changes in amount of structure of linguistic style between 
 #      monologues and dialogues differ by conversation type?
@@ -1527,7 +1525,7 @@ es_post_hoc_NRLINE_st <- cohensD(x = Diff_NRLINE_norm~cond_c,
 
 ```
 
-```{r silently-print-post-hoc-nrline-st-summary, eval=TRUE, echo=FALSE}
+```{r, eval=TRUE, echo=FALSE}
 
 # print summary table
 summary(post_hoc_NRLINE_raw)
@@ -1540,14 +1538,14 @@ es_post_hoc_NRLINE_st
 
 ```
 
-```{r silently-print-post-hoc-nrline-st-table, echo=FALSE}
+```{r, echo=FALSE}
 
 # neatly print output
 pander_lm(post_hoc_NRLINE_st)
 
 ```
 
-```{r plot-post-nrline-data, echo=FALSE}
+```{r, echo=FALSE}
 
 qplot(data=post_hoc_df, x=NRLINE_norm_m, y=NRLINE_norm_c, colour=cond_c) +
   geom_abline()
@@ -1564,7 +1562,7 @@ the total number of lines in the plot.
 
 #### Raw model
 
-```{r post-hoc-rentr-model-raw, results="hide", message = FALSE}
+```{r, results="hide", message = FALSE}
 
 # raw: do changes in uniformity of structure of linguistic style between monologues
 #       and dialogues differ by conversation type?
@@ -1580,7 +1578,7 @@ es_post_hoc_maxL_raw <- cohensD(x = Diff_maxL~cond_c,
 
 ```
 
-```{r silently-print-post-hoc-rentr-raw-summary, eval=TRUE, echo=FALSE}
+```{r, eval=TRUE, echo=FALSE}
 
 # print summary table
 summary(post_hoc_maxL_raw)
@@ -1593,7 +1591,7 @@ es_post_hoc_maxL_raw
 
 ```
 
-```{r silently-print-post-hoc-rentr-raw-table, echo=FALSE}
+```{r, echo=FALSE}
 
 # neatly print output
 pander_lm(post_hoc_maxL_raw)
@@ -1602,7 +1600,7 @@ pander_lm(post_hoc_maxL_raw)
 
 #### Standardized model
 
-```{r post-hoc-rentr-model-st, results="hide", message = FALSE}
+```{r, results="hide", message = FALSE}
 
 # standardized: do changes in uniformity of structure of linguistic style between monologues
 #       and dialogues differ by conversation type?
@@ -1618,7 +1616,7 @@ es_post_hoc_maxL_st <- cohensD(x = Diff_maxL~cond_c,
 
 ```
 
-```{r silently-print-post-hoc-rentr-st-summary, eval=TRUE, echo=FALSE}
+```{r, eval=TRUE, echo=FALSE}
 
 # print summary table
 summary(post_hoc_maxL_st)
@@ -1632,7 +1630,7 @@ es_post_hoc_maxL_st
 ```
 
 
-```{r silently-print-post-hoc-rentr-st-table, echo=FALSE}
+```{r, echo=FALSE}
 
 # neatly print output
 pander_lm(post_hoc_maxL_st)
@@ -1641,7 +1639,7 @@ pander_lm(post_hoc_maxL_st)
 
 Add description of the results!
 
-```{r plot-post-retnr-data, echo=FALSE}
+```{r, echo=FALSE}
 
 qplot(data=post_hoc_df, x=maxL_m, y=maxL_c, colour=cond_c) +
   geom_abline()
@@ -1649,11 +1647,12 @@ qplot(data=post_hoc_df, x=maxL_m, y=maxL_c, colour=cond_c) +
 ```
 
 ***
+
 ### L: Post-hoc analysis
 
 #### Raw model
 
-```{r post-hoc-rentr-model-raw, results="hide", message = FALSE}
+```{r, results="hide", message = FALSE}
 
 # raw: do changes in uniformity of structure of linguistic style between monologues
 #       and dialogues differ by conversation type?
@@ -1669,7 +1668,7 @@ es_post_hoc_L_raw <- cohensD(x = Diff_L~cond_c,
 
 ```
 
-```{r silently-print-post-hoc-rentr-raw-summary, eval=TRUE, echo=FALSE}
+```{r, eval=TRUE, echo=FALSE}
 
 # print summary table
 summary(post_hoc_L_raw)
@@ -1682,7 +1681,7 @@ es_post_hoc_L_raw
 
 ```
 
-```{r silently-print-post-hoc-rentr-raw-table, echo=FALSE}
+```{r, echo=FALSE}
 
 # neatly print output
 pander_lm(post_hoc_L_raw)
@@ -1691,7 +1690,7 @@ pander_lm(post_hoc_L_raw)
 
 #### Standardized model
 
-```{r post-hoc-rentr-model-st, results="hide", message = FALSE}
+```{r, results="hide", message = FALSE}
 
 # standardized: do changes in uniformity of structure of linguistic style between monologues
 #       and dialogues differ by conversation type?
@@ -1707,7 +1706,7 @@ es_post_hoc_L_st <- cohensD(x = Diff_L~cond_c,
 
 ```
 
-```{r silently-print-post-hoc-rentr-st-summary, eval=TRUE, echo=FALSE}
+```{r, eval=TRUE, echo=FALSE}
 
 # print summary table
 summary(post_hoc_L_st)
@@ -1721,7 +1720,7 @@ es_post_hoc_L_st
 ```
 
 
-```{r silently-print-post-hoc-rentr-st-table, echo=FALSE}
+```{r, echo=FALSE}
 
 # neatly print output
 pander_lm(post_hoc_L_st)
@@ -1730,7 +1729,7 @@ pander_lm(post_hoc_L_st)
 
 Add description of the results!
 
-```{r plot-post-retnr-data, echo=FALSE}
+```{r, echo=FALSE}
 
 qplot(data=post_hoc_df, x=L_m, y=L_c, colour=cond_c) +
   geom_abline()
@@ -1743,7 +1742,7 @@ qplot(data=post_hoc_df, x=L_m, y=L_c, colour=cond_c) +
 
 #### Raw model
 
-```{r post-hoc-rentr-model-raw, results="hide", message = FALSE}
+```{r, results="hide", message = FALSE}
 
 # raw: do changes in uniformity of structure of linguistic style between monologues
 #       and dialogues differ by conversation type?
@@ -1759,7 +1758,7 @@ es_post_hoc_rENTR_raw <- cohensD(x = Diff_rENTR~cond_c,
 
 ```
 
-```{r silently-print-post-hoc-rentr-raw-summary, eval=TRUE, echo=FALSE}
+```{r, eval=TRUE, echo=FALSE}
 
 # print summary table
 summary(post_hoc_rENTR_raw)
@@ -1772,7 +1771,7 @@ es_post_hoc_rENTR_raw
 
 ```
 
-```{r silently-print-post-hoc-rentr-raw-table, echo=FALSE}
+```{r, echo=FALSE}
 
 # neatly print output
 pander_lm(post_hoc_rENTR_raw)
@@ -1781,7 +1780,7 @@ pander_lm(post_hoc_rENTR_raw)
 
 #### Standardized model
 
-```{r post-hoc-rentr-model-st, results="hide", message = FALSE}
+```{r, results="hide", message = FALSE}
 
 # standardized: do changes in uniformity of structure of linguistic style between monologues
 #       and dialogues differ by conversation type?
@@ -1797,7 +1796,7 @@ es_post_hoc_rENTR_st <- cohensD(x = Diff_rENTR~cond_c,
 
 ```
 
-```{r silently-print-post-hoc-rentr-st-summary, eval=TRUE, echo=FALSE}
+```{r, eval=TRUE, echo=FALSE}
 
 # print summary table
 summary(post_hoc_rENTR_st)
@@ -1811,7 +1810,7 @@ es_post_hoc_rENTR_st
 ```
 
 
-```{r silently-print-post-hoc-rentr-st-table, echo=FALSE}
+```{r, echo=FALSE}
 
 # neatly print output
 pander_lm(post_hoc_rENTR_st)
@@ -1824,7 +1823,7 @@ the structure of the line lengths are uniform (i.e., lower variety in line
 lengths means lower rENTR) or more heterogenous (i.e., higher variety in line
 lengths means higher rENTR).
 
-```{r plot-post-retnr-data, echo=FALSE}
+```{r, echo=FALSE}
 
 qplot(data=post_hoc_df, x=rENTR_m, y=rENTR_c, colour=cond_c) +
   geom_abline()
@@ -1836,7 +1835,7 @@ qplot(data=post_hoc_df, x=rENTR_m, y=rENTR_c, colour=cond_c) +
 
 #### Raw model
 
-```{r post-hoc-nrline-raw-model, results="hide", message = FALSE}
+```{r, results="hide", message = FALSE}
 
 # raw: do changes in amount of structure of linguistic style between 
 #      monologues and dialogues differ by conversation type?
@@ -1852,7 +1851,7 @@ es_post_hoc_LAM_raw <- cohensD(x = Diff_LAM_norm~cond_c,
 
 ```
 
-```{r silently-print-post-hoc-nrline-raw-summary, eval=TRUE, echo=FALSE}
+```{r, eval=TRUE, echo=FALSE}
 
 # print summary table
 summary(post_hoc_LAM_raw)
@@ -1865,7 +1864,7 @@ es_post_hoc_LAM_raw
 
 ```
 
-```{r silently-print-post-hoc-nrline-raw-table, echo=FALSE}
+```{r, echo=FALSE}
 
 # neatly print output
 pander_lm(post_hoc_LAM_raw)
@@ -1874,7 +1873,7 @@ pander_lm(post_hoc_LAM_raw)
 
 #### Standardized model
 
-```{r post-hoc-nrline-st-model, results="hide", message = FALSE}
+```{r, results="hide", message = FALSE}
 
 # standardized: do changes in amount of structure of linguistic style between 
 #      monologues and dialogues differ by conversation type?
@@ -1891,7 +1890,7 @@ es_post_hoc_LAM_st <- cohensD(x = Diff_LAM_norm~cond_c,
 
 ```
 
-```{r silently-print-post-hoc-nrline-st-summary, eval=TRUE, echo=FALSE}
+```{r, eval=TRUE, echo=FALSE}
 
 # print summary table
 summary(post_hoc_LAM_raw)
@@ -1904,14 +1903,14 @@ es_post_hoc_LAM_st
 
 ```
 
-```{r silently-print-post-hoc-nrline-st-table, echo=FALSE}
+```{r, echo=FALSE}
 
 # neatly print output
 pander_lm(post_hoc_LAM_st)
 
 ```
 
-```{r plot-post-nrline-data, echo=FALSE}
+```{r, echo=FALSE}
 
 qplot(data=post_hoc_df, x=LAM_norm_m, y=LAM_norm_c, colour=cond_c) +
   geom_abline()
@@ -1926,7 +1925,7 @@ Add description after we have the results.
 
 #### Raw model
 
-```{r post-hoc-nrline-raw-model, results="hide", message = FALSE}
+```{r, results="hide", message = FALSE}
 
 # raw: do changes in amount of structure of linguistic style between 
 #      monologues and dialogues differ by conversation type?
@@ -1942,7 +1941,7 @@ es_post_hoc_TT_raw <- cohensD(x = Diff_TT_norm~cond_c,
 
 ```
 
-```{r silently-print-post-hoc-nrline-raw-summary, eval=TRUE, echo=FALSE}
+```{r, eval=TRUE, echo=FALSE}
 
 # print summary table
 summary(post_hoc_TT_raw)
@@ -1955,7 +1954,7 @@ es_post_hoc_TT_raw
 
 ```
 
-```{r silently-print-post-hoc-nrline-raw-table, echo=FALSE}
+```{r, echo=FALSE}
 
 # neatly print output
 pander_lm(post_hoc_TT_raw)
@@ -1964,7 +1963,7 @@ pander_lm(post_hoc_TT_raw)
 
 #### Standardized model
 
-```{r post-hoc-nrline-st-model, results="hide", message = FALSE}
+```{r, results="hide", message = FALSE}
 
 # standardized: do changes in amount of structure of linguistic style between 
 #      monologues and dialogues differ by conversation type?
@@ -1981,7 +1980,7 @@ es_post_hoc_TT_st <- cohensD(x = Diff_TT_norm~cond_c,
 
 ```
 
-```{r silently-print-post-hoc-nrline-st-summary, eval=TRUE, echo=FALSE}
+```{r, eval=TRUE, echo=FALSE}
 
 # print summary table
 summary(post_hoc_TT_raw)
@@ -1994,14 +1993,14 @@ es_post_hoc_TT_st
 
 ```
 
-```{r silently-print-post-hoc-nrline-st-table, echo=FALSE}
+```{r, echo=FALSE}
 
 # neatly print output
 pander_lm(post_hoc_TT_st)
 
 ```
 
-```{r plot-post-nrline-data, echo=FALSE}
+```{r, echo=FALSE}
 
 qplot(data=post_hoc_df, x=TT_norm_m, y=TT_norm_c, colour=cond_c) +
   geom_abline()
@@ -2011,29 +2010,41 @@ qplot(data=post_hoc_df, x=TT_norm_m, y=TT_norm_c, colour=cond_c) +
 Add description after we have the results.
 
 ***
-##Additional analysis: RQA of pronouns and conjunctions
 
-###
+## Additional exploratory analyses: RQA of pronouns and conjunctions
 
-## Recurrence quantification analysis: Monologues
+Given the potential richness of the langauge data available, we 
+conducted additional analyses to understand some of the dynamics of 
+specific *kinds* of function words: pronouns and conjunctions.
 
-```{r monologue-load-data}
+***
+
+### Data preparation
+
+First, we conduct RQA over monologues and dialogues for both
+kinds of function words separately.
+
+***
+
+#### Recurrence quantification analysis: Monologues
+
+```{r monologue-load-data-pronouns-conj}
 
 # read in all monologue files
 mon_add_files = list.files('./data/Examples/RQA/Monologues',
                        pattern = ".txt", full.names = TRUE)
 mon_add_dfs = plyr::ldply(mon_add_files,
-                      read.table, sep="\t", dec = ",", header=TRUE) #added decimal to get numbers instead of characters
+                      read.table, sep="\t", dec = ",", header=TRUE) # added decimal to get numbers instead of characters
 
 ```
 
-```{r monologue-prepare-for-rqa}
+```{r monologue-prepare-for-rqa-pronouns-conj}
 
 # prepare monologues for RQA
 mon_add_dfs = mon_add_dfs %>%
   
   # separate 'Filename' column into separate columns
-  tidyr::separate(Filename,
+  tidyr::separate(col=Filename,
                   into = c("dyad_id", "dyad_position", "speaker_code"),
                   sep = '_',
                   remove = FALSE,
@@ -2060,8 +2071,9 @@ mon_add_dfs = mon_add_dfs %>%
 
 ```
 
+First, we conduct RQA over pronouns in monologues.
 
-```{r monologues-rqa pronouns}
+```{r monologues-rqa-pronouns}
 
 # split dataframe by monologue
 split_mon_add = split(mon_add_dfs, list(mon_add_dfs$Filename))
@@ -2121,7 +2133,11 @@ for (next_mon_add in split_mon_add){
 rm(split_mon_add, next_mon_add, rqa_for_mon_add_pronoun,
    dyad_id, speaker_code, cond, conv.type, next_data_line)
 
-##RQA for conjunctions
+```
+
+Next, we conduct RQA over conjunctions in monologues.
+
+```{r monologues-rqa-conjunctions}
 
 # split dataframe by monologue
 split_mon_add = split(mon_add_dfs, list(mon_add_dfs$Filename))
@@ -2186,9 +2202,9 @@ rm(split_mon_add, next_mon_add, rqa_for_mon_add_conj,
 
 ***
 
-## Recurrrence quantification analysis: Conversations
+#### Recurrrence quantification analysis: Conversations
 
-```{r conversations-load-data}
+```{r conversations-load-data-pronouns-conj}
 
 # read in all conversation files
 conv_files = list.files('./data/Examples/RQA/Conversations',
@@ -2199,7 +2215,7 @@ conv_add_dfs = plyr::ldply(conv_files,
 ```
 
 
-```{r conversations-prepare-for-crqa}
+```{r conversations-prepare-for-crqa-pronouns-conj}
 
 # prepare conversations for RQA
 conv_add_dfs = conv_add_dfs %>%
@@ -2231,8 +2247,9 @@ conv_add_dfs = conv_add_dfs %>%
 
 ```
 
-```{r conversations-crqa}
-##RQA for pronouns
+First, we conduct RQA over pronouns in conversations.
+
+```{r conversations-crqa-pronouns}
 
 # split dataframe by conversation
 split_conv_add = split(conv_add_dfs, list(conv_add_dfs$Filename))
@@ -2292,7 +2309,11 @@ for (next_conv_add in split_conv_add){
 rm(split_conv_add, next_conv_add, rqa_for_conv_add_pronoun,
    dyad_id, speaker_code, conv.type, cond, next_data_line)
 
-##RQA for conjunctions
+```
+
+Next, we conduct RQA over conjunctions in dialogues.
+
+```{r conversations-crqa-conjunctions}
 
 # split dataframe by conversation
 split_conv_add = split(conv_add_dfs, list(conv_add_dfs$Filename))
@@ -2354,10 +2375,18 @@ rm(split_conv_add, next_conv_add, rqa_for_conv_add_conj,
 
 ```
 
+***
 
-```{r create-analysis-dataframe}
-##Pronoun
-# bring together the monologue and conversation data
+#### Create dataframes
+
+Finally, we bring together the prepared data into analysis-ready
+dataframes.
+
+We begin by creating the raw dataframes.
+
+```{r create-analysis-dataframe-pronouns}
+
+# pronouns: bring together the monologue and conversation data
 analysis_df_pronoun = rbind(rqa_mon_add_pronoun, rqa_conv_add_pronoun) %>%
   
   # update coding for conversation type and condition
@@ -2372,8 +2401,11 @@ analysis_df_pronoun = rbind(rqa_mon_add_pronoun, rqa_conv_add_pronoun) %>%
 write.table(analysis_df_pronoun, './data/analysis_df_pronoun.csv', 
             sep=",", row.names=FALSE, col.names=TRUE)
 
-##Conj
-# bring together the monologue and conversation data
+```
+
+```{r create-analysis-dataframe-conjunctions}
+
+# conjunctions: bring together the monologue and conversation data
 analysis_df_conj = rbind(rqa_mon_add_conj, rqa_conv_add_conj) %>%
   
   # update coding for conversation type and condition
@@ -2390,10 +2422,11 @@ write.table(analysis_df_conj, './data/analysis_df_conj.csv',
 
 ```
 
-```{r create-standardized-dataframe}
-##Pronoun
+Next, we create the standardized dataframes.
 
-# standardize the analysis dataframe
+```{r create-standardized-dataframe-pronoun}
+
+# pronouns: standardize the analysis dataframe
 standardized_df_pronoun = analysis_df_pronoun %>%
   
   # convert things as needed to numeric
@@ -2413,8 +2446,11 @@ standardized_df_pronoun = analysis_df_pronoun %>%
 write.table(standardized_df_pronoun, './data/standardized_df_pronoun.csv', 
             sep=",", row.names=FALSE, col.names=TRUE)
 
-##Conj
-# standardize the analysis dataframe
+```
+
+```{r create-standardized-dataframe-conjunctions}
+
+# conjunctions: standardize the analysis dataframe
 standardized_df_conj = analysis_df_conj %>%
   
   # convert things as needed to numeric
@@ -2477,9 +2513,11 @@ pander_lme(planned_analyses_raw)
 
 ***
 
-### Pron RR: Standardized model
+### RR for Pronouns
 
-```{r main-model-standardized, results="hide", message = FALSE}
+#### Raw model
+
+```{r, results="hide", message = FALSE}
 
 # standardized: does linguistic style change based on the conversation setting?
 pron_add_analyses_RR <- lmer(RR ~ conv.type + (1|speaker_code),
@@ -2494,7 +2532,7 @@ es_pron_add_analyses_RR <- lme.dscore(pron_add_analyses_RR,
 
 ```
 
-```{r silently-print-standardized-summary, eval=TRUE, echo=FALSE}
+```{r, eval=TRUE, echo=FALSE}
 
 # print summary tables
 summary(pron_add_analyses_RR)
@@ -2508,19 +2546,24 @@ CI_pron_add_analyses_RR
 ```
 
 
-```{r silently-print-standardized-table, eval=TRUE, echo=FALSE}
+```{r, eval=TRUE, echo=FALSE}
 
 # neatly print output
 pander_lme(pron_add_analyses_RR)
 
 ```
 
+#### Standardized model
 
 ***
 
-### Conj RR: Standardized model
+### RR for Conjunctions
 
-```{r main-model-standardized, results="hide", message = FALSE}
+#### Raw model
+
+#### Standardized model
+
+```{r, results="hide", message = FALSE}
 
 # standardized: does linguistic style change based on the conversation setting?
 conj_add_analyses_RR <- lmer(RR ~ conv.type + (1|speaker_code),
@@ -2535,7 +2578,7 @@ es_conj_add_analyses_RR <- lme.dscore(conj_add_analyses_RR,
 
 ```
 
-```{r silently-print-standardized-summary, eval=TRUE, echo=FALSE}
+```{r, eval=TRUE, echo=FALSE}
 
 # print summary tables
 summary(conj_add_analyses_RR)
@@ -2548,19 +2591,31 @@ CI_conj_add_analyses_RR
 
 ```
 
-
-```{r silently-print-standardized-table, eval=TRUE, echo=FALSE}
+```{r, eval=TRUE, echo=FALSE}
 
 # neatly print output
 pander_lme(conj_add_analyses_RR)
 
 ```
 
-### Data preparation
+***
 
-First, we'll need to prepare the data by converting it from long- to wide-form.
+### Post-hoc analyses of pronoun- and conjunction-only models
 
-```{r post-hoc-prep}
+After looking at the overall RR of pronouns and conjunctions, we
+conduct similar post-hoc analyses for pronoun- and conjunction-only
+data as we did for the general function word data.
+
+***
+
+#### Data preparation
+
+First, we'll need to prepare the data by converting it from long- to 
+wide-form for both datasets.
+
+We begin with the pronouns.
+
+```{r post-hoc-prep-pronouns}
 
 # preparing data for Post-hoc analyses - Bring data into wide format
 rqa_mon_add_post_pron = rqa_mon_add_pronoun %>%
@@ -2617,7 +2672,11 @@ write.table(post_hoc_df_add_pron, './data/post_hoc_add_df_pron.csv',
 # clean up what we don't need
 rm(rqa_mon_add_post_pron, rqa_conv_add_post_pron)
 
-#Repeat for conjunctions
+```
+
+We then prepare the conjunctions.
+
+```{r post-hoc-prep-conjunctions}
 
 # preparing data for Post-hoc analyses - Bring data into wide format
 rqa_mon_add_post_conj = rqa_mon_add_conj %>%
@@ -2676,11 +2735,12 @@ rm(rqa_mon_add_post_conj, rqa_conv_add_post_conj)
 
 ```
 
-We'll then go ahead and create the raw and standardized dataframes.
+We'll then go ahead and create the raw and standardized dataframes
+for both.
 
-```{r create-standardized-post-hoc-dataframe}
+```{r create-standardized-post-hoc-dataframe-pronouns}
 
-# standardize the analysis dataframe
+# pronouns: standardize the analysis dataframe
 post_hoc_standardized_df_add_pron = post_hoc_df_add_pron %>%
   
   # convert things as needed to numeric
@@ -2699,9 +2759,11 @@ post_hoc_standardized_df_add_pron = post_hoc_df_add_pron %>%
 write.table(post_hoc_standardized_df_add_pron, './data/post_hoc_standardized_df_add_pron.csv', 
             sep=",", row.names=FALSE, col.names=TRUE)
 
+```
 
-##Repeat for conjunctions
-# standardize the analysis dataframe
+```{r create-standardized-post-hoc-dataframe-conjunctions}
+
+# conjunctions: standardize the analysis dataframe
 post_hoc_standardized_df_add_conj = post_hoc_df_add_conj %>%
   
   # convert things as needed to numeric
@@ -2724,11 +2786,11 @@ write.table(post_hoc_standardized_df_add_conj, './data/post_hoc_standardized_df_
 
 ***
 
-### Pronoun RR: Post-hoc analysis
+#### Pronoun RR: Post-hoc analysis
 
-#### Raw model
+##### Raw model
 
-```{r post-hoc-rr-raw-model, results="hide", message = FALSE}
+```{r, results="hide", message = FALSE}
 
 # raw: do changes in linguistic style between monologues and dialogues 
 #       differ by conversation type?
@@ -2744,7 +2806,7 @@ es_post_hoc_RR_raw_add_pron <- cohensD(x = Diff_RR~cond_c,
 
 ```
 
-```{r silently-print-post-hoc-rr-raw-summary, eval=TRUE, echo=FALSE}
+```{r, eval=TRUE, echo=FALSE}
 
 # print summary table
 summary(post_hoc_RR_raw_add_pron)
@@ -2757,13 +2819,16 @@ es_post_hoc_RR_raw_add_pron
 
 ```
 
+##### Standardized model
+
+
 ***
 
-### Conj RR: Post-hoc analysis
+#### Conj RR: Post-hoc analysis
 
-#### Raw model
+##### Raw model
 
-```{r post-hoc-rr-raw-model, results="hide", message = FALSE}
+```{r, results="hide", message = FALSE}
 
 # raw: do changes in linguistic style between monologues and dialogues 
 #       differ by conversation type?
@@ -2779,7 +2844,7 @@ es_post_hoc_RR_raw_add_conj <- cohensD(x = Diff_RR~cond_c,
 
 ```
 
-```{r silently-print-post-hoc-rr-raw-summary, eval=TRUE, echo=FALSE}
+```{r, eval=TRUE, echo=FALSE}
 
 # print summary table
 summary(post_hoc_RR_raw_add_conj)
@@ -2792,16 +2857,16 @@ es_post_hoc_RR_raw_add_conj
 
 ```
 
-```{r silently-print-post-hoc-rr-raw-table, echo=FALSE}
+```{r, echo=FALSE}
 
 # neatly print output
 pander_lm(post_hoc_RR_raw_add_conj)
 
 ```
 
-#### Standardized model
+##### Standardized model
 
-```{r post-hoc-rr-st-model, results="hide", message = FALSE}
+```{r, results="hide", message = FALSE}
 
 # standardized: do changes in linguistic style between monologues and dialogues 
 #       differ by conversation type?
@@ -2817,7 +2882,7 @@ es_post_hoc_RR_st_add_conj <- cohensD(x = Diff_RR~cond_c,
 
 ```
 
-```{r silently-print-post-hoc-rr-st-summary, eval=TRUE, echo=FALSE}
+```{r, eval=TRUE, echo=FALSE}
 
 # print summary table
 summary(post_hoc_RR_st_add_conj)
@@ -2830,7 +2895,7 @@ es_post_hoc_RR_st_add_conj
 
 ```
 
-```{r silently-print-post-hoc-rr-st-table, echo=FALSE}
+```{r, echo=FALSE}
 
 # neatly print output
 pander_lm(post_hoc_RR_st_add_conj)
