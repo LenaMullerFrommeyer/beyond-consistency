@@ -2840,7 +2840,7 @@ es_post_hoc_RR_raw_add_pron
 
 ***
 
-#### Conj RR: Post-hoc analysis
+#### Conjunction RR: Post-hoc analysis
 
 ##### Raw model
 
