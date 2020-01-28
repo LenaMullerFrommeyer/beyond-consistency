@@ -401,14 +401,25 @@ Descriptives_conv =  data_conv %>%
 ##Mean, Min, Max
 mean_mon = psych::describe(Descriptives_mon)
 mean_conv = psych::describe(Descriptives_mon)
-mean_mon
-mean_conv
 
+write.table(mean_mon, './data/mean_mon.csv', 
+            sep=",", row.names=FALSE, col.names=TRUE)
+
+write.table(mean_conv, './data/mean_conv.csv', 
+            sep=",", row.names=FALSE, col.names=TRUE)
 
 ##Intercorrelations
 
 cor_mon = cor(Descriptives_mon, method = c("pearson"), use = "complete.obs")
 cor_conv = cor(Descriptives_conv, method = c("pearson"), use = "complete.obs")
+
+write.table(cor_mon, './data/cor_mon.csv', 
+            sep=",", row.names=FALSE, col.names=TRUE)
+
+write.table(cor_conv, './data/cor_conv.csv', 
+            sep=",", row.names=FALSE, col.names=TRUE)
+
+
 ```
 
 ***
@@ -1075,10 +1086,6 @@ Due to convergence issues, the random effect on speaker must be removed.
 
 ##### Raw model
 
-**Lena**: Since we need to remove the random effect for convergence,
-we also will have to find a new way to calculate Cohen's d (since this
-version requires an `lme4` object).
-
 ```{r exploratory-tt-model-raw, results="hide", message = FALSE}
 
 # raw: does linguistic style change based on the conversation setting?
@@ -1090,8 +1097,7 @@ CI_exploratory_analyses_raw_TT <- confint(exploratory_analyses_raw_TT)
 
 
 # # calculate effect size for model
-# es_exploratory_analyses_raw_TT <- lme.dscore(exploratory_analyses_raw_TT, 
-#                                       data = analysis_df, type = "lme4")
+es_exploratory_analyses_raw_TT <- cohensD(TT ~ conv.type, data = analysis_df)
 ```
 
 ```{r, eval=TRUE, echo=FALSE}
@@ -1116,11 +1122,8 @@ pander_lme(exploratory_analyses_raw_TT)
 
 ##### Standardized model
 
-**Lena**: Since we need to remove the random effect for convergence,
-we also will have to find a new way to calculate Cohen's d (since this
-version requires an `lme4` object).
-
 ```{r, results="hide", message = FALSE}
+library(lsr)
 
 # standardized: does linguistic style change based on the conversation setting?
 exploratory_analyses_st_TT <- lm(TT ~ conv.type,
@@ -1130,8 +1133,7 @@ exploratory_analyses_st_TT <- lm(TT ~ conv.type,
 CI_exploratory_analyses_st_TT <- confint(exploratory_analyses_st_TT)
 
 # calculate effect size for model
-# # es_exploratory_analyses_st_TT <- lme.dscore(exploratory_analyses_st_TT, 
-#                                     data = standardized_df, type = "lm")
+es_exploratory_analyses_st_TT <- cohensD(TT ~ conv.type, data = standardized_df)
 
 ```
 
@@ -1170,11 +1172,6 @@ pander_lme(exploratory_analyses_st_TT)
 <!-- # Model comparison proportion + RR -->
 <!-- anRR_prop = anova(exploratory_analyses_raw_prop, planned_analyses_raw) -->
 <!-- anRR_prop -->
-
-
-<!-- # Model comparison proportion + DET -->
-<!-- # anDET_prop = anova(exploratory_analyses_raw_prop, exploratory_analyses_raw_DET) -->
-<!-- # anDET_prop -->
 
 <!-- ``` -->
 
