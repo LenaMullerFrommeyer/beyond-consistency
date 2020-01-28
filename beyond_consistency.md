@@ -12,14 +12,14 @@ This R markdown provides the data preparation for our forthcoming manuscript.
 
 To run this from scratch, you will need the following files:
 
-* [This is where a description of the data setup goes]
+* The data is accessible in our OSF project (https://osf.io/3jx2g/). Please create a folder called data, with a subfolder LIWC-results, with a subfolder RQA with two sub-folders monologues and conversations in your working directory. Add the data from OSF to the monologue and conversation folders.
 * `./scripts/bc-libraries_and_functions.r`: Loads in necessary libraries and
 creates new functions for our analyses.
 
 **Code written by**: L. C. Mueller-Frommeyer (Technische Universitaet
 Braunschweig) & A. Paxton (University of Connecticut)
 
-**Date last modified**: 12 August 2019
+**Date last modified**: 19 January 2020
 
 
 
@@ -66,6 +66,7 @@ mon_dfs = mon_dfs %>%
                   extra = "drop",
                   fill = "warn") %>%
   
+  
   # extract speaker number ID and conversation type from variable
   mutate(cond = gsub("[[:digit:]]+","",dyad_id)) %>%
   
@@ -78,6 +79,7 @@ mon_dfs = mon_dfs %>%
   #add new variable specifying conversation type
   mutate(conv.type = "M")
 ```
+
 
 
 ```r
@@ -152,6 +154,7 @@ conv_files = list.files('./data/LIWC-results/RQA/Conversations-1',
 conv_dfs = plyr::ldply(conv_files,
                        read.table, sep="\t", dec = ",", header=TRUE)
 ```
+
 
 
 ```r
@@ -240,6 +243,44 @@ rm(split_conv, next_conv, rqa_for_conv,
    dyad_id, speaker_code, conv.type, cond, next_data_line)
 ```
 
+
+```r
+split_mon = split(mon_dfs, list(mon_dfs$Filename))
+
+FW_freq_mon = data.frame()
+for (next_mon in split_mon) {
+  
+  #count frequency of function words
+  freq = sum(next_mon$function_words == 100)
+  wc = sum(next_mon$WC == 1)
+  
+  speaker_code = unique(next_mon$speaker_code)
+  data_temp = data.frame(freq, wc, speaker_code)
+  
+  
+  FW_freq_mon = rbind.data.frame(FW_freq_mon, data_temp)}
+  FW_freq_mon$prop = FW_freq_mon$freq/FW_freq_mon$wc
+
+
+split_conv = split(conv_dfs, list(conv_dfs$Filename))
+
+FW_freq_conv = data.frame()
+
+for (next_conv in split_conv) {
+  
+  #count frequency of function words
+  freq = sum(next_conv$function_words == 100)
+  wc = sum(next_conv$WC == 1)
+  speaker_code = unique(next_conv$speaker_code)
+  data_temp = data.frame(freq, wc, speaker_code)
+  
+  
+  FW_freq_conv = rbind.data.frame(FW_freq_conv, data_temp)}
+  FW_freq_conv$prop = FW_freq_conv$freq/FW_freq_conv$wc
+
+
+fw_freq = rbind(FW_freq_mon, FW_freq_conv)
+```
 ***
 
 ## Create dataframes
@@ -249,8 +290,14 @@ We'll need to create two dataframes: an unstandardized dataframe
 
 
 ```r
+#bring together monologue rqa and freq data
+data_mon = dplyr::left_join(rqa_mon, FW_freq_mon, by = "speaker_code")
+
+#bring togehter conversation rqa and freq data
+data_conv = dplyr::left_join(rqa_conv, FW_freq_conv, by = "speaker_code")
+
 # bring together the monologue and conversation data
-analysis_df = rbind(rqa_mon, rqa_conv) %>%
+analysis_df = rbind(data_mon, data_conv) %>%
   
   # update coding for conversation type and condition
   mutate(conv.type = as.factor(dplyr::if_else(conv.type == "M",
@@ -286,13 +333,16 @@ standardized_df = analysis_df %>%
 
 ```
 ## Warning: funs() is soft deprecated as of dplyr 0.8.0
-## please use list() instead
+## Please use a list of either functions or lambdas: 
 ## 
-##   # Before:
-##   funs(name = f(.))
+##   # Simple named list: 
+##   list(mean = mean, median = median)
 ## 
-##   # After: 
-##   list(name = ~ f(.))
+##   # Auto named with `tibble::lst()`: 
+##   tibble::lst(mean, median)
+## 
+##   # Using lambdas
+##   list(~ mean(., trim = .2), ~ median(., na.rm = TRUE))
 ## This warning is displayed once per session.
 ```
 
@@ -344,7 +394,122 @@ power <- powerSim(planned_analyses_st,
 ```
 
 ***
+##Descriptives
 
+
+```r
+##Prepare data for descriptive analysis - only leave numerical elements in data frame
+library(psych)
+```
+
+```
+## 
+## Attaching package: 'psych'
+```
+
+```
+## The following object is masked from 'package:gtools':
+## 
+##     logit
+```
+
+```
+## The following objects are masked from 'package:pracma':
+## 
+##     logit, polar
+```
+
+```
+## The following object is masked from 'package:fields':
+## 
+##     describe
+```
+
+```
+## The following objects are masked from 'package:ggplot2':
+## 
+##     %+%, alpha
+```
+
+```r
+Descriptives_mon =  data_mon %>%
+ select(-dyad_id, -speaker_code, -conv.type, -cond, -freq, -wc)
+ 
+Descriptives_conv =  data_conv %>%
+ select(-dyad_id, -speaker_code, -conv.type, -cond, -freq, -wc)
+
+##Mean, Min, Max
+mean_mon = psych::describe(Descriptives_mon)
+mean_conv = psych::describe(Descriptives_mon)
+mean_mon
+```
+
+```
+##             vars   n    mean      sd  median trimmed     mad   min     max
+## RR             1 118   29.38    5.74   29.45   29.42    5.29  9.38   46.33
+## DET            2 117   47.46   10.95   48.20   47.63   11.14 14.29   75.79
+## NRLINE         3 118 1620.24 1817.93 1017.00 1278.08 1012.62  0.00 9932.00
+## maxL           4 118    5.10    1.59    5.00    5.04    1.48  0.00   11.00
+## L              5 118    2.27    0.27    2.26    2.27    0.12  0.00    3.00
+## ENTR           6 117    0.63    0.23    0.63    0.64    0.19  0.00    1.19
+## rENTR          7 115    0.47    0.13    0.45    0.46    0.10  0.14    1.00
+## LAM            8 118   77.68   10.36   79.95   78.62    7.13  0.00   94.19
+## TT             9 118    2.85    0.44    2.84    2.86    0.27  0.00    3.96
+## NRLINE_norm   10 118    9.17    6.10    8.12    8.53    5.12  0.00   30.84
+## prop          11 118    0.54    0.05    0.55    0.55    0.05  0.38    0.69
+##               range  skew kurtosis     se
+## RR            36.96 -0.19     0.69   0.53
+## DET           61.51 -0.14     0.17   1.01
+## NRLINE      9932.00  2.24     5.67 167.35
+## maxL          11.00  0.49     1.51   0.15
+## L              3.00 -4.77    41.33   0.02
+## ENTR           1.19 -0.23     0.20   0.02
+## rENTR          0.86  0.85     2.66   0.01
+## LAM           94.19 -3.71    24.69   0.95
+## TT             3.96 -1.95    13.35   0.04
+## NRLINE_norm   30.84  1.20     1.73   0.56
+## prop           0.31 -0.32     0.41   0.00
+```
+
+```r
+mean_conv
+```
+
+```
+##             vars   n    mean      sd  median trimmed     mad   min     max
+## RR             1 118   29.38    5.74   29.45   29.42    5.29  9.38   46.33
+## DET            2 117   47.46   10.95   48.20   47.63   11.14 14.29   75.79
+## NRLINE         3 118 1620.24 1817.93 1017.00 1278.08 1012.62  0.00 9932.00
+## maxL           4 118    5.10    1.59    5.00    5.04    1.48  0.00   11.00
+## L              5 118    2.27    0.27    2.26    2.27    0.12  0.00    3.00
+## ENTR           6 117    0.63    0.23    0.63    0.64    0.19  0.00    1.19
+## rENTR          7 115    0.47    0.13    0.45    0.46    0.10  0.14    1.00
+## LAM            8 118   77.68   10.36   79.95   78.62    7.13  0.00   94.19
+## TT             9 118    2.85    0.44    2.84    2.86    0.27  0.00    3.96
+## NRLINE_norm   10 118    9.17    6.10    8.12    8.53    5.12  0.00   30.84
+## prop          11 118    0.54    0.05    0.55    0.55    0.05  0.38    0.69
+##               range  skew kurtosis     se
+## RR            36.96 -0.19     0.69   0.53
+## DET           61.51 -0.14     0.17   1.01
+## NRLINE      9932.00  2.24     5.67 167.35
+## maxL          11.00  0.49     1.51   0.15
+## L              3.00 -4.77    41.33   0.02
+## ENTR           1.19 -0.23     0.20   0.02
+## rENTR          0.86  0.85     2.66   0.01
+## LAM           94.19 -3.71    24.69   0.95
+## TT             3.96 -1.95    13.35   0.04
+## NRLINE_norm   30.84  1.20     1.73   0.56
+## prop           0.31 -0.32     0.41   0.00
+```
+
+```r
+##Intercorrelations
+
+cor_mon = cor(Descriptives_mon, method = c("pearson"), use = "complete.obs")
+cor_conv = cor(Descriptives_conv, method = c("pearson"), use = "complete.obs")
+```
+
+***
 ## Planned analysis
 
 Here, we perform a linear mixed-effects model to analyze how conversation
@@ -359,7 +524,7 @@ models. We include both raw and standardized models below.
 
 ***
 
-### Raw model
+### RR: Raw model
 
 
 ```r
@@ -397,9 +562,9 @@ es_planned_analyses_raw <- lme.dscore(planned_analyses_raw,
 ## Number of obs: 236, groups:  speaker_code, 118
 ## 
 ## Fixed effects:
-##              Estimate Std. Error       df t value Pr(>|t|)    
-## (Intercept)   29.3813     0.4979 227.5761  59.015  < 2e-16 ***
-## conv.type0.5   4.7168     0.6327 117.9998   7.455 1.65e-11 ***
+##              Estimate Std. Error       df t value             Pr(>|t|)    
+## (Intercept)   29.3813     0.4979 227.5761  59.015 < 0.0000000000000002 ***
+## conv.type0.5   4.7168     0.6327 117.9998   7.455      0.0000000000165 ***
 ## ---
 ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 ## 
@@ -429,7 +594,7 @@ es_planned_analyses_raw <- lme.dscore(planned_analyses_raw,
 
 ***
 
-### Standardized model
+### RR: Standardized model
 
 
 ```r
@@ -506,6 +671,1172 @@ structure in their use of function words than monologues do.
 
 ***
 
+## Additional exploratory analyses
+
+Next, we repreat our analyses for all available CRQA parameters to exploratorily 
+investigate the influence of conversational setting on aspects of language style 
+structure in addition to RR.
+
+***
+
+#### Prop: Exploratory analyses
+
+##### Raw model
+
+
+```r
+# raw: does linguistic style change based on the conversation setting?
+exploratory_analyses_raw_prop <- lmer(prop ~ conv.type + (1|speaker_code),
+                             data = analysis_df, REML = FALSE)
+
+# calculate 95% CI for model
+CI_exploratory_analyses_raw_prop <- confint(exploratory_analyses_raw_prop)
+
+
+# calculate effect size for model
+es_exploratory_analyses_raw_prop <- lme.dscore(exploratory_analyses_raw_prop, 
+                                      data = analysis_df, type = "lme4")
+```
+
+
+```
+## Linear mixed model fit by maximum likelihood . t-tests use
+##   Satterthwaite's method [lmerModLmerTest]
+## Formula: prop ~ conv.type + (1 | speaker_code)
+##    Data: analysis_df
+## 
+##      AIC      BIC   logLik deviance df.resid 
+##   -755.1   -741.3    381.6   -763.1      232 
+## 
+## Scaled residuals: 
+##     Min      1Q  Median      3Q     Max 
+## -3.8212 -0.5559  0.0246  0.6374  2.4913 
+## 
+## Random effects:
+##  Groups       Name        Variance  Std.Dev.
+##  speaker_code (Intercept) 0.0004302 0.02074 
+##  Residual                 0.0019175 0.04379 
+## Number of obs: 236, groups:  speaker_code, 118
+## 
+## Fixed effects:
+##                Estimate Std. Error         df t value             Pr(>|t|)
+## (Intercept)    0.544571   0.004460 228.333848 122.089 < 0.0000000000000002
+## conv.type0.5   0.038265   0.005701 117.999786   6.712       0.000000000707
+##                 
+## (Intercept)  ***
+## conv.type0.5 ***
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+## 
+## Correlation of Fixed Effects:
+##             (Intr)
+## conv.typ0.5 -0.639
+```
+
+```
+##                     t       df        d
+## conv.type0.5 6.683584 116.9998 1.235796
+```
+
+```
+##                    2.5 %     97.5 %
+## .sig01       0.002307412 0.03007312
+## .sigma       0.038745409 0.05003022
+## (Intercept)  0.535791810 0.55335036
+## conv.type0.5 0.026999823 0.04953007
+```
+
+
+|      &nbsp;      | Estimate | Std..Error |  df   | t.value |   p    | p_adj  | sig |
+|:----------------:|:--------:|:----------:|:-----:|:-------:|:------:|:------:|:---:|
+| **(Intercept)**  |  0.5446  |  0.00446   | 228.3 |  122.1  | 0.0001 | 0.0001 | *** |
+| **conv.type0.5** | 0.03826  |  0.005701  |  118  |  6.712  | 0.0001 | 0.0001 | *** |
+
+##### Standardized model
+
+
+```r
+# standardized: does linguistic style change based on the conversation setting?
+exploratory_analyses_st_prop <- lmer(prop ~ conv.type + (1|speaker_code),
+                            data = standardized_df, REML = FALSE)
+
+# calculate 95%CI for model
+CI_exploratory_analyses_st_prop <- confint(exploratory_analyses_st_prop)
+
+# calculate effect size for model
+es_exploratory_analyses_st_prop <- lme.dscore(exploratory_analyses_st_prop, 
+                                     data = standardized_df, type = "lme4")
+```
+
+
+```
+## Linear mixed model fit by maximum likelihood . t-tests use
+##   Satterthwaite's method [lmerModLmerTest]
+## Formula: prop ~ conv.type + (1 | speaker_code)
+##    Data: standardized_df
+## 
+##      AIC      BIC   logLik deviance df.resid 
+##    638.5    652.4   -315.3    630.5      232 
+## 
+## Scaled residuals: 
+##     Min      1Q  Median      3Q     Max 
+## -3.8212 -0.5559  0.0246  0.6374  2.4913 
+## 
+## Random effects:
+##  Groups       Name        Variance Std.Dev.
+##  speaker_code (Intercept) 0.1578   0.3973  
+##  Residual                 0.7036   0.8388  
+## Number of obs: 236, groups:  speaker_code, 118
+## 
+## Fixed effects:
+##                             Estimate Std. Error        df t value Pr(>|t|)
+## (Intercept)                 -0.36649    0.08544 228.33385  -4.289 2.65e-05
+## conv.type0.997879106838302   0.73298    0.10920 117.99979   6.712 7.07e-10
+##                               
+## (Intercept)                ***
+## conv.type0.997879106838302 ***
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+## 
+## Correlation of Fixed Effects:
+##             (Intr)
+## c.0.9978791 -0.639
+```
+
+```
+##                                   t       df        d
+## conv.type0.997879106838302 6.683584 116.9998 1.235796
+```
+
+```
+##                                 2.5 %     97.5 %
+## .sig01                      0.0441996  0.5760654
+## .sigma                      0.7421874  0.9583535
+## (Intercept)                -0.5346632 -0.1983206
+## conv.type0.997879106838302  0.5171949  0.9487729
+```
+
+
+
+|             &nbsp;             | Estimate | Std..Error |  df   | t.value |   p    | p_adj  | sig |
+|:------------------------------:|:--------:|:----------:|:-----:|:-------:|:------:|:------:|:---:|
+|        **(Intercept)**         | -0.3665  |  0.08544   | 228.3 | -4.289  | 0.0001 | 0.0001 | *** |
+| **conv.type0.997879106838302** |  0.733   |   0.1092   |  118  |  6.712  | 0.0001 | 0.0001 | *** |
+***
+
+#### DET: Exploratory analyses
+
+##### Raw model
+
+
+```r
+# raw: does linguistic style change based on the conversation setting?
+exploratory_analyses_raw_DET <- lmer(DET ~ conv.type + (1|speaker_code),
+                             data = analysis_df, REML = FALSE)
+
+# calculate 95% CI for model
+CI_exploratory_analyses_raw_DET <- confint(exploratory_analyses_raw_DET)
+
+
+# calculate effect size for model
+es_exploratory_analyses_raw_DET <- lme.dscore(exploratory_analyses_raw_DET, 
+                                      data = analysis_df, type = "lme4")
+```
+
+
+```
+## Linear mixed model fit by maximum likelihood . t-tests use
+##   Satterthwaite's method [lmerModLmerTest]
+## Formula: DET ~ conv.type + (1 | speaker_code)
+##    Data: analysis_df
+## 
+##      AIC      BIC   logLik deviance df.resid 
+##   1724.8   1738.6   -858.4   1716.8      231 
+## 
+## Scaled residuals: 
+##     Min      1Q  Median      3Q     Max 
+## -4.2264 -0.5226  0.0869  0.5316  2.6415 
+## 
+## Random effects:
+##  Groups       Name        Variance Std.Dev.
+##  speaker_code (Intercept) 22.17    4.708   
+##  Residual                 67.74    8.230   
+## Number of obs: 235, groups:  speaker_code, 118
+## 
+## Fixed effects:
+##              Estimate Std. Error       df t value             Pr(>|t|)    
+## (Intercept)   47.4584     0.8764 222.0860  54.153 < 0.0000000000000002 ***
+## conv.type0.5   9.3213     1.0743 118.0736   8.676   0.0000000000000262 ***
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+## 
+## Correlation of Fixed Effects:
+##             (Intr)
+## conv.typ0.5 -0.616
+```
+
+```
+##                     t       df        d
+## conv.type0.5 8.639275 117.0697 1.596927
+```
+
+```
+##                  2.5 %    97.5 %
+## .sig01        2.497910  6.392605
+## .sigma        7.280670  9.405337
+## (Intercept)  45.733293 49.183545
+## conv.type0.5  7.198505 11.444304
+```
+
+
+|      &nbsp;      | Estimate | Std..Error |  df   | t.value |   p    | p_adj  | sig |
+|:----------------:|:--------:|:----------:|:-----:|:-------:|:------:|:------:|:---:|
+| **(Intercept)**  |  47.46   |   0.8764   | 222.1 |  54.15  | 0.0001 | 0.0001 | *** |
+| **conv.type0.5** |  9.321   |   1.074    | 118.1 |  8.676  | 0.0001 | 0.0001 | *** |
+
+##### Standardized model
+
+
+```r
+# standardized: does linguistic style change based on the conversation setting?
+exploratory_analyses_st_DET <- lmer(DET ~ conv.type + (1|speaker_code),
+                            data = standardized_df, REML = FALSE)
+
+# calculate 95%CI for model
+CI_exploratory_analyses_st_DET <- confint(exploratory_analyses_st_DET)
+
+# calculate effect size for model
+es_exploratory_analyses_st_DET <- lme.dscore(exploratory_analyses_st_DET, 
+                                     data = standardized_df, type = "lme4")
+```
+
+
+```
+## Linear mixed model fit by maximum likelihood . t-tests use
+##   Satterthwaite's method [lmerModLmerTest]
+## Formula: DET ~ conv.type + (1 | speaker_code)
+##    Data: standardized_df
+## 
+##      AIC      BIC   logLik deviance df.resid 
+##    615.6    629.5   -303.8    607.6      231 
+## 
+## Scaled residuals: 
+##     Min      1Q  Median      3Q     Max 
+## -4.2264 -0.5226  0.0869  0.5316  2.6415 
+## 
+## Random effects:
+##  Groups       Name        Variance Std.Dev.
+##  speaker_code (Intercept) 0.1977   0.4446  
+##  Residual                 0.6040   0.7772  
+## Number of obs: 235, groups:  speaker_code, 118
+## 
+## Fixed effects:
+##                             Estimate Std. Error        df t value
+## (Intercept)                 -0.44188    0.08276 222.08597  -5.339
+## conv.type0.997879106838302   0.88023    0.10145 118.07363   8.676
+##                                      Pr(>|t|)    
+## (Intercept)                0.0000002301176448 ***
+## conv.type0.997879106838302 0.0000000000000262 ***
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+## 
+## Correlation of Fixed Effects:
+##             (Intr)
+## c.0.9978791 -0.616
+```
+
+```
+##                                   t       df        d
+## conv.type0.997879106838302 8.639275 117.0697 1.596927
+```
+
+```
+##                                 2.5 %     97.5 %
+## .sig01                      0.2358847  0.6036715
+## .sigma                      0.6875340  0.8881723
+## (Intercept)                -0.6047807 -0.2789638
+## conv.type0.997879106838302  0.6797749  1.0807176
+```
+
+
+
+|             &nbsp;             | Estimate | Std..Error |  df   | t.value |   p    | p_adj  | sig |
+|:------------------------------:|:--------:|:----------:|:-----:|:-------:|:------:|:------:|:---:|
+|        **(Intercept)**         | -0.4419  |  0.08276   | 222.1 | -5.339  | 0.0001 | 0.0001 | *** |
+| **conv.type0.997879106838302** |  0.8802  |   0.1015   | 118.1 |  8.676  | 0.0001 | 0.0001 | *** |
+
+***
+
+#### NRLINE_norm: Exploratory analyses 
+
+##### Raw model
+
+
+```r
+# raw: does linguistic style change based on the conversation setting?
+exploratory_analyses_raw_NRLINE_norm <- lmer(NRLINE_norm ~ conv.type + (1|speaker_code),
+                             data = analysis_df, REML = FALSE)
+
+# calculate 95% CI for model
+CI_exploratory_analyses_raw_NRLINE_norm <- confint(exploratory_analyses_raw_NRLINE_norm)
+
+
+# calculate effect size for model
+es_exploratory_analyses_raw_NRLINE_norm <- lme.dscore(exploratory_analyses_raw_NRLINE_norm, 
+                                      data = analysis_df, type = "lme4")
+```
+
+
+```
+## Linear mixed model fit by maximum likelihood . t-tests use
+##   Satterthwaite's method [lmerModLmerTest]
+## Formula: NRLINE_norm ~ conv.type + (1 | speaker_code)
+##    Data: analysis_df
+## 
+##      AIC      BIC   logLik deviance df.resid 
+##   2327.1   2340.9  -1159.5   2319.1      232 
+## 
+## Scaled residuals: 
+##     Min      1Q  Median      3Q     Max 
+## -2.3511 -0.3017 -0.0510  0.1613  4.6574 
+## 
+## Random effects:
+##  Groups       Name        Variance Std.Dev.
+##  speaker_code (Intercept)   71.02   8.427  
+##  Residual                 1015.67  31.870  
+## Number of obs: 236, groups:  speaker_code, 118
+## 
+## Fixed effects:
+##              Estimate Std. Error      df t value             Pr(>|t|)    
+## (Intercept)     9.172      3.035 234.996   3.022              0.00279 ** 
+## conv.type0.5   72.349      4.149 118.000  17.437 < 0.0000000000000002 ***
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+## 
+## Correlation of Fixed Effects:
+##             (Intr)
+## conv.typ0.5 -0.684
+```
+
+```
+##                     t       df        d
+## conv.type0.5 17.36345 116.9999 3.210504
+```
+
+```
+##                  2.5 %   97.5 %
+## .sig01        0.000000 16.73296
+## .sigma       28.198525 35.94352
+## (Intercept)   3.199781 15.14425
+## conv.type0.5 64.150553 80.54784
+```
+
+
+|      &nbsp;      | Estimate | Std..Error | df  | t.value |   p    | p_adj  | sig |
+|:----------------:|:--------:|:----------:|:---:|:-------:|:------:|:------:|:---:|
+| **(Intercept)**  |  9.172   |   3.035    | 235 |  3.022  | 0.003  | 0.003  | **  |
+| **conv.type0.5** |  72.35   |   4.149    | 118 |  17.44  | 0.0001 | 0.0001 | *** |
+
+##### Standardized model
+
+
+```r
+# standardized: does linguistic style change based on the conversation setting?
+exploratory_analyses_st_NRLINE_norm <- lmer(NRLINE_norm ~ conv.type + (1|speaker_code),
+                            data = standardized_df, REML = FALSE)
+
+# calculate 95%CI for model
+CI_exploratory_analyses_st_NRLINE_norm <- confint(exploratory_analyses_st_NRLINE_norm)
+
+# calculate effect size for model
+es_exploratory_analyses_st_NRLINE_norm <- lme.dscore(exploratory_analyses_st_NRLINE_norm, 
+                                     data = standardized_df, type = "lme4")
+```
+
+
+```
+## Linear mixed model fit by maximum likelihood . t-tests use
+##   Satterthwaite's method [lmerModLmerTest]
+## Formula: NRLINE_norm ~ conv.type + (1 | speaker_code)
+##    Data: standardized_df
+## 
+##      AIC      BIC   logLik deviance df.resid 
+##    489.7    503.6   -240.9    481.7      232 
+## 
+## Scaled residuals: 
+##     Min      1Q  Median      3Q     Max 
+## -2.3511 -0.3017 -0.0510  0.1613  4.6574 
+## 
+## Random effects:
+##  Groups       Name        Variance Std.Dev.
+##  speaker_code (Intercept) 0.02952  0.1718  
+##  Residual                 0.42223  0.6498  
+## Number of obs: 236, groups:  speaker_code, 118
+## 
+## Fixed effects:
+##                             Estimate Std. Error        df t value
+## (Intercept)                 -0.73757    0.06187 234.99627  -11.92
+## conv.type0.997879106838302   1.47514    0.08460 117.99995   17.44
+##                                       Pr(>|t|)    
+## (Intercept)                <0.0000000000000002 ***
+## conv.type0.997879106838302 <0.0000000000000002 ***
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+## 
+## Correlation of Fixed Effects:
+##             (Intr)
+## c.0.9978791 -0.684
+```
+
+```
+##                                   t       df        d
+## conv.type0.997879106838302 17.36345 116.9999 3.210504
+```
+
+```
+##                                 2.5 %     97.5 %
+## .sig01                      0.0000000  0.3411707
+## .sigma                      0.5749438  0.7328577
+## (Intercept)                -0.8593379 -0.6158004
+## conv.type0.997879106838302  1.3079750  1.6423017
+```
+
+
+
+|             &nbsp;             | Estimate | Std..Error | df  | t.value |   p    | p_adj  | sig |
+|:------------------------------:|:--------:|:----------:|:---:|:-------:|:------:|:------:|:---:|
+|        **(Intercept)**         | -0.7376  |  0.06187   | 235 | -11.92  | 0.0001 | 0.0001 | *** |
+| **conv.type0.997879106838302** |  1.475   |   0.0846   | 118 |  17.44  | 0.0001 | 0.0001 | *** |
+
+***
+
+#### MaxL: Exploratory analyses
+
+##### Raw model
+
+
+```r
+# raw: does linguistic style change based on the conversation setting?
+exploratory_analyses_raw_maxL <- lmer(maxL ~ conv.type + (1|speaker_code),
+                             data = analysis_df, REML = FALSE)
+
+# calculate 95% CI for model
+CI_exploratory_analyses_raw_maxL <- confint(exploratory_analyses_raw_NRLINE_norm)
+
+
+# calculate effect size for model
+es_exploratory_analyses_raw_maxL <- lme.dscore(exploratory_analyses_raw_maxL, 
+                                      data = analysis_df, type = "lme4")
+```
+
+
+```
+## Linear mixed model fit by maximum likelihood . t-tests use
+##   Satterthwaite's method [lmerModLmerTest]
+## Formula: maxL ~ conv.type + (1 | speaker_code)
+##    Data: analysis_df
+## 
+##      AIC      BIC   logLik deviance df.resid 
+##   1054.4   1068.3   -523.2   1046.4      232 
+## 
+## Scaled residuals: 
+##     Min      1Q  Median      3Q     Max 
+## -2.7527 -0.5527 -0.0654  0.4022  7.0169 
+## 
+## Random effects:
+##  Groups       Name        Variance Std.Dev.
+##  speaker_code (Intercept) 0.1275   0.3571  
+##  Residual                 4.8074   2.1926  
+## Number of obs: 236, groups:  speaker_code, 118
+## 
+## Fixed effects:
+##              Estimate Std. Error       df t value            Pr(>|t|)    
+## (Intercept)    5.1017     0.2045 235.8425   24.95 <0.0000000000000002 ***
+## conv.type0.5   4.1441     0.2854 117.9998   14.52 <0.0000000000000002 ***
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+## 
+## Correlation of Fixed Effects:
+##             (Intr)
+## conv.typ0.5 -0.698
+```
+
+```
+##                     t  df        d
+## conv.type0.5 14.45602 117 2.672919
+```
+
+```
+##                  2.5 %   97.5 %
+## .sig01        0.000000 16.73296
+## .sigma       28.198525 35.94352
+## (Intercept)   3.199781 15.14425
+## conv.type0.5 64.150553 80.54784
+```
+
+
+|      &nbsp;      | Estimate | Std..Error |  df   | t.value |   p    | p_adj  | sig |
+|:----------------:|:--------:|:----------:|:-----:|:-------:|:------:|:------:|:---:|
+| **(Intercept)**  |  5.102   |   0.2045   | 235.8 |  24.95  | 0.0001 | 0.0001 | *** |
+| **conv.type0.5** |  4.144   |   0.2854   |  118  |  14.52  | 0.0001 | 0.0001 | *** |
+
+##### Standardized model
+
+
+```r
+# standardized: does linguistic style change based on the conversation setting?
+exploratory_analyses_st_maxL <- lmer(maxL ~ conv.type + (1|speaker_code),
+                            data = standardized_df, REML = FALSE)
+
+# calculate 95%CI for model
+CI_exploratory_analyses_st_maxL <- confint(exploratory_analyses_st_maxL)
+
+# calculate effect size for model
+es_exploratory_analyses_st_maxL <- lme.dscore(exploratory_analyses_st_maxL, 
+                                     data = standardized_df, type = "lme4")
+```
+
+
+```
+## Linear mixed model fit by maximum likelihood . t-tests use
+##   Satterthwaite's method [lmerModLmerTest]
+## Formula: maxL ~ conv.type + (1 | speaker_code)
+##    Data: standardized_df
+## 
+##      AIC      BIC   logLik deviance df.resid 
+##    528.9    542.8   -260.5    520.9      232 
+## 
+## Scaled residuals: 
+##     Min      1Q  Median      3Q     Max 
+## -2.7527 -0.5527 -0.0654  0.4022  7.0169 
+## 
+## Random effects:
+##  Groups       Name        Variance Std.Dev.
+##  speaker_code (Intercept) 0.01376  0.1173  
+##  Residual                 0.51874  0.7202  
+## Number of obs: 236, groups:  speaker_code, 118
+## 
+## Fixed effects:
+##                             Estimate Std. Error        df t value
+## (Intercept)                 -0.68063    0.06718 235.84250  -10.13
+## conv.type0.997879106838302   1.36127    0.09377 117.99755   14.52
+##                                       Pr(>|t|)    
+## (Intercept)                <0.0000000000000002 ***
+## conv.type0.997879106838302 <0.0000000000000002 ***
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+## 
+## Correlation of Fixed Effects:
+##             (Intr)
+## c.0.9978791 -0.698
+```
+
+```
+##                                   t  df        d
+## conv.type0.997879106838302 14.45602 117 2.672919
+```
+
+```
+##                                 2.5 %     97.5 %
+## .sig01                      0.0000000  0.3386220
+## .sigma                      0.6372709  0.8000683
+## (Intercept)                -0.8128366 -0.5484329
+## conv.type0.997879106838302  1.1759854  1.5465534
+```
+
+
+
+|             &nbsp;             | Estimate | Std..Error |  df   | t.value |   p    | p_adj  | sig |
+|:------------------------------:|:--------:|:----------:|:-----:|:-------:|:------:|:------:|:---:|
+|        **(Intercept)**         | -0.6806  |  0.06718   | 235.8 | -10.13  | 0.0001 | 0.0001 | *** |
+| **conv.type0.997879106838302** |  1.361   |  0.09377   |  118  |  14.52  | 0.0001 | 0.0001 | *** |
+
+***
+
+#### L: Exploratory analyses
+
+##### Raw model
+
+
+```r
+# raw: does linguistic style change based on the conversation setting?
+exploratory_analyses_raw_L <- lmer(L ~ conv.type + (1|speaker_code),
+                             data = analysis_df, REML = FALSE)
+
+# calculate 95% CI for model
+CI_exploratory_analyses_raw_L <- confint(exploratory_analyses_raw_NRLINE_norm)
+
+
+# calculate effect size for model
+es_exploratory_analyses_raw_L <- lme.dscore(exploratory_analyses_raw_L, 
+                                      data = analysis_df, type = "lme4")
+```
+
+
+```
+## Linear mixed model fit by maximum likelihood . t-tests use
+##   Satterthwaite's method [lmerModLmerTest]
+## Formula: L ~ conv.type + (1 | speaker_code)
+##    Data: analysis_df
+## 
+##      AIC      BIC   logLik deviance df.resid 
+##    -71.8    -57.9     39.9    -79.8      232 
+## 
+## Scaled residuals: 
+##      Min       1Q   Median       3Q      Max 
+## -11.1025  -0.3495  -0.0038   0.3568   3.5781 
+## 
+## Random effects:
+##  Groups       Name        Variance Std.Dev.
+##  speaker_code (Intercept) 0.00000  0.0000  
+##  Residual                 0.04176  0.2044  
+## Number of obs: 236, groups:  speaker_code, 118
+## 
+## Fixed effects:
+##               Estimate Std. Error        df t value             Pr(>|t|)
+## (Intercept)    2.26881    0.01881 236.00000 120.604 < 0.0000000000000002
+## conv.type0.5   0.17696    0.02660 236.00000   6.651         0.0000000002
+##                 
+## (Intercept)  ***
+## conv.type0.5 ***
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+## 
+## Correlation of Fixed Effects:
+##             (Intr)
+## conv.typ0.5 -0.707
+## convergence code: 0
+## boundary (singular) fit: see ?isSingular
+```
+
+```
+##                     t  df         d
+## conv.type0.5 6.623194 234 0.8659435
+```
+
+```
+##                  2.5 %   97.5 %
+## .sig01        0.000000 16.73296
+## .sigma       28.198525 35.94352
+## (Intercept)   3.199781 15.14425
+## conv.type0.5 64.150553 80.54784
+```
+
+
+|      &nbsp;      | Estimate | Std..Error | df  | t.value |   p    | p_adj  | sig |
+|:----------------:|:--------:|:----------:|:---:|:-------:|:------:|:------:|:---:|
+| **(Intercept)**  |  2.269   |  0.01881   | 236 |  120.6  | 0.0001 | 0.0001 | *** |
+| **conv.type0.5** |  0.177   |   0.0266   | 236 |  6.651  | 0.0001 | 0.0001 | *** |
+
+##### Standardized model
+
+
+```r
+# standardized: does linguistic style change based on the conversation setting?
+exploratory_analyses_st_L <- lmer(L ~ conv.type + (1|speaker_code),
+                            data = standardized_df, REML = FALSE)
+
+# calculate 95%CI for model
+CI_exploratory_analyses_st_L <- confint(exploratory_analyses_st_L)
+
+# calculate effect size for model
+es_exploratory_analyses_st_L <- lme.dscore(exploratory_analyses_st_L, 
+                                     data = standardized_df, type = "lme4")
+```
+
+
+```
+## Linear mixed model fit by maximum likelihood . t-tests use
+##   Satterthwaite's method [lmerModLmerTest]
+## Formula: L ~ conv.type + (1 | speaker_code)
+##    Data: standardized_df
+## 
+##      AIC      BIC   logLik deviance df.resid 
+##    636.2    650.0   -314.1    628.2      232 
+## 
+## Scaled residuals: 
+##      Min       1Q   Median       3Q      Max 
+## -11.1025  -0.3495  -0.0038   0.3568   3.5781 
+## 
+## Random effects:
+##  Groups       Name        Variance Std.Dev.
+##  speaker_code (Intercept) 0.0000   0.0000  
+##  Residual                 0.8386   0.9157  
+## Number of obs: 236, groups:  speaker_code, 118
+## 
+## Fixed effects:
+##                            Estimate Std. Error       df t value
+## (Intercept)                 -0.3965     0.0843 236.0000  -4.703
+## conv.type0.997879106838302   0.7930     0.1192 236.0000   6.651
+##                                Pr(>|t|)    
+## (Intercept)                0.0000043588 ***
+## conv.type0.997879106838302 0.0000000002 ***
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+## 
+## Correlation of Fixed Effects:
+##             (Intr)
+## c.0.9978791 -0.707
+## convergence code: 0
+## boundary (singular) fit: see ?isSingular
+```
+
+```
+##                                   t  df         d
+## conv.type0.997879106838302 6.623194 234 0.8659435
+```
+
+```
+##                                 2.5 %     97.5 %
+## .sig01                      0.0000000  0.3528307
+## .sigma                      0.8245205  1.0049902
+## (Intercept)                -0.5623847 -0.2305861
+## conv.type0.997879106838302  0.5583537  1.0275878
+```
+
+
+
+|             &nbsp;             | Estimate | Std..Error | df  | t.value |   p    | p_adj  | sig |
+|:------------------------------:|:--------:|:----------:|:---:|:-------:|:------:|:------:|:---:|
+|        **(Intercept)**         | -0.3965  |   0.0843   | 236 | -4.703  | 0.0001 | 0.0001 | *** |
+| **conv.type0.997879106838302** |  0.793   |   0.1192   | 236 |  6.651  | 0.0001 | 0.0001 | *** |
+
+***
+
+#### rENTR: Exploratory analyses
+
+##### Raw model
+
+
+```r
+# raw: does linguistic style change based on the conversation setting?
+exploratory_analyses_raw_rENTR <- lmer(rENTR ~ conv.type + (1|speaker_code),
+                             data = analysis_df, REML = FALSE)
+
+# calculate 95% CI for model
+CI_exploratory_analyses_raw_rENTR <- confint(exploratory_analyses_raw_rENTR)
+
+
+# calculate effect size for model
+es_exploratory_analyses_raw_rENTR <- lme.dscore(exploratory_analyses_raw_rENTR, 
+                                      data = analysis_df, type = "lme4")
+```
+
+
+```
+## Linear mixed model fit by maximum likelihood . t-tests use
+##   Satterthwaite's method [lmerModLmerTest]
+## Formula: rENTR ~ conv.type + (1 | speaker_code)
+##    Data: analysis_df
+## 
+##      AIC      BIC   logLik deviance df.resid 
+##   -435.5   -421.7    221.7   -443.5      229 
+## 
+## Scaled residuals: 
+##     Min      1Q  Median      3Q     Max 
+## -3.5306 -0.5088 -0.0596  0.4028  5.7029 
+## 
+## Random effects:
+##  Groups       Name        Variance Std.Dev.
+##  speaker_code (Intercept) 0.000000 0.00000 
+##  Residual                 0.008727 0.09342 
+## Number of obs: 233, groups:  speaker_code, 118
+## 
+## Fixed effects:
+##                Estimate Std. Error         df t value             Pr(>|t|)
+## (Intercept)    0.467234   0.008711 233.000000  53.635 < 0.0000000000000002
+## conv.type0.5  -0.039887   0.012241 233.000000  -3.258              0.00129
+##                 
+## (Intercept)  ***
+## conv.type0.5 ** 
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+## 
+## Correlation of Fixed Effects:
+##             (Intr)
+## conv.typ0.5 -0.712
+## convergence code: 0
+## boundary (singular) fit: see ?isSingular
+```
+
+```
+##                      t  df          d
+## conv.type0.5 -3.244427 231 -0.4269353
+```
+
+```
+##                    2.5 %      97.5 %
+## .sig01        0.00000000  0.03133250
+## .sigma        0.08515431  0.10258872
+## (Intercept)   0.45008963  0.48437903
+## conv.type0.5 -0.06397911 -0.01579577
+```
+
+
+|      &nbsp;      | Estimate | Std..Error | df  | t.value |   p    | p_adj  | sig |
+|:----------------:|:--------:|:----------:|:---:|:-------:|:------:|:------:|:---:|
+| **(Intercept)**  |  0.4672  |  0.008711  | 233 |  53.63  | 0.0001 | 0.0001 | *** |
+| **conv.type0.5** | -0.03989 |  0.01224   | 233 | -3.258  | 0.001  | 0.001  | **  |
+
+##### Standardized model
+
+
+```r
+# standardized: does linguistic style change based on the conversation setting?
+exploratory_analyses_st_rENTR <- lmer(rENTR ~ conv.type + (1|speaker_code),
+                            data = standardized_df, REML = FALSE)
+
+# calculate 95%CI for model
+CI_exploratory_analyses_st_rENTR <- confint(exploratory_analyses_st_rENTR)
+
+# calculate effect size for model
+es_exploratory_analyses_st_rENTR <- lme.dscore(exploratory_analyses_st_rENTR, 
+                                     data = standardized_df, type = "lme4")
+```
+
+
+```
+## Linear mixed model fit by maximum likelihood . t-tests use
+##   Satterthwaite's method [lmerModLmerTest]
+## Formula: rENTR ~ conv.type + (1 | speaker_code)
+##    Data: standardized_df
+## 
+##      AIC      BIC   logLik deviance df.resid 
+##    657.8    671.6   -324.9    649.8      229 
+## 
+## Scaled residuals: 
+##     Min      1Q  Median      3Q     Max 
+## -3.5306 -0.5088 -0.0596  0.4028  5.7029 
+## 
+## Random effects:
+##  Groups       Name        Variance Std.Dev.
+##  speaker_code (Intercept) 0.0000   0.0000  
+##  Residual                 0.9523   0.9759  
+## Number of obs: 233, groups:  speaker_code, 118
+## 
+## Fixed effects:
+##                            Estimate Std. Error       df t value Pr(>|t|)
+## (Intercept)                  0.2110     0.0910 233.0000   2.319  0.02127
+## conv.type0.997879106838302  -0.4167     0.1279 233.0000  -3.258  0.00129
+##                              
+## (Intercept)                * 
+## conv.type0.997879106838302 **
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+## 
+## Correlation of Fixed Effects:
+##             (Intr)
+## c.0.9978791 -0.712
+## convergence code: 0
+## boundary (singular) fit: see ?isSingular
+```
+
+```
+##                                    t  df          d
+## conv.type0.997879106838302 -3.244427 231 -0.4269353
+```
+
+```
+##                                  2.5 %     97.5 %
+## .sig01                      0.00000000  0.3273007
+## .sigma                      0.88952546  1.0716460
+## (Intercept)                 0.03192105  0.3901096
+## conv.type0.997879106838302 -0.66832838 -0.1650033
+```
+
+
+
+|             &nbsp;             | Estimate | Std..Error | df  | t.value |   p   | p_adj | sig |
+|:------------------------------:|:--------:|:----------:|:---:|:-------:|:-----:|:-----:|:---:|
+|        **(Intercept)**         |  0.211   |   0.091    | 233 |  2.319  | 0.021 | 0.021 |  *  |
+| **conv.type0.997879106838302** | -0.4167  |   0.1279   | 233 | -3.258  | 0.001 | 0.003 | **  |
+
+***
+
+#### LAM: Exploratory analyses 
+
+##### Raw model
+
+
+```r
+# raw: does linguistic style change based on the conversation setting?
+exploratory_analyses_raw_LAM <- lmer(LAM ~ conv.type + (1|speaker_code),
+                             data = analysis_df, REML = FALSE)
+
+# calculate 95% CI for model
+CI_exploratory_analyses_raw_LAM <- confint(exploratory_analyses_raw_LAM)
+
+
+# calculate effect size for model
+es_exploratory_analyses_raw_LAM <- lme.dscore(exploratory_analyses_raw_LAM, 
+                                      data = analysis_df, type = "lme4")
+```
+
+
+```
+## Linear mixed model fit by maximum likelihood . t-tests use
+##   Satterthwaite's method [lmerModLmerTest]
+## Formula: LAM ~ conv.type + (1 | speaker_code)
+##    Data: analysis_df
+## 
+##      AIC      BIC   logLik deviance df.resid 
+##   1674.3   1688.1   -833.1   1666.3      232 
+## 
+## Scaled residuals: 
+##     Min      1Q  Median      3Q     Max 
+## -8.7913 -0.3461  0.1107  0.4462  1.8357 
+## 
+## Random effects:
+##  Groups       Name        Variance Std.Dev.
+##  speaker_code (Intercept) 11.07    3.327   
+##  Residual                 58.03    7.618   
+## Number of obs: 236, groups:  speaker_code, 118
+## 
+## Fixed effects:
+##              Estimate Std. Error       df t value             Pr(>|t|)    
+## (Intercept)   77.6765     0.7653 230.0939  101.50 < 0.0000000000000002 ***
+## conv.type0.5   5.7923     0.9918 118.0000    5.84         0.0000000469 ***
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+## 
+## Correlation of Fixed Effects:
+##             (Intr)
+## conv.typ0.5 -0.648
+```
+
+```
+##                     t  df       d
+## conv.type0.5 5.815681 117 1.07532
+```
+
+```
+##                  2.5 %    97.5 %
+## .sig01        0.000000  4.988818
+## .sigma        6.740323  8.703910
+## (Intercept)  76.170363 79.182666
+## conv.type0.5  3.832589  7.752050
+```
+
+
+|      &nbsp;      | Estimate | Std..Error |  df   | t.value |   p    | p_adj  | sig |
+|:----------------:|:--------:|:----------:|:-----:|:-------:|:------:|:------:|:---:|
+| **(Intercept)**  |  77.68   |   0.7653   | 230.1 |  101.5  | 0.0001 | 0.0001 | *** |
+| **conv.type0.5** |  5.792   |   0.9918   |  118  |  5.84   | 0.0001 | 0.0001 | *** |
+
+##### Standardized model
+
+
+```r
+# standardized: does linguistic style change based on the conversation setting?
+exploratory_analyses_st_LAM <- lmer(LAM ~ conv.type + (1|speaker_code),
+                            data = standardized_df, REML = FALSE)
+
+# calculate 95%CI for model
+CI_exploratory_analyses_st_LAM <- confint(exploratory_analyses_st_LAM)
+
+# calculate effect size for model
+es_exploratory_analyses_st_LAM <- lme.dscore(exploratory_analyses_st_LAM, 
+                                     data = standardized_df, type = "lme4")
+```
+
+
+```
+## Linear mixed model fit by maximum likelihood . t-tests use
+##   Satterthwaite's method [lmerModLmerTest]
+## Formula: LAM ~ conv.type + (1 | speaker_code)
+##    Data: standardized_df
+## 
+##      AIC      BIC   logLik deviance df.resid 
+##    646.6    660.5   -319.3    638.6      232 
+## 
+## Scaled residuals: 
+##     Min      1Q  Median      3Q     Max 
+## -8.7913 -0.3461  0.1107  0.4462  1.8357 
+## 
+## Random effects:
+##  Groups       Name        Variance Std.Dev.
+##  speaker_code (Intercept) 0.1423   0.3772  
+##  Residual                 0.7457   0.8635  
+## Number of obs: 236, groups:  speaker_code, 118
+## 
+## Fixed effects:
+##                             Estimate Std. Error        df t value
+## (Intercept)                 -0.32831    0.08675 230.09391  -3.785
+## conv.type0.997879106838302   0.65661    0.11242 117.99999   5.840
+##                                Pr(>|t|)    
+## (Intercept)                    0.000196 ***
+## conv.type0.997879106838302 0.0000000469 ***
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+## 
+## Correlation of Fixed Effects:
+##             (Intr)
+## c.0.9978791 -0.648
+```
+
+```
+##                                   t  df       d
+## conv.type0.997879106838302 5.815681 117 1.07532
+```
+
+```
+##                                 2.5 %     97.5 %
+## .sig01                      0.0000000  0.5655272
+## .sigma                      0.7640761  0.9866663
+## (Intercept)                -0.4990415 -0.1575699
+## conv.type0.997879106838302  0.4344583  0.8787644
+```
+
+
+
+|             &nbsp;             | Estimate | Std..Error |  df   | t.value |   p    | p_adj  | sig |
+|:------------------------------:|:--------:|:----------:|:-----:|:-------:|:------:|:------:|:---:|
+|        **(Intercept)**         | -0.3283  |  0.08675   | 230.1 | -3.785  | 0.0002 | 0.0002 | *** |
+| **conv.type0.997879106838302** |  0.6566  |   0.1124   |  118  |  5.84   | 0.0001 | 0.0001 | *** |
+
+***
+
+#### TT: Exploratory analyses
+
+Due to convergence issues, the random effect on speaker must be removed.
+
+##### Raw model
+
+**Lena**: Since we need to remove the random effect for convergence,
+we also will have to find a new way to calculate Cohen's d (since this
+version requires an `lme4` object).
+
+
+```r
+# raw: does linguistic style change based on the conversation setting?
+exploratory_analyses_raw_TT <- lm(TT ~ conv.type,
+                             data = analysis_df)
+
+# calculate 95% CI for model
+CI_exploratory_analyses_raw_TT <- confint(exploratory_analyses_raw_TT)
+
+
+# # calculate effect size for model
+# es_exploratory_analyses_raw_TT <- lme.dscore(exploratory_analyses_raw_TT, 
+#                                       data = analysis_df, type = "lme4")
+```
+
+
+```
+## 
+## Call:
+## lm(formula = TT ~ conv.type, data = analysis_df)
+## 
+## Residuals:
+##      Min       1Q   Median       3Q      Max 
+## -2.85309 -0.15697  0.00213  0.16182  1.11187 
+## 
+## Coefficients:
+##              Estimate Std. Error t value Pr(>|t|)    
+## (Intercept)   2.85309    0.03277  87.056  < 2e-16 ***
+## conv.type0.5  0.39068    0.04635   8.429 3.58e-15 ***
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+## 
+## Residual standard error: 0.356 on 234 degrees of freedom
+## Multiple R-squared:  0.2329,	Adjusted R-squared:  0.2296 
+## F-statistic: 71.05 on 1 and 234 DF,  p-value: 3.578e-15
+```
+
+```
+##                  2.5 %    97.5 %
+## (Intercept)  2.7885239 2.9176603
+## conv.type0.5 0.2993715 0.4819979
+```
+
+
+|      &nbsp;      | Estimate | Std..Error | t.value |   p    | p_adj  | sig |
+|:----------------:|:--------:|:----------:|:-------:|:------:|:------:|:---:|
+| **(Intercept)**  |  2.853   |  0.03277   |  87.06  | 0.0001 | 0.0001 | *** |
+| **conv.type0.5** |  0.3907  |  0.04635   |  8.429  | 0.0001 | 0.0001 | *** |
+
+##### Standardized model
+
+**Lena**: Since we need to remove the random effect for convergence,
+we also will have to find a new way to calculate Cohen's d (since this
+version requires an `lme4` object).
+
+
+```r
+# standardized: does linguistic style change based on the conversation setting?
+exploratory_analyses_st_TT <- lm(TT ~ conv.type,
+                            data = standardized_df)
+
+# calculate 95%CI for model
+CI_exploratory_analyses_st_TT <- confint(exploratory_analyses_st_TT)
+
+# calculate effect size for model
+# # es_exploratory_analyses_st_TT <- lme.dscore(exploratory_analyses_st_TT, 
+#                                     data = standardized_df, type = "lm")
+```
+
+
+```
+## 
+## Call:
+## lm(formula = TT ~ conv.type, data = standardized_df)
+## 
+## Residuals:
+##     Min      1Q  Median      3Q     Max 
+## -7.0340 -0.3870  0.0053  0.3989  2.7412 
+## 
+## Coefficients:
+##                            Estimate Std. Error t value            Pr(>|t|)
+## (Intercept)                 -0.4816     0.0808  -5.960 0.00000000919066193
+## conv.type0.997879106838302   0.9632     0.1143   8.429 0.00000000000000358
+##                               
+## (Intercept)                ***
+## conv.type0.997879106838302 ***
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+## 
+## Residual standard error: 0.8777 on 234 degrees of freedom
+## Multiple R-squared:  0.2329,	Adjusted R-squared:  0.2296 
+## F-statistic: 71.05 on 1 and 234 DF,  p-value: 0.000000000000003578
+```
+
+```
+##                                 2.5 %     97.5 %
+## (Intercept)                -0.6407819 -0.3224098
+## conv.type0.997879106838302  0.7380685  1.1883147
+```
+
+
+
+|             &nbsp;             | Estimate | Std..Error | t.value |   p    | p_adj  | sig |
+|:------------------------------:|:--------:|:----------:|:-------:|:------:|:------:|:---:|
+|        **(Intercept)**         | -0.4816  |   0.0808   |  -5.96  | 0.0001 | 0.0001 | *** |
+| **conv.type0.997879106838302** |  0.9632  |   0.1143   |  8.429  | 0.0001 | 0.0001 | *** |
+
+***
+
+<!-- ## Model comparisons -->
+
+<!-- **Lena**: We can't compare the RR, proportion, and DET, due to unequal sample sizes. -->
+
+<!-- ```{r model comparison static and dynamic} -->
+
+<!-- # compare AIC -->
+<!-- AIC(planned_analyses_raw, exploratory_analyses_raw_prop) -->
+
+<!-- # Model comparison proportion + RR -->
+<!-- anRR_prop = anova(exploratory_analyses_raw_prop, planned_analyses_raw) -->
+<!-- anRR_prop -->
+
+
+<!-- # Model comparison proportion + DET -->
+<!-- # anDET_prop = anova(exploratory_analyses_raw_prop, exploratory_analyses_raw_DET) -->
+<!-- # anDET_prop -->
+
+<!-- ``` -->
+
+<!-- *** -->
+
 ## Post-hoc analyses
 
 Next, we perform several post-hoc analyses to explore whether the changes 
@@ -561,8 +1892,13 @@ post_hoc_df = full_join(rqa_mon_post, rqa_conv_post,
                         by=c("dyad_id", "speaker_code")) %>%
   mutate(Diff_RR = RR_m - RR_c,           # positive means higher RR in mon
          Diff_DET = DET_m - DET_c,        # positive means more DET in mon
-         Diff_rENTR = rENTR_m - rENTR_c,  # positive means more line diversity in mon
-         Diff_NRLINE_norm = NRLINE_norm_m - NRLINE_norm_c)  %>% # positive means more lines in monologue
+         Diff_NRLINE_norm = NRLINE_norm_m - NRLINE_norm_c, # positive means more lines in monologue
+         Diff_maxL = maxL_m - maxL_c, # positive means a longer  maximal line in monologue
+         Diff_L = L_m - L_c, # positive means on average longer lines in monologue
+         Diff_rENTR = rENTR_m - rENTR_c,  # positive means more line diversity in monologue
+         Diff_LAM = LAM_m - LAM_c, # positive means proportion of points on vertical line is higher in monologue
+         Diff_TT = TT_m - TT_c) %>% #positive means on average longer vertical lines in monologue
+        
   
   # drop uninformative variables
   select(-conv.type_c, -conv.type_m, -cond) %>%
@@ -606,7 +1942,7 @@ write.table(post_hoc_standardized_df, './data/post_hoc_standardized_df.csv',
 
 ***
 
-### Post-hoc analysis: Recurrence rate
+### RR: Post-hoc analysis
 
 #### Raw model
 
@@ -730,7 +2066,7 @@ argument.
 
 ***
 
-### Post-hoc analysis: Determinism
+### DET: Post-hoc analysis
 
 #### Raw model
 
@@ -862,7 +2198,365 @@ with the results found in the post-hoc analysis of RR.
 
 ***
 
-### Post-hoc analysis: Normalized entropy
+### NRLINE_norm: Post-hoc analysis
+
+#### Raw model
+
+
+```r
+# raw: do changes in amount of structure of linguistic style between 
+#      monologues and dialogues differ by conversation type?
+post_hoc_NRLINE_raw = lm(Diff_NRLINE_norm ~ cond_c,
+                         data = post_hoc_df)
+
+# calculate 95% CI
+CI_posthoc_NRLINE_raw <- confint(post_hoc_NRLINE_raw)
+
+# calculate effect size
+es_post_hoc_NRLINE_raw <- cohensD(x = Diff_NRLINE_norm~cond_c, 
+                                  data = post_hoc_df)
+```
+
+
+```
+## 
+## Call:
+## lm(formula = Diff_NRLINE_norm ~ cond_c, data = post_hoc_df)
+## 
+## Residuals:
+##     Min      1Q  Median      3Q     Max 
+## -152.12  -22.44   11.07   30.62   76.78 
+## 
+## Coefficients:
+##             Estimate Std. Error t value            Pr(>|t|)    
+## (Intercept)  -68.932      6.059 -11.377 <0.0000000000000002 ***
+## cond_c0.5     -6.504      8.358  -0.778               0.438    
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+## 
+## Residual standard error: 45.34 on 116 degrees of freedom
+## Multiple R-squared:  0.005193,	Adjusted R-squared:  -0.003383 
+## F-statistic: 0.6055 on 1 and 116 DF,  p-value: 0.4381
+```
+
+```
+##                 2.5 %    97.5 %
+## (Intercept) -80.93178 -56.93182
+## cond_c0.5   -23.05894  10.05078
+```
+
+```
+## [1] 0.1434544
+```
+
+
+|     &nbsp;      | Estimate | Std..Error | t.value |   p    | sig |
+|:---------------:|:--------:|:----------:|:-------:|:------:|:---:|
+| **(Intercept)** |  -68.93  |   6.059    | -11.38  | 0.0001 | *** |
+|  **cond_c0.5**  |  -6.504  |   8.358    | -0.7781 |  0.44  |     |
+
+#### Standardized model
+
+
+```r
+# standardized: do changes in amount of structure of linguistic style between 
+#      monologues and dialogues differ by conversation type?
+post_hoc_NRLINE_st = lm(Diff_NRLINE_norm ~ cond_c,
+                        data = post_hoc_standardized_df)
+
+# calculate 95% CI
+CI_posthoc_NRLINE_st <- confint(post_hoc_NRLINE_st)
+
+# calculate effect size
+es_post_hoc_NRLINE_st <- cohensD(x = Diff_NRLINE_norm~cond_c, 
+                                 data = post_hoc_standardized_df)
+```
+
+
+```
+## 
+## Call:
+## lm(formula = Diff_NRLINE_norm ~ cond_c, data = post_hoc_df)
+## 
+## Residuals:
+##     Min      1Q  Median      3Q     Max 
+## -152.12  -22.44   11.07   30.62   76.78 
+## 
+## Coefficients:
+##             Estimate Std. Error t value            Pr(>|t|)    
+## (Intercept)  -68.932      6.059 -11.377 <0.0000000000000002 ***
+## cond_c0.5     -6.504      8.358  -0.778               0.438    
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+## 
+## Residual standard error: 45.34 on 116 degrees of freedom
+## Multiple R-squared:  0.005193,	Adjusted R-squared:  -0.003383 
+## F-statistic: 0.6055 on 1 and 116 DF,  p-value: 0.4381
+```
+
+```
+##                              2.5 %    97.5 %
+## (Intercept)             -0.1896179 0.3406214
+## cond_c0.946346316347633 -0.5094491 0.2220554
+```
+
+```
+## [1] 0.1434544
+```
+
+
+|           &nbsp;            | Estimate | Std..Error | t.value |  p   | sig |
+|:---------------------------:|:--------:|:----------:|:-------:|:----:|:---:|
+|       **(Intercept)**       |  0.0755  |   0.1339   | 0.5641  | 0.57 |     |
+| **cond_c0.946346316347633** | -0.1437  |   0.1847   | -0.7781 | 0.44 |     |
+
+![](beyond_consistency_files/figure-html/unnamed-chunk-61-1.png)<!-- -->
+
+Again, as with rENTR (and in contrast with RR and DET), we do not see a 
+difference in the number of lines on the RP by conversation type. Essentially,
+this is another measure of continued structure within a system by capturing
+the total number of lines in the plot.
+
+***
+### MaxL: Post-hoc analysis
+
+#### Raw model
+
+
+```r
+# raw: do changes in uniformity of structure of linguistic style between monologues
+#       and dialogues differ by conversation type?
+post_hoc_maxL_raw = lm(Diff_maxL ~ cond_c,
+                        data = post_hoc_df)
+
+# calculate 95% CI
+CI_posthoc_maxL_raw <- confint(post_hoc_maxL_raw)
+
+# calculate effect size
+es_post_hoc_maxL_raw <- cohensD(x = Diff_maxL~cond_c, 
+                                 data = post_hoc_standardized_df)
+```
+
+
+```
+## 
+## Call:
+## lm(formula = Diff_maxL ~ cond_c, data = post_hoc_df)
+## 
+## Residuals:
+##      Min       1Q   Median       3Q      Max 
+## -16.2581  -1.2581  -0.2581   1.7419   6.7419 
+## 
+## Coefficients:
+##             Estimate Std. Error t value           Pr(>|t|)    
+## (Intercept)  -3.4821     0.4092  -8.509 0.0000000000000714 ***
+## cond_c0.5    -1.2598     0.5646  -2.231             0.0276 *  
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+## 
+## Residual standard error: 3.062 on 116 degrees of freedom
+## Multiple R-squared:  0.04116,	Adjusted R-squared:  0.03289 
+## F-statistic: 4.979 on 1 and 116 DF,  p-value: 0.02757
+```
+
+```
+##                 2.5 %     97.5 %
+## (Intercept) -4.292664 -2.6716212
+## cond_c0.5   -2.377968 -0.1416177
+```
+
+```
+## [1] 0.4113798
+```
+
+
+|     &nbsp;      | Estimate | Std..Error | t.value |   p    | sig |
+|:---------------:|:--------:|:----------:|:-------:|:------:|:---:|
+| **(Intercept)** |  -3.482  |   0.4092   | -8.509  | 0.0001 | *** |
+|  **cond_c0.5**  |  -1.26   |   0.5646   | -2.231  | 0.028  |  *  |
+
+#### Standardized model
+
+
+```r
+# standardized: do changes in uniformity of structure of linguistic style between monologues
+#       and dialogues differ by conversation type?
+post_hoc_maxL_st = lm(Diff_maxL ~ cond_c,
+                       data = post_hoc_standardized_df)
+
+# calculate 95% CI
+CI_posthoc_maxL_st <- confint(post_hoc_maxL_st)
+
+# calculate effect size
+es_post_hoc_maxL_st <- cohensD(x = Diff_maxL~cond_c, 
+                                data = post_hoc_standardized_df)
+```
+
+
+```
+## 
+## Call:
+## lm(formula = Diff_maxL ~ cond_c, data = post_hoc_standardized_df)
+## 
+## Residuals:
+##     Min      1Q  Median      3Q     Max 
+## -5.2210 -0.4040 -0.0829  0.5594  2.1650 
+## 
+## Coefficients:
+##                         Estimate Std. Error t value Pr(>|t|)  
+## (Intercept)               0.2126     0.1314   1.618   0.1085  
+## cond_c0.946346316347633  -0.4046     0.1813  -2.231   0.0276 *
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+## 
+## Residual standard error: 0.9834 on 116 degrees of freedom
+## Multiple R-squared:  0.04116,	Adjusted R-squared:  0.03289 
+## F-statistic: 4.979 on 1 and 116 DF,  p-value: 0.02757
+```
+
+```
+##                               2.5 %      97.5 %
+## (Intercept)             -0.04771886  0.47284684
+## cond_c0.946346316347633 -0.76363685 -0.04547769
+```
+
+```
+## [1] 0.4113798
+```
+
+
+
+|           &nbsp;            | Estimate | Std..Error | t.value |   p   | sig |
+|:---------------------------:|:--------:|:----------:|:-------:|:-----:|:---:|
+|       **(Intercept)**       |  0.2126  |   0.1314   |  1.618  | 0.108 |     |
+| **cond_c0.946346316347633** | -0.4046  |   0.1813   | -2.231  | 0.028 |  *  |
+
+Add description of the results!
+
+![](beyond_consistency_files/figure-html/unnamed-chunk-68-1.png)<!-- -->
+
+***
+
+### L: Post-hoc analysis
+
+#### Raw model
+
+
+```r
+# raw: do changes in uniformity of structure of linguistic style between monologues
+#       and dialogues differ by conversation type?
+post_hoc_L_raw = lm(Diff_L ~ cond_c,
+                        data = post_hoc_df)
+
+# calculate 95% CI
+CI_posthoc_L_raw <- confint(post_hoc_L_raw)
+
+# calculate effect size
+es_post_hoc_L_raw <- cohensD(x = Diff_L~cond_c, 
+                                 data = post_hoc_standardized_df)
+```
+
+
+```
+## 
+## Call:
+## lm(formula = Diff_L ~ cond_c, data = post_hoc_df)
+## 
+## Residuals:
+##      Min       1Q   Median       3Q      Max 
+## -2.27645 -0.11972 -0.01486  0.11788  0.85480 
+## 
+## Coefficients:
+##             Estimate Std. Error t value Pr(>|t|)   
+## (Intercept) -0.11199    0.03888  -2.880  0.00473 **
+## cond_c0.5   -0.12364    0.05364  -2.305  0.02294 * 
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+## 
+## Residual standard error: 0.291 on 116 degrees of freedom
+## Multiple R-squared:  0.0438,	Adjusted R-squared:  0.03556 
+## F-statistic: 5.313 on 1 and 116 DF,  p-value: 0.02294
+```
+
+```
+##                  2.5 %      97.5 %
+## (Intercept) -0.1890006 -0.03498456
+## cond_c0.5   -0.2298792 -0.01740267
+```
+
+```
+## [1] 0.4249471
+```
+
+
+|     &nbsp;      | Estimate | Std..Error | t.value |   p   | sig |
+|:---------------:|:--------:|:----------:|:-------:|:-----:|:---:|
+| **(Intercept)** |  -0.112  |  0.03888   |  -2.88  | 0.005 | **  |
+|  **cond_c0.5**  | -0.1236  |  0.05364   | -2.305  | 0.023 |  *  |
+
+#### Standardized model
+
+
+```r
+# standardized: do changes in uniformity of structure of linguistic style between monologues
+#       and dialogues differ by conversation type?
+post_hoc_L_st = lm(Diff_L ~ cond_c,
+                       data = post_hoc_standardized_df)
+
+# calculate 95% CI
+CI_posthoc_L_st <- confint(post_hoc_L_st)
+
+# calculate effect size
+es_post_hoc_L_st <- cohensD(x = Diff_L~cond_c, 
+                                data = post_hoc_standardized_df)
+```
+
+
+```
+## 
+## Call:
+## lm(formula = Diff_L ~ cond_c, data = post_hoc_standardized_df)
+## 
+## Residuals:
+##     Min      1Q  Median      3Q     Max 
+## -7.6837 -0.4041 -0.0501  0.3979  2.8852 
+## 
+## Coefficients:
+##                         Estimate Std. Error t value Pr(>|t|)  
+## (Intercept)               0.2193     0.1312   1.671   0.0974 .
+## cond_c0.946346316347633  -0.4173     0.1810  -2.305   0.0229 *
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+## 
+## Residual standard error: 0.9821 on 116 degrees of freedom
+## Multiple R-squared:  0.0438,	Adjusted R-squared:  0.03556 
+## F-statistic: 5.313 on 1 and 116 DF,  p-value: 0.02294
+```
+
+```
+##                              2.5 %      97.5 %
+## (Intercept)             -0.0406524  0.47919648
+## cond_c0.946346316347633 -0.7759093 -0.05873907
+```
+
+```
+## [1] 0.4249471
+```
+
+
+
+|           &nbsp;            | Estimate | Std..Error | t.value |   p   | sig |
+|:---------------------------:|:--------:|:----------:|:-------:|:-----:|:---:|
+|       **(Intercept)**       |  0.2193  |   0.1312   |  1.671  | 0.097 |  .  |
+| **cond_c0.946346316347633** | -0.4173  |   0.181    | -2.305  | 0.023 |  *  |
+
+Add description of the results!
+
+![](beyond_consistency_files/figure-html/unnamed-chunk-75-1.png)<!-- -->
+
+***
+
+### rENTR: Post-hoc analysis
 
 #### Raw model
 
@@ -988,11 +2682,10 @@ lengths means higher rENTR).
 ## Warning: Removed 3 rows containing missing values (geom_point).
 ```
 
-![](beyond_consistency_files/figure-html/plot-post-retnr-data-1.png)<!-- -->
-
+![](beyond_consistency_files/figure-html/unnamed-chunk-82-1.png)<!-- -->
 ***
 
-### Post-hoc analysis: Number of lines (normalized)
+### LAM: Post-hoc analysis
 
 #### Raw model
 
@@ -1000,14 +2693,14 @@ lengths means higher rENTR).
 ```r
 # raw: do changes in amount of structure of linguistic style between 
 #      monologues and dialogues differ by conversation type?
-post_hoc_NRLINE_raw = lm(Diff_NRLINE_norm ~ cond_c,
+post_hoc_LAM_raw = lm(Diff_LAM ~ cond_c,
                          data = post_hoc_df)
 
 # calculate 95% CI
-CI_posthoc_NRLINE_raw <- confint(post_hoc_NRLINE_raw)
+CI_posthoc_LAM_raw <- confint(post_hoc_LAM_raw)
 
 # calculate effect size
-es_post_hoc_NRLINE_raw <- cohensD(x = Diff_NRLINE_norm~cond_c, 
+es_post_hoc_LAM_raw <- cohensD(x = Diff_LAM~cond_c, 
                                   data = post_hoc_df)
 ```
 
@@ -1015,39 +2708,39 @@ es_post_hoc_NRLINE_raw <- cohensD(x = Diff_NRLINE_norm~cond_c,
 ```
 ## 
 ## Call:
-## lm(formula = Diff_NRLINE_norm ~ cond_c, data = post_hoc_df)
+## lm(formula = Diff_LAM ~ cond_c, data = post_hoc_df)
 ## 
 ## Residuals:
 ##     Min      1Q  Median      3Q     Max 
-## -152.12  -22.44   11.07   30.62   76.78 
+## -76.490  -4.191   0.915   5.365  38.857 
 ## 
 ## Coefficients:
-##             Estimate Std. Error t value            Pr(>|t|)    
-## (Intercept)  -68.932      6.059 -11.377 <0.0000000000000002 ***
-## cond_c0.5     -6.504      8.358  -0.778               0.438    
+##             Estimate Std. Error t value Pr(>|t|)   
+## (Intercept)   -4.316      1.440  -2.998  0.00332 **
+## cond_c0.5     -2.809      1.986  -1.414  0.15995   
 ## ---
 ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 ## 
-## Residual standard error: 45.34 on 116 degrees of freedom
-## Multiple R-squared:  0.005193,	Adjusted R-squared:  -0.003383 
-## F-statistic: 0.6055 on 1 and 116 DF,  p-value: 0.4381
+## Residual standard error: 10.77 on 116 degrees of freedom
+## Multiple R-squared:  0.01695,	Adjusted R-squared:  0.008476 
+## F-statistic:     2 on 1 and 116 DF,  p-value: 0.16
 ```
 
 ```
 ##                 2.5 %    97.5 %
-## (Intercept) -80.93178 -56.93182
-## cond_c0.5   -23.05894  10.05078
+## (Intercept) -7.167827 -1.465097
+## cond_c0.5   -6.742561  1.124781
 ```
 
 ```
-## [1] 0.1434544
+## [1] 0.2607296
 ```
 
 
-|     &nbsp;      | Estimate | Std..Error | t.value |   p    | sig |
-|:---------------:|:--------:|:----------:|:-------:|:------:|:---:|
-| **(Intercept)** |  -68.93  |   6.059    | -11.38  | 0.0001 | *** |
-|  **cond_c0.5**  |  -6.504  |   8.358    | -0.7781 |  0.44  |     |
+|     &nbsp;      | Estimate | Std..Error | t.value |   p   | sig |
+|:---------------:|:--------:|:----------:|:-------:|:-----:|:---:|
+| **(Intercept)** |  -4.316  |    1.44    | -2.998  | 0.003 | **  |
+|  **cond_c0.5**  |  -2.809  |   1.986    | -1.414  | 0.16  |     |
 
 #### Standardized model
 
@@ -1055,14 +2748,14 @@ es_post_hoc_NRLINE_raw <- cohensD(x = Diff_NRLINE_norm~cond_c,
 ```r
 # standardized: do changes in amount of structure of linguistic style between 
 #      monologues and dialogues differ by conversation type?
-post_hoc_NRLINE_st = lm(Diff_NRLINE_norm ~ cond_c,
+post_hoc_LAM_st = lm(Diff_LAM ~ cond_c,
                         data = post_hoc_standardized_df)
 
 # calculate 95% CI
-CI_posthoc_NRLINE_st <- confint(post_hoc_NRLINE_st)
+CI_posthoc_LAM_st <- confint(post_hoc_LAM_st)
 
 # calculate effect size
-es_post_hoc_NRLINE_st <- cohensD(x = Diff_NRLINE_norm~cond_c, 
+es_post_hoc_LAM_st <- cohensD(x = Diff_LAM~cond_c, 
                                  data = post_hoc_standardized_df)
 ```
 
@@ -1070,43 +2763,1146 @@ es_post_hoc_NRLINE_st <- cohensD(x = Diff_NRLINE_norm~cond_c,
 ```
 ## 
 ## Call:
-## lm(formula = Diff_NRLINE_norm ~ cond_c, data = post_hoc_df)
+## lm(formula = Diff_LAM ~ cond_c, data = post_hoc_df)
 ## 
 ## Residuals:
 ##     Min      1Q  Median      3Q     Max 
-## -152.12  -22.44   11.07   30.62   76.78 
+## -76.490  -4.191   0.915   5.365  38.857 
 ## 
 ## Coefficients:
-##             Estimate Std. Error t value            Pr(>|t|)    
-## (Intercept)  -68.932      6.059 -11.377 <0.0000000000000002 ***
-## cond_c0.5     -6.504      8.358  -0.778               0.438    
+##             Estimate Std. Error t value Pr(>|t|)   
+## (Intercept)   -4.316      1.440  -2.998  0.00332 **
+## cond_c0.5     -2.809      1.986  -1.414  0.15995   
 ## ---
 ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 ## 
-## Residual standard error: 45.34 on 116 degrees of freedom
-## Multiple R-squared:  0.005193,	Adjusted R-squared:  -0.003383 
-## F-statistic: 0.6055 on 1 and 116 DF,  p-value: 0.4381
+## Residual standard error: 10.77 on 116 degrees of freedom
+## Multiple R-squared:  0.01695,	Adjusted R-squared:  0.008476 
+## F-statistic:     2 on 1 and 116 DF,  p-value: 0.16
 ```
 
 ```
 ##                              2.5 %    97.5 %
-## (Intercept)             -0.1896179 0.3406214
-## cond_c0.946346316347633 -0.5094491 0.2220554
+## (Intercept)             -0.1271365 0.3999598
+## cond_c0.946346316347633 -0.6232065 0.1039621
 ```
 
 ```
-## [1] 0.1434544
+## [1] 0.2607296
 ```
 
 
 |           &nbsp;            | Estimate | Std..Error | t.value |  p   | sig |
 |:---------------------------:|:--------:|:----------:|:-------:|:----:|:---:|
-|       **(Intercept)**       |  0.0755  |   0.1339   | 0.5641  | 0.57 |     |
-| **cond_c0.946346316347633** | -0.1437  |   0.1847   | -0.7781 | 0.44 |     |
+|       **(Intercept)**       |  0.1364  |   0.1331   |  1.025  | 0.31 |     |
+| **cond_c0.946346316347633** | -0.2596  |   0.1836   | -1.414  | 0.16 |     |
 
-![](beyond_consistency_files/figure-html/plot-post-nrline-data-1.png)<!-- -->
+![](beyond_consistency_files/figure-html/unnamed-chunk-89-1.png)<!-- -->
 
-Again, as with rENTR (and in contrast with RR and DET), we do not see a 
-difference in the number of lines on the RP by conversation type. Essentially,
-this is another measure of continued structure within a system by capturing
-the total number of lines in the plot.
+Add description after we have the results.
+
+***
+
+###  TT: Post-hoc analysis
+
+#### Raw model
+
+
+```r
+# raw: do changes in amount of structure of linguistic style between 
+#      monologues and dialogues differ by conversation type?
+post_hoc_TT_raw = lm(Diff_TT ~ cond_c,
+                         data = post_hoc_df)
+
+# calculate 95% CI
+CI_posthoc_TT_raw <- confint(post_hoc_TT_raw)
+
+# calculate effect size
+es_post_hoc_TT_raw <- cohensD(x = Diff_TT~cond_c, 
+                                  data = post_hoc_df)
+```
+
+
+```
+## 
+## Call:
+## lm(formula = Diff_TT ~ cond_c, data = post_hoc_df)
+## 
+## Residuals:
+##      Min       1Q   Median       3Q      Max 
+## -2.89079 -0.25572 -0.02691  0.24017  1.24553 
+## 
+## Coefficients:
+##             Estimate Std. Error t value  Pr(>|t|)    
+## (Intercept) -0.27239    0.06682  -4.076 0.0000841 ***
+## cond_c0.5   -0.22515    0.09219  -2.442    0.0161 *  
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+## 
+## Residual standard error: 0.5 on 116 degrees of freedom
+## Multiple R-squared:  0.04891,	Adjusted R-squared:  0.04071 
+## F-statistic: 5.965 on 1 and 116 DF,  p-value: 0.0161
+```
+
+```
+##                  2.5 %      97.5 %
+## (Intercept) -0.4047365 -0.14003841
+## cond_c0.5   -0.4077317 -0.04256106
+```
+
+```
+## [1] 0.450249
+```
+
+
+|     &nbsp;      | Estimate | Std..Error | t.value |   p    | sig |
+|:---------------:|:--------:|:----------:|:-------:|:------:|:---:|
+| **(Intercept)** | -0.2724  |  0.06682   | -4.076  | 0.0001 | *** |
+|  **cond_c0.5**  | -0.2251  |  0.09219   | -2.442  | 0.016  |  *  |
+
+#### Standardized model
+
+
+```r
+# standardized: do changes in amount of structure of linguistic style between 
+#      monologues and dialogues differ by conversation type?
+post_hoc_TT_st = lm(Diff_TT ~ cond_c,
+                        data = post_hoc_standardized_df)
+
+# calculate 95% CI
+CI_posthoc_TT_st <- confint(post_hoc_TT_st)
+
+# calculate effect size
+es_post_hoc_TT_st <- cohensD(x = Diff_TT~cond_c, 
+                                 data = post_hoc_standardized_df)
+```
+
+
+```
+## 
+## Call:
+## lm(formula = Diff_TT ~ cond_c, data = post_hoc_df)
+## 
+## Residuals:
+##      Min       1Q   Median       3Q      Max 
+## -2.89079 -0.25572 -0.02691  0.24017  1.24553 
+## 
+## Coefficients:
+##             Estimate Std. Error t value  Pr(>|t|)    
+## (Intercept) -0.27239    0.06682  -4.076 0.0000841 ***
+## cond_c0.5   -0.22515    0.09219  -2.442    0.0161 *  
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+## 
+## Residual standard error: 0.5 on 116 degrees of freedom
+## Multiple R-squared:  0.04891,	Adjusted R-squared:  0.04071 
+## F-statistic: 5.965 on 1 and 116 DF,  p-value: 0.0161
+```
+
+```
+##                               2.5 %      97.5 %
+## (Intercept)             -0.02752289  0.49093556
+## cond_c0.946346316347633 -0.79861551 -0.08336345
+```
+
+```
+## [1] 0.450249
+```
+
+
+|           &nbsp;            | Estimate | Std..Error | t.value |   p   | sig |
+|:---------------------------:|:--------:|:----------:|:-------:|:-----:|:---:|
+|       **(Intercept)**       |  0.2317  |   0.1309   |  1.77   | 0.079 |  .  |
+| **cond_c0.946346316347633** |  -0.441  |   0.1806   | -2.442  | 0.016 |  *  |
+
+![](beyond_consistency_files/figure-html/unnamed-chunk-96-1.png)<!-- -->
+
+Add description after we have the results.
+
+***
+
+## Additional exploratory analyses: RQA of pronouns and conjunctions
+
+Given the potential richness of the langauge data available, we 
+conducted additional analyses to understand some of the dynamics of 
+specific *kinds* of function words: pronouns and conjunctions.
+
+***
+
+### Data preparation
+
+First, we conduct RQA over monologues and dialogues for both
+kinds of function words separately.
+
+***
+
+#### Recurrence quantification analysis: Monologues
+
+
+```r
+# read in all monologue files
+mon_add_files = list.files('./data/Examples/RQA/Monologues',
+                       pattern = ".txt", full.names = TRUE)
+mon_add_dfs = plyr::ldply(mon_add_files,
+                      read.table, sep="\t", dec = ",", header=TRUE) # added decimal to get numbers instead of characters
+```
+
+
+```r
+# prepare monologues for RQA
+mon_add_dfs = mon_add_dfs %>%
+  
+  # separate 'Filename' column into separate columns
+  tidyr::separate(col=Filename,
+                  into = c("dyad_id", "dyad_position", "speaker_code"),
+                  sep = '_',
+                  remove = FALSE,
+                  extra = "drop",
+                  fill = "warn") %>%
+  
+  
+  # extract speaker number ID and conversation type from variable
+  mutate(cond = gsub("[[:digit:]]+","",dyad_id)) %>%
+  
+  # create new variables pronoun_contrast and conj_contast with all 0 replaced by -1
+   mutate(pronoun_contrast = dplyr::if_else(pronoun==0,
+                                            -1,
+                                            pronoun)) %>%
+  mutate(conj_contrast = dplyr::if_else(conj==0, 
+                                       -1,
+                                       conj)) %>%
+  
+  #add new variable specifying conversation type
+  mutate(conv.type = "M") %>%
+    
+  #select only the relevant variables
+  select(- function., -article, -prep, -auxverb, -adverb, - negate)
+```
+
+First, we conduct RQA over pronouns in monologues.
+
+
+```r
+# split dataframe by monologue
+split_mon_add = split(mon_add_dfs, list(mon_add_dfs$Filename))
+
+# cycle through the individual monologues
+rqa_mon_add_pronoun = data.frame()
+for (next_mon_add in split_mon_add){
+  
+  # run (auto-)recurrence
+  rqa_for_mon_add_pronoun = crqa(ts1=next_mon_add$pronoun,
+                     ts2=next_mon_add$pronoun_contrast,
+                     delay=1,
+                     embed=1,
+                     r=0.1,
+                     normalize=0,
+                     rescale=0,
+                     mindiagline=2,
+                     minvertline=2,
+                     tw=1, # exclude line of identity
+                     whiteline=FALSE,
+                     recpt=FALSE)
+  
+  # save plot-level information to dataframe
+  dyad_id = unique(next_mon_add$dyad_id)
+  speaker_code = unique(next_mon_add$speaker_code)
+  cond = NA   #changed it to NA as there was no condition in the monologue
+  conv.type = unique(next_mon_add$conv.type)
+  next_data_line = data.frame(dyad_id,  
+                              speaker_code,
+                              conv.type,
+                              cond,
+                              rqa_for_mon_add_pronoun[1:9]) %>%
+    mutate(NRLINE_norm = NRLINE / dim(next_mon_add)[1]) # normalize NRLINE by number of words
+  rqa_mon_add_pronoun = rbind.data.frame(rqa_mon_add_pronoun,next_data_line)
+  
+  # save the RPs -- including LOI/LOS for plotting
+  # rqa_for_mon = crqa(ts1=next_mon$function_words,
+  #                    ts2=next_mon$function_contrast,
+  #                    delay=1,
+  #                    embed=1,
+  #                    r=0.1,
+  #                    normalize=0,
+  #                    rescale=0,
+  #                    mindiagline=2,
+  #                    minvertline=2,
+  #                    tw=0, # include LOI/LOS
+  #                    whiteline=FALSE,
+  #                    recpt=FALSE)
+  # png(filename = paste0('./figures/monologue/rp-speaker_',speaker_code,'-monologue.png'))
+  # plotRP(rqa_for_mon$RP,
+  #        list(unit = 2, labelx = "Speaker A", labely = "Speaker A",
+  #             cols = "black", pcex = .5))
+  # dev.off()
+}
+
+# clean up what we don't need
+rm(split_mon_add, next_mon_add, rqa_for_mon_add_pronoun,
+   dyad_id, speaker_code, cond, conv.type, next_data_line)
+```
+
+Next, we conduct RQA over conjunctions in monologues.
+
+
+```r
+# split dataframe by monologue
+split_mon_add = split(mon_add_dfs, list(mon_add_dfs$Filename))
+
+# cycle through the individual monologues
+rqa_mon_add_conj = data.frame()
+for (next_mon_add in split_mon_add){
+  
+  # run (auto-)recurrence
+  rqa_for_mon_add_conj = crqa(ts1=next_mon_add$conj,
+                     ts2=next_mon_add$conj_contrast,
+                     delay=1,
+                     embed=1,
+                     r=0.1,
+                     normalize=0,
+                     rescale=0,
+                     mindiagline=2,
+                     minvertline=2,
+                     tw=1, # exclude line of identity
+                     whiteline=FALSE,
+                     recpt=FALSE)
+  
+  # save plot-level information to dataframe
+  dyad_id = unique(next_mon_add$dyad_id)
+  speaker_code = unique(next_mon_add$speaker_code)
+  cond = NA   #changed it to NA as there was no condition in the monologue
+  conv.type = unique(next_mon_add$conv.type)
+  next_data_line = data.frame(dyad_id,  
+                              speaker_code,
+                              conv.type,
+                              cond,
+                              rqa_for_mon_add_conj[1:9]) %>%
+    mutate(NRLINE_norm = NRLINE / dim(next_mon_add)[1]) # normalize NRLINE by number of words
+  rqa_mon_add_conj = rbind.data.frame(rqa_mon_add_conj,next_data_line)
+  
+  # save the RPs -- including LOI/LOS for plotting
+  # rqa_for_mon = crqa(ts1=next_mon$function_words,
+  #                    ts2=next_mon$function_contrast,
+  #                    delay=1,
+  #                    embed=1,
+  #                    r=0.1,
+  #                    normalize=0,
+  #                    rescale=0,
+  #                    mindiagline=2,
+  #                    minvertline=2,
+  #                    tw=0, # include LOI/LOS
+  #                    whiteline=FALSE,
+  #                    recpt=FALSE)
+  # png(filename = paste0('./figures/monologue/rp-speaker_',speaker_code,'-monologue.png'))
+  # plotRP(rqa_for_mon$RP,
+  #        list(unit = 2, labelx = "Speaker A", labely = "Speaker A",
+  #             cols = "black", pcex = .5))
+  # dev.off()
+}
+
+# clean up what we don't need
+rm(split_mon_add, next_mon_add, rqa_for_mon_add_conj,
+   dyad_id, speaker_code, cond, conv.type, next_data_line)
+```
+
+***
+
+#### Recurrrence quantification analysis: Conversations
+
+
+```r
+# read in all conversation files
+conv_files = list.files('./data/Examples/RQA/Conversations',
+                        pattern = ".txt", full.names = TRUE)
+conv_add_dfs = plyr::ldply(conv_files,
+                       read.table, sep="\t", dec = ",", header=TRUE)
+```
+
+
+
+```r
+# prepare conversations for RQA
+conv_add_dfs = conv_add_dfs %>%
+  
+  # separate 'Filename' column into separate columns
+  tidyr::separate(Filename,
+                  into = c("dyad_id", "dyad_position", "speaker_code"),
+                  sep = '_',
+                  remove = FALSE,
+                  extra = "drop",
+                  fill = "warn") %>%
+  
+  # extract speaker number ID and conversation type from variable
+  mutate(cond = gsub("[[:digit:]]+","",dyad_id)) %>%
+  
+  # create new variable function_contrast with all 0 replaced by -1
+  mutate(pronoun_contrast = dplyr::if_else(pronoun==0,
+                                            -1,
+                                            pronoun)) %>%
+  mutate(conj_contrast = dplyr::if_else(conj==0, 
+                                       -1,
+                                       conj)) %>%
+  
+  # add new variable specifying conversation type
+  mutate(conv.type = "C") %>%
+
+#select only relevant variable
+  select(-function., -article, -prep, -auxverb, -adverb, -negate)
+```
+
+First, we conduct RQA over pronouns in conversations.
+
+
+```r
+# split dataframe by conversation
+split_conv_add = split(conv_add_dfs, list(conv_add_dfs$Filename))
+
+# cycle through the individual conversations
+rqa_conv_add_pronoun = data.frame()
+for (next_conv_add in split_conv_add){
+  
+  # run recurrence
+  rqa_for_conv_add_pronoun = crqa(ts1=next_conv_add$pronoun,
+                      ts2=next_conv_add$pronoun_contrast,
+                      delay=1,
+                      embed=1,
+                      r=0.1,
+                      normalize=0,
+                      rescale=0,
+                      mindiagline=2,
+                      minvertline=2,
+                      tw=1, # exclude line of identity
+                      whiteline=FALSE,
+                      recpt=FALSE)
+  
+  # save plot-level information to dataframe
+  dyad_id = unique(next_conv_add$dyad_id)
+  speaker_code = unique(next_conv_add$speaker_code)
+  conv.type = unique(next_conv_add$conv.type)
+  cond = unique(next_conv_add$cond)
+  next_data_line = data.frame(dyad_id,  
+                              speaker_code,
+                              conv.type,
+                              cond,
+                              rqa_for_conv_add_pronoun[1:9]) %>%
+    mutate(NRLINE_norm = NRLINE / dim(next_conv_add)[1]) # normalize NRLINE by number of words
+  rqa_conv_add_pronoun = rbind.data.frame(rqa_conv_add_pronoun,next_data_line)
+  
+  # # plot the RPs -- include LOI/LOS
+  # rqa_for_conv = crqa(ts1=next_conv$function_words,
+  #                     ts2=next_conv$function_contrast,
+  #                     delay=1,
+  #                     embed=1,
+  #                     r=0.1,
+  #                     normalize=0,
+  #                     rescale=0,
+  #                     mindiagline=2,
+  #                     minvertline=2,
+  #                     tw=0, # retain LOI for plotting only
+  #                     whiteline=FALSE,
+  #                     recpt=FALSE)
+  # png(filename = paste0('./figures/conversation/rp-speaker_',speaker_code,'-conversation.png'))
+  # plotRP(rqa_for_conv$RP,
+  #        list(unit = 2, labelx = "Speaker A", labely = "Speaker A",
+  #             cols = "black", pcex = .01))
+  # dev.off()
+}
+
+# clean up what we don't need
+rm(split_conv_add, next_conv_add, rqa_for_conv_add_pronoun,
+   dyad_id, speaker_code, conv.type, cond, next_data_line)
+```
+
+Next, we conduct RQA over conjunctions in dialogues.
+
+
+```r
+# split dataframe by conversation
+split_conv_add = split(conv_add_dfs, list(conv_add_dfs$Filename))
+
+# cycle through the individual conversations
+rqa_conv_add_conj = data.frame()
+for (next_conv_add in split_conv_add){
+  
+  # run recurrence
+  rqa_for_conv_add_conj = crqa(ts1=next_conv_add$conj,
+                      ts2=next_conv_add$conj_contrast,
+                      delay=1,
+                      embed=1,
+                      r=0.1,
+                      normalize=0,
+                      rescale=0,
+                      mindiagline=2,
+                      minvertline=2,
+                      tw=1, # exclude line of identity
+                      whiteline=FALSE,
+                      recpt=FALSE)
+  
+  # save plot-level information to dataframe
+  dyad_id = unique(next_conv_add$dyad_id)
+  speaker_code = unique(next_conv_add$speaker_code)
+  conv.type = unique(next_conv_add$conv.type)
+  cond = unique(next_conv_add$cond)
+  next_data_line = data.frame(dyad_id,  
+                              speaker_code,
+                              conv.type,
+                              cond,
+                              rqa_for_conv_add_conj[1:9]) %>%
+    mutate(NRLINE_norm = NRLINE / dim(next_conv_add)[1]) # normalize NRLINE by number of words
+  rqa_conv_add_conj = rbind.data.frame(rqa_conv_add_conj,next_data_line)
+  
+  # # plot the RPs -- include LOI/LOS
+  # rqa_for_conv = crqa(ts1=next_conv$function_words,
+  #                     ts2=next_conv$function_contrast,
+  #                     delay=1,
+  #                     embed=1,
+  #                     r=0.1,
+  #                     normalize=0,
+  #                     rescale=0,
+  #                     mindiagline=2,
+  #                     minvertline=2,
+  #                     tw=0, # retain LOI for plotting only
+  #                     whiteline=FALSE,
+  #                     recpt=FALSE)
+  # png(filename = paste0('./figures/conversation/rp-speaker_',speaker_code,'-conversation.png'))
+  # plotRP(rqa_for_conv$RP,
+  #        list(unit = 2, labelx = "Speaker A", labely = "Speaker A",
+  #             cols = "black", pcex = .01))
+  # dev.off()
+}
+
+# clean up what we don't need
+rm(split_conv_add, next_conv_add, rqa_for_conv_add_conj,
+   dyad_id, speaker_code, conv.type, cond, next_data_line)
+```
+
+***
+
+#### Create dataframes
+
+Finally, we bring together the prepared data into analysis-ready
+dataframes.
+
+We begin by creating the raw dataframes.
+
+
+```r
+# pronouns: bring together the monologue and conversation data
+analysis_df_pronoun = rbind(rqa_mon_add_pronoun, rqa_conv_add_pronoun) %>%
+  
+  # update coding for conversation type and condition
+  mutate(conv.type = as.factor(dplyr::if_else(conv.type == "M",
+                                              -.5,
+                                              .5)),
+         cond = as.factor(dplyr::if_else(cond == "P",
+                                         -.5,
+                                         .5)))
+
+# save dataframe to file
+write.table(analysis_df_pronoun, './data/analysis_df_pronoun.csv', 
+            sep=",", row.names=FALSE, col.names=TRUE)
+```
+
+
+```r
+# conjunctions: bring together the monologue and conversation data
+analysis_df_conj = rbind(rqa_mon_add_conj, rqa_conv_add_conj) %>%
+  
+  # update coding for conversation type and condition
+  mutate(conv.type = as.factor(dplyr::if_else(conv.type == "M",
+                                              -.5,
+                                              .5)),
+         cond = as.factor(dplyr::if_else(cond == "P",
+                                         -.5,
+                                         .5)))
+
+# save dataframe to file
+write.table(analysis_df_conj, './data/analysis_df_conj.csv', 
+            sep=",", row.names=FALSE, col.names=TRUE)
+```
+
+Next, we create the standardized dataframes.
+
+
+```r
+# pronouns: standardize the analysis dataframe
+standardized_df_pronoun = analysis_df_pronoun %>%
+  
+  # convert things as needed to numeric
+  mutate(dyad_id = as.numeric(as.factor(dyad_id)),
+         speaker_code = as.numeric(as.factor(speaker_code))) %>%
+  
+  # standardize
+  mutate_all(funs(as.numeric(scale(as.numeric(.))))) %>%
+  
+  # convert to factors as needed
+  mutate(dyad_id = as.factor(dyad_id),
+         speaker_code = as.factor(speaker_code),
+         conv.type = as.factor(conv.type),
+         cond = as.factor(cond))
+
+# save dataframe to file
+write.table(standardized_df_pronoun, './data/standardized_df_pronoun.csv', 
+            sep=",", row.names=FALSE, col.names=TRUE)
+```
+
+
+```r
+# conjunctions: standardize the analysis dataframe
+standardized_df_conj = analysis_df_conj %>%
+  
+  # convert things as needed to numeric
+  mutate(dyad_id = as.numeric(as.factor(dyad_id)),
+         speaker_code = as.numeric(as.factor(speaker_code))) %>%
+  
+  # standardize
+  mutate_all(funs(as.numeric(scale(as.numeric(.))))) %>%
+  
+  # convert to factors as needed
+  mutate(dyad_id = as.factor(dyad_id),
+         speaker_code = as.factor(speaker_code),
+         conv.type = as.factor(conv.type),
+         cond = as.factor(cond))
+
+# save dataframe to file
+write.table(standardized_df_conj, './data/standardized_df_conj.csv', 
+            sep=",", row.names=FALSE, col.names=TRUE)
+```
+
+***
+
+**Lena**: Should this commented-out section be here? If so, be sure
+to change the chunk names and other data.
+
+<!-- ### RR: Raw model -->
+
+<!-- ```{r main-model-raw, results="hide", message = FALSE} -->
+
+<!-- # raw: does linguistic style change based on the conversation setting? -->
+<!-- planned_analyses_raw <- lmer(RR ~ conv.type + (1|speaker_code), -->
+<!--                              data = analysis_df, REML = FALSE) -->
+
+<!-- # calculate 95% CI for model -->
+<!-- CI_planned_analyses_raw <- confint(planned_analyses_raw) -->
+
+
+<!-- # calculate effect size for model -->
+<!-- es_planned_analyses_raw <- lme.dscore(planned_analyses_raw,  -->
+<!--                                       data = analysis_df, type = "lme4") -->
+<!-- ``` -->
+
+<!-- ```{r, eval=TRUE, echo=FALSE} -->
+
+<!-- # print summary tables -->
+<!-- summary(planned_analyses_raw) -->
+
+<!-- # print effect sizes -->
+<!-- es_planned_analyses_raw -->
+
+<!-- # print confidence intervals -->
+<!-- CI_planned_analyses_raw -->
+
+<!-- ``` -->
+
+<!-- ```{r, eval=TRUE, echo=FALSE} -->
+
+<!-- # neatly print output -->
+<!-- pander_lme(planned_analyses_raw) -->
+
+<!-- ``` -->
+
+***
+
+### RR for Pronouns
+
+#### Raw model
+
+
+```r
+# standardized: does linguistic style change based on the conversation setting?
+pron_add_analyses_RR <- lmer(RR ~ conv.type + (1|speaker_code),
+                            data = standardized_df_pronoun, REML = FALSE)
+
+# calculate 95%CI for model
+CI_pron_add_analyses_RR <- confint(pron_add_analyses_RR)
+
+# calculate effect size for model
+es_pron_add_analyses_RR <- lme.dscore(pron_add_analyses_RR, 
+                                     data = standardized_df_pronoun, type = "lme4")
+```
+
+
+```
+## Linear mixed model fit by maximum likelihood . t-tests use
+##   Satterthwaite's method [lmerModLmerTest]
+## Formula: RR ~ conv.type + (1 | speaker_code)
+##    Data: standardized_df_pronoun
+## 
+##      AIC      BIC   logLik deviance df.resid 
+##    587.1    600.9   -289.5    579.1      232 
+## 
+## Scaled residuals: 
+##     Min      1Q  Median      3Q     Max 
+## -2.1646 -0.6488 -0.1131  0.5530  5.2314 
+## 
+## Random effects:
+##  Groups       Name        Variance Std.Dev.
+##  speaker_code (Intercept) 0.1092   0.3304  
+##  Residual                 0.5805   0.7619  
+## Number of obs: 236, groups:  speaker_code, 118
+## 
+## Fixed effects:
+##                             Estimate Std. Error        df t value
+## (Intercept)                 -0.55328    0.07645 230.22481  -7.237
+## conv.type0.997879106838302   1.10656    0.09919 118.02399  11.156
+##                                        Pr(>|t|)    
+## (Intercept)                    0.00000000000677 ***
+## conv.type0.997879106838302 < 0.0000000000000002 ***
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+## 
+## Correlation of Fixed Effects:
+##             (Intr)
+## c.0.9978791 -0.649
+```
+
+```
+##                                   t       df        d
+## conv.type0.997879106838302 11.10852 117.0238 2.053757
+```
+
+```
+##                                 2.5 %     97.5 %
+## .sig01                      0.0000000  0.4968505
+## .sigma                      0.6741755  0.8705831
+## (Intercept)                -0.7037462 -0.4028171
+## conv.type0.997879106838302  0.9105486  1.3025781
+```
+
+
+
+|             &nbsp;             | Estimate | Std..Error |  df   | t.value |   p    | p_adj  | sig |
+|:------------------------------:|:--------:|:----------:|:-----:|:-------:|:------:|:------:|:---:|
+|        **(Intercept)**         | -0.5533  |  0.07645   | 230.2 | -7.237  | 0.0001 | 0.0001 | *** |
+| **conv.type0.997879106838302** |  1.107   |  0.09919   |  118  |  11.16  | 0.0001 | 0.0001 | *** |
+
+#### Standardized model
+
+***
+
+### RR for Conjunctions
+
+#### Raw model
+
+#### Standardized model
+
+
+```r
+# standardized: does linguistic style change based on the conversation setting?
+conj_add_analyses_RR <- lmer(RR ~ conv.type + (1|speaker_code),
+                            data = standardized_df_conj, REML = FALSE)
+
+# calculate 95%CI for model
+CI_conj_add_analyses_RR <- confint(conj_add_analyses_RR)
+
+# calculate effect size for model
+es_conj_add_analyses_RR <- lme.dscore(conj_add_analyses_RR, 
+                                     data = standardized_df_conj, type = "lme4")
+```
+
+
+```
+## Linear mixed model fit by maximum likelihood . t-tests use
+##   Satterthwaite's method [lmerModLmerTest]
+## Formula: RR ~ conv.type + (1 | speaker_code)
+##    Data: standardized_df_conj
+## 
+##      AIC      BIC   logLik deviance df.resid 
+##    672.5    686.3   -332.2    664.5      232 
+## 
+## Scaled residuals: 
+##     Min      1Q  Median      3Q     Max 
+## -2.3538 -0.6366 -0.0502  0.5894  3.4785 
+## 
+## Random effects:
+##  Groups       Name        Variance Std.Dev.
+##  speaker_code (Intercept) 0.1502   0.3875  
+##  Residual                 0.8393   0.9161  
+## Number of obs: 236, groups:  speaker_code, 118
+## 
+## Fixed effects:
+##                             Estimate Std. Error        df t value Pr(>|t|)
+## (Intercept)                 -0.07930    0.09157 230.68644  -0.866    0.387
+## conv.type0.997879106838302   0.15860    0.11927 117.99999   1.330    0.186
+## 
+## Correlation of Fixed Effects:
+##             (Intr)
+## c.0.9978791 -0.651
+```
+
+```
+##                                   t  df         d
+## conv.type0.997879106838302 1.324086 117 0.2448236
+```
+
+```
+##                                  2.5 %    97.5 %
+## .sig01                      0.00000000 0.5893206
+## .sigma                      0.81060700 1.0467716
+## (Intercept)                -0.25952646 0.1009284
+## conv.type0.997879106838302 -0.07708378 0.3942798
+```
+
+
+|             &nbsp;             | Estimate | Std..Error |  df   | t.value |   p   | p_adj | sig |
+|:------------------------------:|:--------:|:----------:|:-----:|:-------:|:-----:|:-----:|:---:|
+|        **(Intercept)**         | -0.0793  |  0.09157   | 230.7 | -0.866  | 0.39  | 0.39  |     |
+| **conv.type0.997879106838302** |  0.1586  |   0.1193   |  118  |  1.33   | 0.186 | 0.37  |     |
+
+***
+
+### Post-hoc analyses of pronoun- and conjunction-only models
+
+After looking at the overall RR of pronouns and conjunctions, we
+conduct similar post-hoc analyses for pronoun- and conjunction-only
+data as we did for the general function word data.
+
+***
+
+#### Data preparation
+
+First, we'll need to prepare the data by converting it from long- to 
+wide-form for both datasets.
+
+We begin with the pronouns.
+
+
+```r
+# preparing data for Post-hoc analyses - Bring data into wide format
+rqa_mon_add_post_pron = rqa_mon_add_pronoun %>%
+  dplyr::rename(conv.type_m = conv.type,
+                RR_m = RR,
+                DET_m = DET,
+                NRLINE_m = NRLINE,
+                maxL_m = maxL,
+                L_m = L,
+                ENTR_m = ENTR,
+                rENTR_m = rENTR,
+                LAM_m = LAM,
+                TT_m = TT,
+                NRLINE_norm_m = NRLINE_norm)
+rqa_conv_add_post_pron = rqa_conv_add_pronoun  %>%
+  dplyr::rename(conv.type_c = conv.type,
+                cond_c = cond,
+                RR_c = RR,
+                DET_c = DET,
+                NRLINE_c = NRLINE,
+                maxL_c = maxL,
+                L_c = L,
+                ENTR_c = ENTR,
+                rENTR_c = rENTR,
+                LAM_c = LAM,
+                TT_c = TT,
+                NRLINE_norm_c = NRLINE_norm)
+
+# Calculate difference scores
+post_hoc_df_add_pron = full_join(rqa_mon_add_post_pron, rqa_conv_add_post_pron,
+                        by=c("dyad_id", "speaker_code")) %>%
+  mutate(Diff_RR = RR_m - RR_c,           # positive means higher RR in mon
+         Diff_DET = DET_m - DET_c,        # positive means more DET in mon
+         Diff_NRLINE_norm = NRLINE_norm_m - NRLINE_norm_c, # positive means more lines in monologue
+         Diff_maxL = maxL_m - maxL_c, # positive means a longer  maximal line in monologue
+         Diff_L = L_m - L_c, # positive means on average longer lines in monologue
+         Diff_rENTR = rENTR_m - rENTR_c,  # positive means more line diversity in monologue
+         Diff_LAM = LAM_m - LAM_c, # positive means proportion of points on vertical line is higher in monologue
+         Diff_TT = TT_m - TT_c) %>% #positive means on average longer vertical lines in monologue
+        
+  
+  # drop uninformative variables
+  select(-conv.type_c, -conv.type_m, -cond) %>%
+  
+  # update coding for condition
+  mutate(cond_c = as.factor(dplyr::if_else(cond_c == "P",
+                                           -.5,
+                                           .5)))
+
+# save dataframe to file
+write.table(post_hoc_df_add_pron, './data/post_hoc_add_df_pron.csv', 
+            sep=",", row.names=FALSE, col.names=TRUE)
+
+# clean up what we don't need
+rm(rqa_mon_add_post_pron, rqa_conv_add_post_pron)
+```
+
+We then prepare the conjunctions.
+
+
+```r
+# preparing data for Post-hoc analyses - Bring data into wide format
+rqa_mon_add_post_conj = rqa_mon_add_conj %>%
+  dplyr::rename(conv.type_m = conv.type,
+                RR_m = RR,
+                DET_m = DET,
+                NRLINE_m = NRLINE,
+                maxL_m = maxL,
+                L_m = L,
+                ENTR_m = ENTR,
+                rENTR_m = rENTR,
+                LAM_m = LAM,
+                TT_m = TT,
+                NRLINE_norm_m = NRLINE_norm)
+rqa_conv_add_post_conj = rqa_conv_add_conj  %>%
+  dplyr::rename(conv.type_c = conv.type,
+                cond_c = cond,
+                RR_c = RR,
+                DET_c = DET,
+                NRLINE_c = NRLINE,
+                maxL_c = maxL,
+                L_c = L,
+                ENTR_c = ENTR,
+                rENTR_c = rENTR,
+                LAM_c = LAM,
+                TT_c = TT,
+                NRLINE_norm_c = NRLINE_norm)
+
+# Calculate difference scores
+post_hoc_df_add_conj = full_join(rqa_mon_add_post_conj, rqa_conv_add_post_conj,
+                        by=c("dyad_id", "speaker_code")) %>%
+  mutate(Diff_RR = RR_m - RR_c,           # positive means higher RR in mon
+         Diff_DET = DET_m - DET_c,        # positive means more DET in mon
+         Diff_NRLINE_norm = NRLINE_norm_m - NRLINE_norm_c, # positive means more lines in monologue
+         Diff_maxL = maxL_m - maxL_c, # positive means a longer  maximal line in monologue
+         Diff_L = L_m - L_c, # positive means on average longer lines in monologue
+         Diff_rENTR = rENTR_m - rENTR_c,  # positive means more line diversity in monologue
+         Diff_LAM = LAM_m - LAM_c, # positive means proportion of points on vertical line is higher in monologue
+         Diff_TT = TT_m - TT_c) %>% #positive means on average longer vertical lines in monologue
+        
+  
+  # drop uninformative variables
+  select(-conv.type_c, -conv.type_m, -cond) %>%
+  
+  # update coding for condition
+  mutate(cond_c = as.factor(dplyr::if_else(cond_c == "P",
+                                           -.5,
+                                           .5)))
+
+# save dataframe to file
+write.table(post_hoc_df_add_conj, './data/post_hoc_add_df_conj.csv', 
+            sep=",", row.names=FALSE, col.names=TRUE)
+
+# clean up what we don't need
+rm(rqa_mon_add_post_conj, rqa_conv_add_post_conj)
+```
+
+We'll then go ahead and create the raw and standardized dataframes
+for both.
+
+
+```r
+# pronouns: standardize the analysis dataframe
+post_hoc_standardized_df_add_pron = post_hoc_df_add_pron %>%
+  
+  # convert things as needed to numeric
+  mutate(dyad_id = as.numeric(as.factor(dyad_id)),
+         speaker_code = as.numeric(as.factor(speaker_code))) %>%
+  
+  # standardize
+  mutate_all(funs(as.numeric(scale(as.numeric(.))))) %>%
+  
+  # convert to factors as needed
+  mutate(dyad_id = as.factor(dyad_id),
+         speaker_code = as.factor(speaker_code),
+         cond_c = as.factor(cond_c))
+
+# save dataframe to file
+write.table(post_hoc_standardized_df_add_pron, './data/post_hoc_standardized_df_add_pron.csv', 
+            sep=",", row.names=FALSE, col.names=TRUE)
+```
+
+
+```r
+# conjunctions: standardize the analysis dataframe
+post_hoc_standardized_df_add_conj = post_hoc_df_add_conj %>%
+  
+  # convert things as needed to numeric
+  mutate(dyad_id = as.numeric(as.factor(dyad_id)),
+         speaker_code = as.numeric(as.factor(speaker_code))) %>%
+  
+  # standardize
+  mutate_all(funs(as.numeric(scale(as.numeric(.))))) %>%
+  
+  # convert to factors as needed
+  mutate(dyad_id = as.factor(dyad_id),
+         speaker_code = as.factor(speaker_code),
+         cond_c = as.factor(cond_c))
+
+# save dataframe to file
+write.table(post_hoc_standardized_df_add_conj, './data/post_hoc_standardized_df_add_conj.csv', 
+            sep=",", row.names=FALSE, col.names=TRUE)
+```
+
+***
+
+#### Pronoun RR: Post-hoc analysis
+
+##### Raw model
+
+
+```r
+# raw: do changes in linguistic style between monologues and dialogues 
+#       differ by conversation type?
+post_hoc_RR_raw_add_pron = lm(Diff_RR ~ cond_c,
+                     data = post_hoc_df_add_pron)
+
+# calculate 95% CI
+CI_posthoc_RR_raw_add_pron <- confint(post_hoc_RR_raw_add_pron)
+
+# calculate effect size for model
+es_post_hoc_RR_raw_add_pron <- cohensD(x = Diff_RR~cond_c, 
+                              data = post_hoc_df_add_pron)
+```
+
+
+```
+## 
+## Call:
+## lm(formula = Diff_RR ~ cond_c, data = post_hoc_df_add_pron)
+## 
+## Residuals:
+##     Min      1Q  Median      3Q     Max 
+## -2.1051 -0.6305 -0.0665  0.6452  4.2623 
+## 
+## Coefficients:
+##             Estimate Std. Error t value    Pr(>|t|)    
+## (Intercept)  -0.7649     0.1444  -5.298 0.000000565 ***
+## cond_c0.5    -0.7681     0.1992  -3.856     0.00019 ***
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+## 
+## Residual standard error: 1.08 on 116 degrees of freedom
+## Multiple R-squared:  0.1136,	Adjusted R-squared:  0.106 
+## F-statistic: 14.87 on 1 and 116 DF,  p-value: 0.0001895
+```
+
+```
+##                 2.5 %     97.5 %
+## (Intercept) -1.050920 -0.4789638
+## cond_c0.5   -1.162664 -0.3736083
+```
+
+```
+## [1] 0.7109093
+```
+
+##### Standardized model
+
+
+***
+
+#### Conjunction RR: Post-hoc analysis
+
+##### Raw model
+
+
+```r
+# raw: do changes in linguistic style between monologues and dialogues 
+#       differ by conversation type?
+post_hoc_RR_raw_add_conj = lm(Diff_RR ~ cond_c,
+                     data = post_hoc_df_add_conj)
+
+# calculate 95% CI
+CI_posthoc_RR_raw_add_conj <- confint(post_hoc_RR_raw_add_conj)
+
+# calculate effect size for model
+es_post_hoc_RR_raw_add_conj <- cohensD(x = Diff_RR~cond_c, 
+                              data = post_hoc_df_add_conj)
+```
+
+
+```
+## 
+## Call:
+## lm(formula = Diff_RR ~ cond_c, data = post_hoc_df_add_conj)
+## 
+## Residuals:
+##     Min      1Q  Median      3Q     Max 
+## -4.8949 -1.2864  0.0168  1.1537  4.5510 
+## 
+## Coefficients:
+##             Estimate Std. Error t value Pr(>|t|)
+## (Intercept) -0.02484    0.23336  -0.106    0.915
+## cond_c0.5   -0.35827    0.32194  -1.113    0.268
+## 
+## Residual standard error: 1.746 on 116 degrees of freedom
+## Multiple R-squared:  0.01056,	Adjusted R-squared:  0.002033 
+## F-statistic: 1.238 on 1 and 116 DF,  p-value: 0.2681
+```
+
+```
+##                  2.5 %    97.5 %
+## (Intercept) -0.4870437 0.4373659
+## cond_c0.5   -0.9959117 0.2793801
+```
+
+```
+## [1] 0.2051537
+```
+
+
+|     &nbsp;      | Estimate | Std..Error | t.value |  p   | sig |
+|:---------------:|:--------:|:----------:|:-------:|:----:|:---:|
+| **(Intercept)** | -0.02484 |   0.2334   | -0.1064 | 0.92 |     |
+|  **cond_c0.5**  | -0.3583  |   0.3219   | -1.113  | 0.27 |     |
+
+##### Standardized model
+
+
+```r
+# standardized: do changes in linguistic style between monologues and dialogues 
+#       differ by conversation type?
+post_hoc_RR_st_add_conj = lm(Diff_RR ~ cond_c,
+                    data = post_hoc_standardized_df_add_conj)
+
+# calculate 95% CI
+CI_posthoc_RR_st_add_conj <- confint(post_hoc_RR_st_add_conj)
+
+# calculate effect size for model
+es_post_hoc_RR_st_add_conj <- cohensD(x = Diff_RR~cond_c, 
+                             data = post_hoc_standardized_df_add_conj)
+```
+
+
+```
+## 
+## Call:
+## lm(formula = Diff_RR ~ cond_c, data = post_hoc_standardized_df_add_conj)
+## 
+## Residuals:
+##      Min       1Q   Median       3Q      Max 
+## -2.80014 -0.73586  0.00958  0.65995  2.60339 
+## 
+## Coefficients:
+##                         Estimate Std. Error t value Pr(>|t|)
+## (Intercept)               0.1077     0.1335   0.807    0.422
+## cond_c0.946346316347633  -0.2049     0.1842  -1.113    0.268
+## 
+## Residual standard error: 0.999 on 116 degrees of freedom
+## Multiple R-squared:  0.01056,	Adjusted R-squared:  0.002033 
+## F-statistic: 1.238 on 1 and 116 DF,  p-value: 0.2681
+```
+
+```
+##                              2.5 %    97.5 %
+## (Intercept)             -0.1567201 0.3720860
+## cond_c0.946346316347633 -0.5697087 0.1598187
+```
+
+```
+## [1] 0.2051537
+```
+
+
+|           &nbsp;            | Estimate | Std..Error | t.value |  p   | sig |
+|:---------------------------:|:--------:|:----------:|:-------:|:----:|:---:|
+|       **(Intercept)**       |  0.1077  |   0.1335   | 0.8066  | 0.42 |     |
+| **cond_c0.946346316347633** | -0.2049  |   0.1842   | -1.113  | 0.27 |     |
