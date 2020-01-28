@@ -561,7 +561,7 @@ pander_lme(exploratory_analyses_raw_prop)
 ```{r, results="hide", message = FALSE}
 
 # standardized: does linguistic style change based on the conversation setting?
-exploratory_analyses_st_prop <- lmer(freq ~ conv.type + (1|speaker_code),
+exploratory_analyses_st_prop <- lmer(prop ~ conv.type + (1|speaker_code),
                             data = standardized_df, REML = FALSE)
 
 # calculate 95%CI for model
