@@ -391,16 +391,17 @@ power
 ```{r calculation of descriptives }
 ##Prepare data for descriptive analysis - only leave numerical elements in data frame
 library(psych)
+library(Hmisc)
 
 Descriptives_mon =  data_mon %>%
- select(-dyad_id, -speaker_code, -conv.type, -cond, -freq, -wc)
+ select(-dyad_id, -speaker_code, -conv.type, -cond, -freq, -wc, -NRLINE, -ENTR)
  
 Descriptives_conv =  data_conv %>%
- select(-dyad_id, -speaker_code, -conv.type, -cond, -freq, -wc)
+ select(-dyad_id, -speaker_code, -conv.type, -cond, -freq, -wc, -NRLINE, -ENTR)
 
 ##Mean, Min, Max
 mean_mon = psych::describe(Descriptives_mon)
-mean_conv = psych::describe(Descriptives_mon)
+mean_conv = psych::describe(Descriptives_conv)
 
 write.table(mean_mon, './data/mean_mon.csv', 
             sep=",", row.names=FALSE, col.names=TRUE)
@@ -410,13 +411,21 @@ write.table(mean_conv, './data/mean_conv.csv',
 
 ##Intercorrelations
 
-cor_mon = cor(Descriptives_mon, method = c("pearson"), use = "complete.obs")
-cor_conv = cor(Descriptives_conv, method = c("pearson"), use = "complete.obs")
+p_cor_mon = rcorr(as.matrix(Descriptives_mon))
+p_mon = p_cor_mon$P
+r_mon = p_cor_mon$r
 
-write.table(cor_mon, './data/cor_mon.csv', 
+p_cor_conv = rcorr(as.matrix(Descriptives_conv))
+p_conv = p_cor_conv$P
+r_conv = p_cor_conv$r
+
+write.table(p_mon, './data/p_mon.csv', 
             sep=",", row.names=FALSE, col.names=TRUE)
-
-write.table(cor_conv, './data/cor_conv.csv', 
+write.table(r_mon, './data/r_mon.csv', 
+            sep=",", row.names=FALSE, col.names=TRUE)
+write.table(p_conv, './data/p_conv.csv', 
+            sep=",", row.names=FALSE, col.names=TRUE)
+write.table(r_conv, './data/r_conv.csv', 
             sep=",", row.names=FALSE, col.names=TRUE)
 
 
