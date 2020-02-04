@@ -532,15 +532,13 @@ structure in their use of function words than monologues do.
 
 ***
 
-## Additional exploratory analyses
+### Validating RR against proportion
 
-Next, we repreat our analyses for all available CRQA parameters to exploratorily 
-investigate the influence of conversational setting on aspects of language style 
-structure in addition to RR.
-
-***
-
-#### Prop: Exploratory analyses
+To validate the use of RQA (dynamic) metrics against standard (static) 
+metrics, we next build a similar model predicting proportion with 
+conversation type. If RR and proportion tap into similar underlying 
+dynamics, we would expect to see congruent results between the two
+methods.
 
 ##### Raw model
 
@@ -616,6 +614,20 @@ CI_exploratory_analyses_st_prop
 pander_lme(exploratory_analyses_st_prop)
 
 ```
+
+The congruence between proportion-based models and RR-based models support
+the validity of the latter. However, while proportion can only give a single
+value of similarity, we can tap into other RQA metrics to understand the
+structure of those patterns.
+
+***
+
+## Additional exploratory analyses
+
+Next, we repreat our analyses for all available RQA parameters to exploratorily 
+investigate the influence of conversational setting on aspects of language style 
+structure in addition to RR.
+
 ***
 
 #### DET: Exploratory analyses
