@@ -123,7 +123,7 @@ for (next_mon in split_mon){
                               conv.type,
                               cond,
                               rqa_for_mon[1:9]) %>%
-    mutate(NRLINE_norm = NRLINE / dim(next_mon)[1]) # normalize NRLINE by number of words
+    mutate(rNRLINE = NRLINE / dim(next_mon)[1]) # normalize NRLINE by number of words
   rqa_mon = rbind.data.frame(rqa_mon,next_data_line)
   
   # save the RPs -- including LOI/LOS for plotting
@@ -227,7 +227,7 @@ for (next_conv in split_conv){
                               conv.type,
                               cond,
                               rqa_for_conv[1:9]) %>%
-    mutate(NRLINE_norm = NRLINE / dim(next_conv)[1]) # normalize NRLINE by number of words
+    mutate(rNRLINE = NRLINE / dim(next_conv)[1]) # normalize NRLINE by number of words
   rqa_conv = rbind.data.frame(rqa_conv,next_data_line)
   
   # # plot the RPs -- include LOI/LOS
@@ -694,42 +694,42 @@ pander_lme(exploratory_analyses_st_DET)
 
 ***
 
-#### NRLINE_norm: Exploratory analyses 
+#### rNRLINE: Exploratory analyses 
 
 ##### Raw model
 
 ```{r exploratory-nrline-model-raw, results="hide", message = FALSE}
 
 # raw: does linguistic style change based on the conversation setting?
-exploratory_analyses_raw_NRLINE_norm <- lmer(NRLINE_norm ~ conv.type + (1|speaker_code),
+exploratory_analyses_raw_rNRLINE <- lmer(rNRLINE ~ conv.type + (1|speaker_code),
                              data = analysis_df, REML = FALSE)
 
 # calculate 95% CI for model
-CI_exploratory_analyses_raw_NRLINE_norm <- confint(exploratory_analyses_raw_NRLINE_norm)
+CI_exploratory_analyses_raw_rNRLINE <- confint(exploratory_analyses_raw_rNRLINE)
 
 
 # calculate effect size for model
-es_exploratory_analyses_raw_NRLINE_norm <- lme.dscore(exploratory_analyses_raw_NRLINE_norm, 
+es_exploratory_analyses_raw_rNRLINE <- lme.dscore(exploratory_analyses_raw_rNRLINE, 
                                       data = analysis_df, type = "lme4")
 ```
 
 ```{r, eval=TRUE, echo=FALSE}
 
 # print summary tables
-summary(exploratory_analyses_raw_NRLINE_norm)
+summary(exploratory_analyses_raw_rNRLINE)
 
 # print effect sizes
-es_exploratory_analyses_raw_NRLINE_norm
+es_exploratory_analyses_raw_rNRLINE
 
 # print confidence intervals
-CI_exploratory_analyses_raw_NRLINE_norm
+CI_exploratory_analyses_raw_rNRLINE
 
 ```
 
 ```{r, eval=TRUE, echo=FALSE}
 
 # neatly print output
-pander_lme(exploratory_analyses_raw_NRLINE_norm)
+pander_lme(exploratory_analyses_raw_rNRLINE)
 
 ```
 
@@ -738,14 +738,14 @@ pander_lme(exploratory_analyses_raw_NRLINE_norm)
 ```{r, results="hide", message = FALSE}
 
 # standardized: does linguistic style change based on the conversation setting?
-exploratory_analyses_st_NRLINE_norm <- lmer(NRLINE_norm ~ conv.type + (1|speaker_code),
+exploratory_analyses_st_rNRLINE <- lmer(rNRLINE ~ conv.type + (1|speaker_code),
                             data = standardized_df, REML = FALSE)
 
 # calculate 95%CI for model
-CI_exploratory_analyses_st_NRLINE_norm <- confint(exploratory_analyses_st_NRLINE_norm)
+CI_exploratory_analyses_st_rNRLINE <- confint(exploratory_analyses_st_rNRLINE)
 
 # calculate effect size for model
-es_exploratory_analyses_st_NRLINE_norm <- lme.dscore(exploratory_analyses_st_NRLINE_norm, 
+es_exploratory_analyses_st_rNRLINE <- lme.dscore(exploratory_analyses_st_rNRLINE, 
                                      data = standardized_df, type = "lme4")
 
 ```
@@ -753,13 +753,13 @@ es_exploratory_analyses_st_NRLINE_norm <- lme.dscore(exploratory_analyses_st_NRL
 ```{r, eval=TRUE, echo=FALSE}
 
 # print summary tables
-summary(exploratory_analyses_st_NRLINE_norm)
+summary(exploratory_analyses_st_rNRLINE)
 
 # print effect sizes
-es_exploratory_analyses_st_NRLINE_norm
+es_exploratory_analyses_st_rNRLINE
 
 # print confidence intervals
-CI_exploratory_analyses_st_NRLINE_norm
+CI_exploratory_analyses_st_rNRLINE
 
 ```
 
@@ -767,7 +767,7 @@ CI_exploratory_analyses_st_NRLINE_norm
 ```{r, eval=TRUE, echo=FALSE}
 
 # neatly print output
-pander_lme(exploratory_analyses_st_NRLINE_norm)
+pander_lme(exploratory_analyses_st_rNRLINE)
 
 ```
 
@@ -1221,7 +1221,7 @@ rqa_mon_post = rqa_mon %>%
                 rENTR_m = rENTR,
                 LAM_m = LAM,
                 TT_m = TT,
-                NRLINE_norm_m = NRLINE_norm)
+                rNRLINE_m = rNRLINE)
 rqa_conv_post = rqa_conv  %>%
   dplyr::rename(conv.type_c = conv.type,
                 cond_c = cond,
@@ -1234,14 +1234,14 @@ rqa_conv_post = rqa_conv  %>%
                 rENTR_c = rENTR,
                 LAM_c = LAM,
                 TT_c = TT,
-                NRLINE_norm_c = NRLINE_norm)
+                rNRLINE_c = rNRLINE)
 
 # Calculate difference scores
 post_hoc_df = full_join(rqa_mon_post, rqa_conv_post,
                         by=c("dyad_id", "speaker_code")) %>%
   mutate(Diff_RR = RR_m - RR_c,           # positive means higher RR in mon
          Diff_DET = DET_m - DET_c,        # positive means more DET in mon
-         Diff_NRLINE_norm = NRLINE_norm_m - NRLINE_norm_c, # positive means more lines in monologue
+         Diff_rNRLINE = rNRLINE_m - rNRLINE_c, # positive means more lines in monologue
          Diff_maxL = maxL_m - maxL_c, # positive means a longer  maximal line in monologue
          Diff_L = L_m - L_c, # positive means on average longer lines in monologue
          Diff_rENTR = rENTR_m - rENTR_c,  # positive means more line diversity in monologue
@@ -1484,7 +1484,7 @@ qplot(data=post_hoc_df, x=DET_m, y=DET_c, colour=cond_c) +
 
 ***
 
-### NRLINE_norm: Post-hoc analysis
+### rNRLINE: Post-hoc analysis
 
 #### Raw model
 
@@ -1492,14 +1492,14 @@ qplot(data=post_hoc_df, x=DET_m, y=DET_c, colour=cond_c) +
 
 # raw: do changes in amount of structure of linguistic style between 
 #      monologues and dialogues differ by conversation type?
-post_hoc_NRLINE_raw = lm(Diff_NRLINE_norm ~ cond_c,
+post_hoc_NRLINE_raw = lm(Diff_rNRLINE ~ cond_c,
                          data = post_hoc_df)
 
 # calculate 95% CI
 CI_posthoc_NRLINE_raw <- confint(post_hoc_NRLINE_raw)
 
 # calculate effect size
-es_post_hoc_NRLINE_raw <- cohensD(x = Diff_NRLINE_norm~cond_c, 
+es_post_hoc_NRLINE_raw <- cohensD(x = Diff_rNRLINE~cond_c, 
                                   data = post_hoc_df)
 
 ```
@@ -1530,14 +1530,14 @@ pander_lm(post_hoc_NRLINE_raw)
 
 # standardized: do changes in amount of structure of linguistic style between 
 #      monologues and dialogues differ by conversation type?
-post_hoc_NRLINE_st = lm(Diff_NRLINE_norm ~ cond_c,
+post_hoc_NRLINE_st = lm(Diff_rNRLINE ~ cond_c,
                         data = post_hoc_standardized_df)
 
 # calculate 95% CI
 CI_posthoc_NRLINE_st <- confint(post_hoc_NRLINE_st)
 
 # calculate effect size
-es_post_hoc_NRLINE_st <- cohensD(x = Diff_NRLINE_norm~cond_c, 
+es_post_hoc_NRLINE_st <- cohensD(x = Diff_rNRLINE~cond_c, 
                                  data = post_hoc_standardized_df)
 
 
@@ -1565,7 +1565,7 @@ pander_lm(post_hoc_NRLINE_st)
 
 ```{r, echo=FALSE}
 
-qplot(data=post_hoc_df, x=NRLINE_norm_m, y=NRLINE_norm_c, colour=cond_c) +
+qplot(data=post_hoc_df, x=rNRLINE_m, y=rNRLINE_c, colour=cond_c) +
   geom_abline()
 
 ```
