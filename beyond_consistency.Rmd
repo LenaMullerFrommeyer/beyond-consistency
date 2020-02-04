@@ -19,7 +19,7 @@ creates new functions for our analyses.
 **Code written by**: L. C. Mueller-Frommeyer (Technische Universitaet
 Braunschweig) & A. Paxton (University of Connecticut)
 
-**Date last modified**: 19 January 2020
+**Date last modified**: 04 February 2020
 
 ```{r silent-setup, include=FALSE}
 
@@ -386,39 +386,42 @@ power
 ```
 
 ***
-##Descriptives
 
-```{r calculation of descriptives }
-##Prepare data for descriptive analysis - only leave numerical elements in data frame
-library(psych)
-library(Hmisc)
+## Descriptives and correlation tables
 
+Here we generate descriptive statistics and intercorrelations for our
+variables, separated by monologue and conversation. Data are saved to
+files and reported as Supplementary Materials for the paper.
+
+```{r calculation of descriptives}
+
+# Prepare data for descriptive analysis - only leave numerical elements in data frame
 Descriptives_mon =  data_mon %>%
  select(-dyad_id, -speaker_code, -conv.type, -cond, -freq, -wc, -NRLINE, -ENTR)
- 
 Descriptives_conv =  data_conv %>%
  select(-dyad_id, -speaker_code, -conv.type, -cond, -freq, -wc, -NRLINE, -ENTR)
 
-##Mean, Min, Max
+# Mean, Min, Max for monologues and dialogues
 mean_mon = psych::describe(Descriptives_mon)
 mean_conv = psych::describe(Descriptives_conv)
 
+# write descriptives to files
 write.table(mean_mon, './data/mean_mon.csv', 
             sep=",", row.names=FALSE, col.names=TRUE)
-
 write.table(mean_conv, './data/mean_conv.csv', 
             sep=",", row.names=FALSE, col.names=TRUE)
 
-##Intercorrelations
-
+# Intercorrelations for monologues
 p_cor_mon = rcorr(as.matrix(Descriptives_mon))
 p_mon = p_cor_mon$P
 r_mon = p_cor_mon$r
 
+# Intercorrelations for dialogues
 p_cor_conv = rcorr(as.matrix(Descriptives_conv))
 p_conv = p_cor_conv$P
 r_conv = p_cor_conv$r
 
+# save intercorelations to file
 write.table(p_mon, './data/p_mon.csv', 
             sep=",", row.names=FALSE, col.names=TRUE)
 write.table(r_mon, './data/r_mon.csv', 
@@ -432,6 +435,7 @@ write.table(r_conv, './data/r_conv.csv',
 ```
 
 ***
+
 ## Planned analysis
 
 Here, we perform a linear mixed-effects model to analyze how conversation
@@ -514,7 +518,6 @@ es_planned_analyses_st
 CI_planned_analyses_st
 
 ```
-
 
 ```{r, eval=TRUE, echo=FALSE}
 
@@ -1837,7 +1840,6 @@ CI_posthoc_rENTR_st
 es_post_hoc_rENTR_st
 
 ```
-
 
 ```{r, echo=FALSE}
 
