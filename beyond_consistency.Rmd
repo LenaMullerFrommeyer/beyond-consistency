@@ -8,13 +8,20 @@ output:
 
 ---
 
-This R markdown provides the data preparation for our forthcoming manuscript.
+This R markdown provides the data preparation and analyses for our 
+manuscript, "Beyond consistency: Contextual dependency of language 
+style in monologue and conversation" (Mueller-Frommeyer, Kauffeld, & 
+Paxton, *under review*).
 
 To run this from scratch, you will need the following files:
 
-* The data is accessible in our OSF project (https://osf.io/3jx2g/). Please create a folder called data, with a subfolder LIWC-results, with a subfolder RQA with two sub-folders monologues and conversations in your working directory. Add the data from OSF to the monologue and conversation folders.
+* The data is accessible in our OSF project (https://osf.io/3jx2g/). 
+  Please create a folder called `data`, with a subfolder `LIWC-results`, 
+  with a subfolder `RQA` with two sub-folders `monologues` and `conversations` 
+  in your working directory. Add the data from OSF to the monologue and 
+  conversation folders.
 * `./scripts/bc-libraries_and_functions.r`: Loads in necessary libraries and
-creates new functions for our analyses.
+  creates new functions for our analyses.
 
 **Code written by**: L. C. Mueller-Frommeyer (Technische Universitaet
 Braunschweig) & A. Paxton (University of Connecticut)
@@ -49,7 +56,9 @@ source('./scripts/bc-libraries_and_functions.r')
 
 ***
 
-## Recurrence quantification analysis: Monologues
+## Recurrence quantification analysis
+
+### Monologues
 
 ```{r monologue-load-data}
 
@@ -65,7 +74,7 @@ mon_dfs = plyr::ldply(mon_files,
 
 # prepare monologues for RQA
 mon_dfs = mon_dfs %>%
-
+  
   # separate 'Filename' column into separate columns
   tidyr::separate(Filename,
                   into = c("dyad_id", "dyad_position", "speaker_code"),
@@ -73,22 +82,21 @@ mon_dfs = mon_dfs %>%
                   remove = FALSE,
                   extra = "drop",
                   fill = "warn") %>%
-
-
+  
+  
   # extract speaker number ID and conversation type from variable
   mutate(cond = gsub("[[:digit:]]+","",dyad_id)) %>%
-
+  
   # create new variable function_contrast with all 0 replaced by -1
   dplyr::rename(function_words = function.) %>%
   mutate(function_contrast = dplyr::if_else(function_words==0,
                                             -1,
                                             function_words)) %>%
-
+  
   #add new variable specifying conversation type
   mutate(conv.type = "M")
 
 ```
-
 
 ```{r monologues-rqa}
 
@@ -98,7 +106,7 @@ split_mon = split(mon_dfs, list(mon_dfs$Filename))
 # cycle through the individual monologues
 rqa_mon = data.frame()
 for (next_mon in split_mon){
-
+  
   # run (auto-)recurrence
   rqa_for_mon = crqa(ts1=next_mon$function_words,
                      ts2=next_mon$function_contrast,
@@ -112,7 +120,7 @@ for (next_mon in split_mon){
                      tw=1, # exclude line of identity
                      whiteline=FALSE,
                      recpt=FALSE)
-
+  
   # save plot-level information to dataframe
   dyad_id = unique(next_mon$dyad_id)
   speaker_code = unique(next_mon$speaker_code)
@@ -125,7 +133,7 @@ for (next_mon in split_mon){
                               rqa_for_mon[1:9]) %>%
     mutate(rNRLINE = NRLINE / dim(next_mon)[1]) # normalize NRLINE by number of words
   rqa_mon = rbind.data.frame(rqa_mon,next_data_line)
-
+  
   # save the RPs -- including LOI/LOS for plotting
   # rqa_for_mon = crqa(ts1=next_mon$function_words,
   #                    ts2=next_mon$function_contrast,
@@ -152,9 +160,7 @@ rm(split_mon, next_mon, rqa_for_mon,
 
 ```
 
-***
-
-## Recurrrence quantification analysis: Conversations
+### Conversations
 
 ```{r conversations-load-data}
 
@@ -166,12 +172,11 @@ conv_dfs = plyr::ldply(conv_files,
 
 ```
 
-
-```{r conversations-prepare-for-crqa}
+```{r conversations-prepare-for-rqa}
 
 # prepare conversations for RQA
 conv_dfs = conv_dfs %>%
-
+  
   # separate 'Filename' column into separate columns
   tidyr::separate(Filename,
                   into = c("dyad_id", "dyad_position", "speaker_code"),
@@ -179,22 +184,22 @@ conv_dfs = conv_dfs %>%
                   remove = FALSE,
                   extra = "drop",
                   fill = "warn") %>%
-
+  
   # extract speaker number ID and conversation type from variable
   mutate(cond = gsub("[[:digit:]]+","",dyad_id)) %>%
-
+  
   # create new variable function_contrast with all 0 replaced by -1
   dplyr::rename(function_words = function.) %>%
   mutate(function_contrast = dplyr::if_else(function_words==0,
                                             -1,
                                             function_words)) %>%
-
+  
   # add new variable specifying conversation type
   mutate(conv.type = "C")
 
 ```
 
-```{r conversations-crqa}
+```{r conversations-rqa}
 
 # split dataframe by conversation
 split_conv = split(conv_dfs, list(conv_dfs$Filename))
@@ -202,7 +207,7 @@ split_conv = split(conv_dfs, list(conv_dfs$Filename))
 # cycle through the individual conversations
 rqa_conv = data.frame()
 for (next_conv in split_conv){
-
+  
   # run recurrence
   rqa_for_conv = crqa(ts1=next_conv$function_words,
                       ts2=next_conv$function_contrast,
@@ -216,7 +221,7 @@ for (next_conv in split_conv){
                       tw=1, # exclude line of identity
                       whiteline=FALSE,
                       recpt=FALSE)
-
+  
   # save plot-level information to dataframe
   dyad_id = unique(next_conv$dyad_id)
   speaker_code = unique(next_conv$speaker_code)
@@ -229,7 +234,7 @@ for (next_conv in split_conv){
                               rqa_for_conv[1:9]) %>%
     mutate(rNRLINE = NRLINE / dim(next_conv)[1]) # normalize NRLINE by number of words
   rqa_conv = rbind.data.frame(rqa_conv,next_data_line)
-
+  
   # # plot the RPs -- include LOI/LOS
   # rqa_for_conv = crqa(ts1=next_conv$function_words,
   #                     ts2=next_conv$function_contrast,
@@ -256,45 +261,66 @@ rm(split_conv, next_conv, rqa_for_conv,
 
 ```
 
-```{r extract-function-word-frequency-per-speaker-for-monologues-and-conversations}
+***
 
+## Proportions
+
+### Monologues
+
+```{r extract-function-word-frequency-per-speaker-for-monologues}
+
+# split monologues into separate dataframes
 split_mon = split(mon_dfs, list(mon_dfs$Filename))
 
+# create an empty frame for results
 FW_freq_mon = data.frame()
-for (next_mon in split_mon) {
 
-  #count frequency of function words
+# cycle through all monologues
+for (next_mon in split_mon) {
+  
+  # count frequency of function words
   freq = sum(next_mon$function_words == 100)
   wc = sum(next_mon$WC == 1)
-
   speaker_code = unique(next_mon$speaker_code)
+  
+  # add results to dataframe
   data_temp = data.frame(freq, wc, speaker_code)
+  
+  
+  FW_freq_mon = rbind.data.frame(FW_freq_mon, data_temp)
+}
+FW_freq_mon$prop = FW_freq_mon$freq/FW_freq_mon$wc
 
+```
 
-  FW_freq_mon = rbind.data.frame(FW_freq_mon, data_temp)}
-  FW_freq_mon$prop = FW_freq_mon$freq/FW_freq_mon$wc
+### Conversations
 
+```{r extract-function-word-frequency-per-speaker-for-conversations}
 
+# split conversations into separate dataframes
 split_conv = split(conv_dfs, list(conv_dfs$Filename))
 
+# create an empty frame for results
 FW_freq_conv = data.frame()
 
+# cycle through all conversations
 for (next_conv in split_conv) {
-
-  #count frequency of function words
+  
+  # count frequency of function words
   freq = sum(next_conv$function_words == 100)
   wc = sum(next_conv$WC == 1)
   speaker_code = unique(next_conv$speaker_code)
+  
+  # add results to dataframe
   data_temp = data.frame(freq, wc, speaker_code)
+  FW_freq_conv = rbind.data.frame(FW_freq_conv, data_temp)
+}
 
-
-  FW_freq_conv = rbind.data.frame(FW_freq_conv, data_temp)}
-  FW_freq_conv$prop = FW_freq_conv$freq/FW_freq_conv$wc
-
-
-fw_freq = rbind(FW_freq_mon, FW_freq_conv)
+# convert from frequency to proportion
+FW_freq_conv$prop = FW_freq_conv$freq/FW_freq_conv$wc
 
 ```
+
 ***
 
 ## Create dataframes
@@ -303,15 +329,17 @@ We'll need to create two dataframes: an unstandardized dataframe
 (`analysis_df`) and a standardized one (`standardized_df`).
 
 ```{r create-analysis-dataframe}
-#bring together monologue rqa and freq data
+
+
+# bring together monologue rqa and freq data
 data_mon = dplyr::left_join(rqa_mon, FW_freq_mon, by = "speaker_code")
 
-#bring togehter conversation rqa and freq data
+# bring togehter conversation rqa and freq data
 data_conv = dplyr::left_join(rqa_conv, FW_freq_conv, by = "speaker_code")
 
 # bring together the monologue and conversation data
 analysis_df = rbind(data_mon, data_conv) %>%
-
+  
   # update coding for conversation type and condition
   mutate(conv.type = as.factor(dplyr::if_else(conv.type == "M",
                                               -.5,
@@ -330,14 +358,14 @@ write.table(analysis_df, './data/analysis_df.csv',
 
 # standardize the analysis dataframe
 standardized_df = analysis_df %>%
-
+  
   # convert things as needed to numeric
   mutate(dyad_id = as.numeric(as.factor(dyad_id)),
          speaker_code = as.numeric(as.factor(speaker_code))) %>%
-
+  
   # standardize
   mutate_all(funs(as.numeric(scale(as.numeric(.))))) %>%
-
+  
   # convert to factors as needed
   mutate(dyad_id = as.factor(dyad_id),
          speaker_code = as.factor(speaker_code),
@@ -397,9 +425,9 @@ files and reported as Supplementary Materials for the paper.
 
 # Prepare data for descriptive analysis - only leave numerical elements in data frame
 Descriptives_mon =  data_mon %>%
- select(-dyad_id, -speaker_code, -conv.type, -cond, -freq, -wc, -NRLINE, -ENTR)
+  select(-dyad_id, -speaker_code, -conv.type, -cond, -freq, -wc, -NRLINE, -ENTR)
 Descriptives_conv =  data_conv %>%
- select(-dyad_id, -speaker_code, -conv.type, -cond, -freq, -wc, -NRLINE, -ENTR)
+  select(-dyad_id, -speaker_code, -conv.type, -cond, -freq, -wc, -NRLINE, -ENTR)
 
 # Mean, Min, Max for monologues and dialogues
 mean_mon = psych::describe(Descriptives_mon)
@@ -532,19 +560,7 @@ recurrence in their use of function words than monologues do.
 
 ***
 
-## Additional exploratory analyses
-
-Next, we repeat our analyses for RQA parameters indicative of LS structure and complexity
-to exploratorily investigate the influence of conversational setting on aspects of
-language style structure and complexity in addition to recurrence. An explanation of
-the parameters under investigation can be found in the manuscript.
-Also, we calculated a model for a more traditional static measure of language style-
-namely, proportion of function words to compare the new dynamic approach to
-the traditional more static approach.
-
-***
-
-### Validating RR against proportion
+## Validating RR against proportion
 
 To validate the use of RQA (dynamic) metrics against standard (static)
 metrics, we next build a similar model predicting proportion with
@@ -552,13 +568,19 @@ conversation type. If RR and proportion tap into similar underlying
 dynamics, we would expect to see congruent results between the two
 methods.
 
-##### Raw model
+Also, we calculated a model for a more traditional static measure of language style-
+namely, proportion of function words to compare the new dynamic approach to
+the traditional more static approach.
+
+***
+
+### Raw model
 
 ```{r exploratory-prop-model-raw, results="hide", message = FALSE}
 
 # raw: does linguistic style change based on the conversation setting?
 exploratory_analyses_raw_prop <- lmer(prop ~ conv.type + (1|speaker_code),
-                             data = analysis_df, REML = FALSE)
+                                      data = analysis_df, REML = FALSE)
 
 # calculate 95% CI for model
 CI_exploratory_analyses_raw_prop <- confint(exploratory_analyses_raw_prop)
@@ -566,7 +588,7 @@ CI_exploratory_analyses_raw_prop <- confint(exploratory_analyses_raw_prop)
 
 # calculate effect size for model
 es_exploratory_analyses_raw_prop <- lme.dscore(exploratory_analyses_raw_prop,
-                                      data = analysis_df, type = "lme4")
+                                               data = analysis_df, type = "lme4")
 ```
 
 ```{r, eval=TRUE, echo=FALSE}
@@ -589,20 +611,20 @@ pander_lme(exploratory_analyses_raw_prop)
 
 ```
 
-##### Standardized model
+### Standardized model
 
 ```{r, results="hide", message = FALSE}
 
 # standardized: does linguistic style change based on the conversation setting?
 exploratory_analyses_st_prop <- lmer(prop ~ conv.type + (1|speaker_code),
-                            data = standardized_df, REML = FALSE)
+                                     data = standardized_df, REML = FALSE)
 
 # calculate 95%CI for model
 CI_exploratory_analyses_st_prop <- confint(exploratory_analyses_st_prop)
 
 # calculate effect size for model
 es_exploratory_analyses_st_prop <- lme.dscore(exploratory_analyses_st_prop,
-                                     data = standardized_df, type = "lme4")
+                                              data = standardized_df, type = "lme4")
 
 ```
 
@@ -630,6 +652,7 @@ pander_lme(exploratory_analyses_st_prop)
 We see a difference in proportion of function words between conversations
 and monologues. Specifically, we find that conversations tend to have a *higher*
 proportion of function words than monologues do.
+
 The congruence between proportion-based models and RR-based models support
 the validity of the latter. However, while proportion can only give a single
 value of similarity, we can tap into other RQA metrics to understand the
@@ -639,21 +662,22 @@ structure of those patterns.
 
 ## Additional exploratory analyses
 
-Next, we repeat our analyses for all available RQA parameters to exploratorily
-investigate the influence of conversational setting on aspects of language style
-structure in addition to RR.
+Next, we repeat our analyses for RQA parameters indicative of LS structure 
+and complexity to explore the influence of conversational setting on aspects of
+language style structure and complexity in addition to recurrence. An explanation of
+the parameters under investigation can be found in the manuscript.
 
 ***
 
-#### DET: Exploratory analyses
+### DET: Exploratory analyses
 
-##### Raw model
+#### Raw model
 
 ```{r exploratory-det-model-raw, results="hide", message = FALSE}
 
 # raw: does linguistic style change based on the conversation setting?
 exploratory_analyses_raw_DET <- lmer(DET ~ conv.type + (1|speaker_code),
-                             data = analysis_df, REML = FALSE)
+                                     data = analysis_df, REML = FALSE)
 
 # calculate 95% CI for model
 CI_exploratory_analyses_raw_DET <- confint(exploratory_analyses_raw_DET)
@@ -661,7 +685,7 @@ CI_exploratory_analyses_raw_DET <- confint(exploratory_analyses_raw_DET)
 
 # calculate effect size for model
 es_exploratory_analyses_raw_DET <- lme.dscore(exploratory_analyses_raw_DET,
-                                      data = analysis_df, type = "lme4")
+                                              data = analysis_df, type = "lme4")
 ```
 
 ```{r, eval=TRUE, echo=FALSE}
@@ -684,20 +708,20 @@ pander_lme(exploratory_analyses_raw_DET)
 
 ```
 
-##### Standardized model
+#### Standardized model
 
 ```{r, results="hide", message = FALSE}
 
 # standardized: does linguistic style change based on the conversation setting?
 exploratory_analyses_st_DET <- lmer(DET ~ conv.type + (1|speaker_code),
-                            data = standardized_df, REML = FALSE)
+                                    data = standardized_df, REML = FALSE)
 
 # calculate 95%CI for model
 CI_exploratory_analyses_st_DET <- confint(exploratory_analyses_st_DET)
 
 # calculate effect size for model
 es_exploratory_analyses_st_DET <- lme.dscore(exploratory_analyses_st_DET,
-                                     data = standardized_df, type = "lme4")
+                                             data = standardized_df, type = "lme4")
 
 ```
 
@@ -728,15 +752,15 @@ occur in sequences than in monologues.
 
 ***
 
-#### rNRLINE: Exploratory analyses
+### rNRLINE: Exploratory analyses
 
-##### Raw model
+#### Raw model
 
 ```{r exploratory-nrline-model-raw, results="hide", message = FALSE}
 
 # raw: does linguistic style change based on the conversation setting?
 exploratory_analyses_raw_rNRLINE <- lmer(rNRLINE ~ conv.type + (1|speaker_code),
-                             data = analysis_df, REML = FALSE)
+                                         data = analysis_df, REML = FALSE)
 
 # calculate 95% CI for model
 CI_exploratory_analyses_raw_rNRLINE <- confint(exploratory_analyses_raw_rNRLINE)
@@ -744,7 +768,7 @@ CI_exploratory_analyses_raw_rNRLINE <- confint(exploratory_analyses_raw_rNRLINE)
 
 # calculate effect size for model
 es_exploratory_analyses_raw_rNRLINE <- lme.dscore(exploratory_analyses_raw_rNRLINE,
-                                      data = analysis_df, type = "lme4")
+                                                  data = analysis_df, type = "lme4")
 ```
 
 ```{r, eval=TRUE, echo=FALSE}
@@ -767,20 +791,20 @@ pander_lme(exploratory_analyses_raw_rNRLINE)
 
 ```
 
-##### Standardized model
+#### Standardized model
 
 ```{r, results="hide", message = FALSE}
 
 # standardized: does linguistic style change based on the conversation setting?
 exploratory_analyses_st_rNRLINE <- lmer(rNRLINE ~ conv.type + (1|speaker_code),
-                            data = standardized_df, REML = FALSE)
+                                        data = standardized_df, REML = FALSE)
 
 # calculate 95%CI for model
 CI_exploratory_analyses_st_rNRLINE <- confint(exploratory_analyses_st_rNRLINE)
 
 # calculate effect size for model
 es_exploratory_analyses_st_rNRLINE <- lme.dscore(exploratory_analyses_st_rNRLINE,
-                                     data = standardized_df, type = "lme4")
+                                                 data = standardized_df, type = "lme4")
 
 ```
 
@@ -808,17 +832,18 @@ pander_lme(exploratory_analyses_st_rNRLINE)
 We see a difference in NRLINE between conversations
 and monologues. Specifically, we find that there are *more* sequences of
 function word use in conversations than in monologues.
+
 ***
 
-#### MaxL: Exploratory analyses
+### MaxL: Exploratory analyses
 
-##### Raw model
+#### Raw model
 
 ```{r exploratory-maxl-model-raw, results="hide", message = FALSE}
 
 # raw: does linguistic style change based on the conversation setting?
 exploratory_analyses_raw_maxL <- lmer(maxL ~ conv.type + (1|speaker_code),
-                             data = analysis_df, REML = FALSE)
+                                      data = analysis_df, REML = FALSE)
 
 # calculate 95% CI for model
 CI_exploratory_analyses_raw_maxL <- confint(exploratory_analyses_raw_maxL)
@@ -826,7 +851,7 @@ CI_exploratory_analyses_raw_maxL <- confint(exploratory_analyses_raw_maxL)
 
 # calculate effect size for model
 es_exploratory_analyses_raw_maxL <- lme.dscore(exploratory_analyses_raw_maxL,
-                                      data = analysis_df, type = "lme4")
+                                               data = analysis_df, type = "lme4")
 ```
 
 ```{r, eval=TRUE, echo=FALSE}
@@ -849,20 +874,20 @@ pander_lme(exploratory_analyses_raw_maxL)
 
 ```
 
-##### Standardized model
+#### Standardized model
 
 ```{r, results="hide", message = FALSE}
 
 # standardized: does linguistic style change based on the conversation setting?
 exploratory_analyses_st_maxL <- lmer(maxL ~ conv.type + (1|speaker_code),
-                            data = standardized_df, REML = FALSE)
+                                     data = standardized_df, REML = FALSE)
 
 # calculate 95%CI for model
 CI_exploratory_analyses_st_maxL <- confint(exploratory_analyses_st_maxL)
 
 # calculate effect size for model
 es_exploratory_analyses_st_maxL <- lme.dscore(exploratory_analyses_st_maxL,
-                                     data = standardized_df, type = "lme4")
+                                              data = standardized_df, type = "lme4")
 
 ```
 
@@ -893,15 +918,15 @@ function word use is *longer* in conversations than in monologues.
 
 ***
 
-#### L: Exploratory analyses
+### L: Exploratory analyses
 
-##### Raw model
+#### Raw model
 
 ```{r exploratory-l-model-raw, results="hide", message = FALSE}
 
 # raw: does linguistic style change based on the conversation setting?
 exploratory_analyses_raw_L <- lmer(L ~ conv.type + (1|speaker_code),
-                             data = analysis_df, REML = FALSE)
+                                   data = analysis_df, REML = FALSE)
 
 # calculate 95% CI for model
 CI_exploratory_analyses_raw_L <- confint(exploratory_analyses_raw_L)
@@ -909,7 +934,7 @@ CI_exploratory_analyses_raw_L <- confint(exploratory_analyses_raw_L)
 
 # calculate effect size for model
 es_exploratory_analyses_raw_L <- lme.dscore(exploratory_analyses_raw_L,
-                                      data = analysis_df, type = "lme4")
+                                            data = analysis_df, type = "lme4")
 ```
 
 ```{r, eval=TRUE, echo=FALSE}
@@ -932,20 +957,20 @@ pander_lme(exploratory_analyses_raw_L)
 
 ```
 
-##### Standardized model
+#### Standardized model
 
 ```{r, results="hide", message = FALSE}
 
 # standardized: does linguistic style change based on the conversation setting?
 exploratory_analyses_st_L <- lmer(L ~ conv.type + (1|speaker_code),
-                            data = standardized_df, REML = FALSE)
+                                  data = standardized_df, REML = FALSE)
 
 # calculate 95%CI for model
 CI_exploratory_analyses_st_L <- confint(exploratory_analyses_st_L)
 
 # calculate effect size for model
 es_exploratory_analyses_st_L <- lme.dscore(exploratory_analyses_st_L,
-                                     data = standardized_df, type = "lme4")
+                                           data = standardized_df, type = "lme4")
 
 ```
 
@@ -976,15 +1001,15 @@ is *longer* in conversations than in monologues.
 
 ***
 
-#### rENTR: Exploratory analyses
+### rENTR: Exploratory analyses
 
-##### Raw model
+#### Raw model
 
 ```{r exploratory-rentr-model-raw, results="hide", message = FALSE}
 
 # raw: does linguistic style change based on the conversation setting?
 exploratory_analyses_raw_rENTR <- lmer(rENTR ~ conv.type + (1|speaker_code),
-                             data = analysis_df, REML = FALSE)
+                                       data = analysis_df, REML = FALSE)
 
 # calculate 95% CI for model
 CI_exploratory_analyses_raw_rENTR <- confint(exploratory_analyses_raw_rENTR)
@@ -992,7 +1017,7 @@ CI_exploratory_analyses_raw_rENTR <- confint(exploratory_analyses_raw_rENTR)
 
 # calculate effect size for model
 es_exploratory_analyses_raw_rENTR <- lme.dscore(exploratory_analyses_raw_rENTR,
-                                      data = analysis_df, type = "lme4")
+                                                data = analysis_df, type = "lme4")
 ```
 
 ```{r, eval=TRUE, echo=FALSE}
@@ -1015,20 +1040,20 @@ pander_lme(exploratory_analyses_raw_rENTR)
 
 ```
 
-##### Standardized model
+#### Standardized model
 
 ```{r, results="hide", message = FALSE}
 
 # standardized: does linguistic style change based on the conversation setting?
 exploratory_analyses_st_rENTR <- lmer(rENTR ~ conv.type + (1|speaker_code),
-                            data = standardized_df, REML = FALSE)
+                                      data = standardized_df, REML = FALSE)
 
 # calculate 95%CI for model
 CI_exploratory_analyses_st_rENTR <- confint(exploratory_analyses_st_rENTR)
 
 # calculate effect size for model
 es_exploratory_analyses_st_rENTR <- lme.dscore(exploratory_analyses_st_rENTR,
-                                     data = standardized_df, type = "lme4")
+                                               data = standardized_df, type = "lme4")
 
 ```
 
@@ -1056,6 +1081,7 @@ pander_lme(exploratory_analyses_st_rENTR)
 We see a difference in rENTR between conversations
 and monologues. Specifically, we find that the diversity of sequences is *lower*
 in conversations than in monologues.
+
 ***
 
 ## Post-hoc analyses
@@ -1119,11 +1145,11 @@ post_hoc_df = full_join(rqa_mon_post, rqa_conv_post,
          Diff_rENTR = rENTR_m - rENTR_c,  # positive means more line diversity in monologue
          Diff_LAM = LAM_m - LAM_c, # positive means proportion of points on vertical line is higher in monologue
          Diff_TT = TT_m - TT_c) %>% #positive means on average longer vertical lines in monologue
-
-
+  
+  
   # drop uninformative variables
   select(-conv.type_c, -conv.type_m, -cond) %>%
-
+  
   # update coding for condition
   mutate(cond_c = as.factor(dplyr::if_else(cond_c == "P",
                                            -.5,
@@ -1144,14 +1170,14 @@ We'll then go ahead and create the raw and standardized dataframes.
 
 # standardize the analysis dataframe
 post_hoc_standardized_df = post_hoc_df %>%
-
+  
   # convert things as needed to numeric
   mutate(dyad_id = as.numeric(as.factor(dyad_id)),
          speaker_code = as.numeric(as.factor(speaker_code))) %>%
-
+  
   # standardize
   mutate_all(funs(as.numeric(scale(as.numeric(.))))) %>%
-
+  
   # convert to factors as needed
   mutate(dyad_id = as.factor(dyad_id),
          speaker_code = as.factor(speaker_code),
@@ -1364,35 +1390,35 @@ qplot(data=post_hoc_df, x=DET_m, y=DET_c, colour=cond_c) +
 
 # raw: do changes in amount of structure of linguistic style between
 #      monologues and dialogues differ by conversation type?
-post_hoc_NRLINE_raw = lm(Diff_rNRLINE ~ cond_c,
-                         data = post_hoc_df)
+post_hoc_rNRLINE_raw = lm(Diff_rNRLINE ~ cond_c,
+                          data = post_hoc_df)
 
 # calculate 95% CI
-CI_posthoc_NRLINE_raw <- confint(post_hoc_NRLINE_raw)
+CI_posthoc_rNRLINE_raw <- confint(post_hoc_rNRLINE_raw)
 
 # calculate effect size
-es_post_hoc_NRLINE_raw <- cohensD(x = Diff_rNRLINE~cond_c,
-                                  data = post_hoc_df)
+es_post_hoc_rNRLINE_raw <- cohensD(x = Diff_rNRLINE~cond_c,
+                                   data = post_hoc_df)
 
 ```
 
 ```{r, eval=TRUE, echo=FALSE}
 
 # print summary table
-summary(post_hoc_NRLINE_raw)
+summary(post_hoc_rNRLINE_raw)
 
 # print confidence intervals
-CI_posthoc_NRLINE_raw
+CI_posthoc_rNRLINE_raw
 
 # print effect sizes
-es_post_hoc_NRLINE_raw
+es_post_hoc_rNRLINE_raw
 
 ```
 
 ```{r, echo=FALSE}
 
 # neatly print output
-pander_lm(post_hoc_NRLINE_raw)
+pander_lm(post_hoc_rNRLINE_raw)
 
 ```
 
@@ -1402,15 +1428,15 @@ pander_lm(post_hoc_NRLINE_raw)
 
 # standardized: do changes in amount of structure of linguistic style between
 #      monologues and dialogues differ by conversation type?
-post_hoc_NRLINE_st = lm(Diff_rNRLINE ~ cond_c,
-                        data = post_hoc_standardized_df)
+post_hoc_rNRLINE_st = lm(Diff_rNRLINE ~ cond_c,
+                         data = post_hoc_standardized_df)
 
 # calculate 95% CI
-CI_posthoc_NRLINE_st <- confint(post_hoc_NRLINE_st)
+CI_posthoc_rNRLINE_st <- confint(post_hoc_rNRLINE_st)
 
 # calculate effect size
-es_post_hoc_NRLINE_st <- cohensD(x = Diff_rNRLINE~cond_c,
-                                 data = post_hoc_standardized_df)
+es_post_hoc_rNRLINE_st <- cohensD(x = Diff_rNRLINE~cond_c,
+                                  data = post_hoc_standardized_df)
 
 
 ```
@@ -1418,20 +1444,20 @@ es_post_hoc_NRLINE_st <- cohensD(x = Diff_rNRLINE~cond_c,
 ```{r, eval=TRUE, echo=FALSE}
 
 # print summary table
-summary(post_hoc_NRLINE_raw)
+summary(post_hoc_rNRLINE_raw)
 
 # print confidence intervals
-CI_posthoc_NRLINE_st
+CI_posthoc_rNRLINE_st
 
 # print effect sizes
-es_post_hoc_NRLINE_st
+es_post_hoc_rNRLINE_st
 
 ```
 
 ```{r, echo=FALSE}
 
 # neatly print output
-pander_lm(post_hoc_NRLINE_st)
+pander_lm(post_hoc_rNRLINE_st)
 
 ```
 
@@ -1456,14 +1482,14 @@ system by capturing the total number of lines in the plot.
 # raw: do changes in uniformity of structure of linguistic style between monologues
 #       and dialogues differ by conversation type?
 post_hoc_maxL_raw = lm(Diff_maxL ~ cond_c,
-                        data = post_hoc_df)
+                       data = post_hoc_df)
 
 # calculate 95% CI
 CI_posthoc_maxL_raw <- confint(post_hoc_maxL_raw)
 
 # calculate effect size
 es_post_hoc_maxL_raw <- cohensD(x = Diff_maxL~cond_c,
-                                 data = post_hoc_standardized_df)
+                                data = post_hoc_standardized_df)
 
 ```
 
@@ -1494,14 +1520,14 @@ pander_lm(post_hoc_maxL_raw)
 # standardized: do changes in uniformity of structure of linguistic style between monologues
 #       and dialogues differ by conversation type?
 post_hoc_maxL_st = lm(Diff_maxL ~ cond_c,
-                       data = post_hoc_standardized_df)
+                      data = post_hoc_standardized_df)
 
 # calculate 95% CI
 CI_posthoc_maxL_st <- confint(post_hoc_maxL_st)
 
 # calculate effect size
 es_post_hoc_maxL_st <- cohensD(x = Diff_maxL~cond_c,
-                                data = post_hoc_standardized_df)
+                               data = post_hoc_standardized_df)
 
 ```
 
@@ -1552,14 +1578,14 @@ qplot(data=post_hoc_df, x=maxL_m, y=maxL_c, colour=cond_c) +
 # raw: do changes in uniformity of structure of linguistic style between monologues
 #       and dialogues differ by conversation type?
 post_hoc_L_raw = lm(Diff_L ~ cond_c,
-                        data = post_hoc_df)
+                    data = post_hoc_df)
 
 # calculate 95% CI
 CI_posthoc_L_raw <- confint(post_hoc_L_raw)
 
 # calculate effect size
 es_post_hoc_L_raw <- cohensD(x = Diff_L~cond_c,
-                                 data = post_hoc_standardized_df)
+                             data = post_hoc_standardized_df)
 
 ```
 
@@ -1590,14 +1616,14 @@ pander_lm(post_hoc_L_raw)
 # standardized: do changes in uniformity of structure of linguistic style between monologues
 #       and dialogues differ by conversation type?
 post_hoc_L_st = lm(Diff_L ~ cond_c,
-                       data = post_hoc_standardized_df)
+                   data = post_hoc_standardized_df)
 
 # calculate 95% CI
 CI_posthoc_L_st <- confint(post_hoc_L_st)
 
 # calculate effect size
 es_post_hoc_L_st <- cohensD(x = Diff_L~cond_c,
-                                data = post_hoc_standardized_df)
+                            data = post_hoc_standardized_df)
 
 ```
 
@@ -1728,4 +1754,5 @@ qplot(data=post_hoc_df, x=rENTR_m, y=rENTR_c, colour=cond_c) +
   geom_abline()
 
 ```
+
 ***
