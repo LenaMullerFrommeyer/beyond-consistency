@@ -26,7 +26,9 @@ required_packages = c(
   'tidyr',
   'simr',
   'EMAtools',
-  'lsr'
+  'lsr',
+  'psych',
+  'Hmisc'
 )
 
 # load required packages using pacman
@@ -36,15 +38,6 @@ pacman::p_load(required_packages, character.only=TRUE)
 
 # set the seed
 set.seed(9)
-
-# specify width of the diagonal recurrence profile
-wsz = 5 
-
-#create the values for the quadratic analyses
-raw = -wsz:wsz
-timeVals = data.frame(raw)
-t <- poly(1:(wsz*2+1), 2)
-timeVals[,paste("ot", 1:2, sep="")] <- t[timeVals$raw+(wsz+1), 1:2]
 
 #### Prevent scientific notation ####
 options(scipen=999)
