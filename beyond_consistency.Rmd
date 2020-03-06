@@ -355,12 +355,13 @@ write.table(standardized_df, './data/standardized_df.csv',
 # Data analysis
 
 ***
+## Power Sensitivity Analyses
 
 ## Power analyses d = .4
 
-First, we run a power analysis for our model using recommendations from
+First, we run power sensitivity analysis for our model using recommendations from
 Brysbaert and Stevens (2018). We run the power analysis for the standardized
-model.
+model using effect sizes between d = .4 and d = .1.
 
 ```{r power-analyses, eval=TRUE, results="hide", message = FALSE}
 
