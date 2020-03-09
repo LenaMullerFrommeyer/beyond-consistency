@@ -26,7 +26,7 @@ To run this from scratch, you will need the following files:
 **Code written by**: L. C. Mueller-Frommeyer (Technische Universitaet
 Braunschweig) & A. Paxton (University of Connecticut)
 
-**Date last modified**: 05 February 2020
+**Date last modified**: 09 March 2020
 
 ```{r silent-setup, include=FALSE}
 
@@ -385,11 +385,12 @@ write.table(standardized_df, './data/standardized_df.csv',
 ***
 ## Power Sensitivity Analyses
 
-## Power analyses d = .4
+## Power analyses for d = .4
 
 First, we run power sensitivity analysis for our model using recommendations from
 Brysbaert and Stevens (2018). We run the power analysis for the standardized
-model using effect sizes between d = .4 and d = .1.
+model using effect sizes between d = .4 and d = .1 to detect the smallest possible 
+effect size that can be found with a power of at least 80%.
 
 ```{r power-analyses, eval=TRUE, results="hide", message = FALSE}
 
@@ -415,7 +416,7 @@ power.4
 ```
 
 
-## Power analyses d = .3
+## Power analyses for d = .3
 
 First, we run a power analysis for our model using recommendations from
 Brysbaert and Stevens (2018). We run the power analysis for the standardized
@@ -444,7 +445,7 @@ power.3
 
 ```
 
-## Power analyses d = .29
+## Additional Power analyses d = .29 to see if the power is below 80% 
 
 First, we run a power analysis for our model using recommendations from
 Brysbaert and Stevens (2018). We run the power analysis for the standardized
@@ -474,7 +475,7 @@ power.29
 ```
 
 
-## Power analyses d = .2
+## Power analyses for d = .2
 
 First, we run a power analysis for our model using recommendations from
 Brysbaert and Stevens (2018). We run the power analysis for the standardized
@@ -503,7 +504,7 @@ power.2
 
 ```
 
-## Power analyses d = .1
+## Power analyses for d = .1
 
 First, we run a power analysis for our model using recommendations from
 Brysbaert and Stevens (2018). We run the power analysis for the standardized
