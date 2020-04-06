@@ -11,7 +11,7 @@ output:
 This R markdown provides the data preparation and analyses for our 
 manuscript, "Beyond consistency: Contextual dependency of language 
 style in monologue and conversation" (Mueller-Frommeyer, Kauffeld, & 
-Paxton, *under review*).
+Paxton, *accepted*, *Cognitive Science*).
 
 To run this from scratch, you will need the following files:
 
@@ -26,7 +26,7 @@ To run this from scratch, you will need the following files:
 **Code written by**: L. C. Mueller-Frommeyer (Technische Universitaet
 Braunschweig) & A. Paxton (University of Connecticut)
 
-**Date last modified**: 05 February 2020
+**Date last modified**: 06 April 2020
 
 
 
