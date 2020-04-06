@@ -392,7 +392,7 @@ Brysbaert and Stevens (2018). We run the power analysis for the standardized
 model using effect sizes between d = .4 and d = .1 to detect the smallest possible 
 effect size that can be found with a power of at least 80%.
 
-```{r power-analyses, eval=TRUE, results="hide", message = FALSE}
+```{r, eval=TRUE, results="hide", message = FALSE}
 
 # power analyses for the standardized model
 planned_analyses_st <- lmer(RR ~ conv.type + (1|speaker_code),
@@ -409,7 +409,7 @@ power.4 <- powerSim(planned_analyses_st,
 
 ```
 
-```{r display-power-results, echo=FALSE}
+```{r, echo=FALSE}
 
 power.4
 
@@ -422,7 +422,7 @@ First, we run a power analysis for our model using recommendations from
 Brysbaert and Stevens (2018). We run the power analysis for the standardized
 model.
 
-```{r power-analyses, eval=TRUE, results="hide", message = FALSE}
+```{r, eval=TRUE, results="hide", message = FALSE}
 
 # power analyses for the standardized model
 planned_analyses_st <- lmer(RR ~ conv.type + (1|speaker_code),
@@ -439,7 +439,7 @@ power.3 <- powerSim(planned_analyses_st,
 
 ```
 
-```{r display-power-results, echo=FALSE}
+```{r, echo=FALSE}
 
 power.3
 
@@ -451,7 +451,7 @@ First, we run a power analysis for our model using recommendations from
 Brysbaert and Stevens (2018). We run the power analysis for the standardized
 model.
 
-```{r power-analyses, eval=TRUE, results="hide", message = FALSE}
+```{r, eval=TRUE, results="hide", message = FALSE}
 
 # power analyses for the standardized model
 planned_analyses_st <- lmer(RR ~ conv.type + (1|speaker_code),
@@ -468,7 +468,7 @@ power.29 <- powerSim(planned_analyses_st,
 
 ```
 
-```{r display-power-results, echo=FALSE}
+```{r, echo=FALSE}
 
 power.29
 
@@ -481,7 +481,7 @@ First, we run a power analysis for our model using recommendations from
 Brysbaert and Stevens (2018). We run the power analysis for the standardized
 model.
 
-```{r power-analyses, eval=TRUE, results="hide", message = FALSE}
+```{r, eval=TRUE, results="hide", message = FALSE}
 
 # power analyses for the standardized model
 planned_analyses_st <- lmer(RR ~ conv.type + (1|speaker_code),
@@ -498,7 +498,7 @@ power.2 <- powerSim(planned_analyses_st,
 
 ```
 
-```{r display-power-results, echo=FALSE}
+```{r, echo=FALSE}
 
 power.2
 
@@ -510,7 +510,7 @@ First, we run a power analysis for our model using recommendations from
 Brysbaert and Stevens (2018). We run the power analysis for the standardized
 model.
 
-```{r power-analyses, eval=TRUE, results="hide", message = FALSE}
+```{r, eval=TRUE, results="hide", message = FALSE}
 
 # power analyses for the standardized model
 planned_analyses_st <- lmer(RR ~ conv.type + (1|speaker_code),
@@ -527,7 +527,7 @@ power.1 <- powerSim(planned_analyses_st,
 
 ```
 
-```{r display-power-results, echo=FALSE}
+```{r, echo=FALSE}
 
 power.1
 
