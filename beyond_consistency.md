@@ -382,12 +382,14 @@ write.table(standardized_df, './data/standardized_df.csv',
 # Data analysis
 
 ***
+## Power Sensitivity Analyses
 
-## Power analyses
+## Power analyses for d = .4
 
-First, we run a power analysis for our model using recommendations from
-Brysbaert and Stevens (2018). We use the power analysis for the standardized
-model.
+First, we run power sensitivity analysis for our model using recommendations from
+Brysbaert and Stevens (2018). We run the power analysis for the standardized
+model using effect sizes between d = .4 and d = .1 to detect the smallest possible 
+effect size that can be found with a power of at least 80%.
 
 
 ```r
@@ -401,7 +403,7 @@ fixef(planned_analyses_st)["conv.type0.997879106838302"] = -0.4
 
 # run power analysis for our current sample, with a default significance
 #   criterion of .05 and an effect size of .4
-power <- powerSim(planned_analyses_st,
+power.4 <- powerSim(planned_analyses_st,
                   nsim = 1000)
 ```
 
@@ -413,6 +415,148 @@ power <- powerSim(planned_analyses_st,
 ## Test: Likelihood ratio
 ## 
 ## Based on 1000 simulations, (13 warnings, 0 errors)
+## alpha = 0.05, nrow = 236
+## 
+## Time elapsed: 0 h 1 m 6 s
+```
+
+
+## Power analyses for d = .3
+
+First, we run a power analysis for our model using recommendations from
+Brysbaert and Stevens (2018). We run the power analysis for the standardized
+model.
+
+
+```r
+# power analyses for the standardized model
+planned_analyses_st <- lmer(RR ~ conv.type + (1|speaker_code),
+                            data = standardized_df, REML = FALSE)
+
+# change the fixed effect to the assumed effect size of .4 (Brysbaert & Stevens, 2018)
+#   (although with a negative sign)
+fixef(planned_analyses_st)["conv.type0.997879106838302"] = -0.3
+
+# run power analysis for our current sample, with a default significance
+#   criterion of .05 and an effect size of .4
+power.3 <- powerSim(planned_analyses_st,
+                  nsim = 1000)
+```
+
+
+```
+## Power for predictor 'conv.type', (95% confidence interval):
+##       81.50% (78.95, 83.86)
+## 
+## Test: Likelihood ratio
+## 
+## Based on 1000 simulations, (13 warnings, 0 errors)
+## alpha = 0.05, nrow = 236
+## 
+## Time elapsed: 0 h 1 m 7 s
+```
+
+## Additional Power analyses d = .29 to see if the power is below 80% 
+
+First, we run a power analysis for our model using recommendations from
+Brysbaert and Stevens (2018). We run the power analysis for the standardized
+model.
+
+
+```r
+# power analyses for the standardized model
+planned_analyses_st <- lmer(RR ~ conv.type + (1|speaker_code),
+                            data = standardized_df, REML = FALSE)
+
+# change the fixed effect to the assumed effect size of .4 (Brysbaert & Stevens, 2018)
+#   (although with a negative sign)
+fixef(planned_analyses_st)["conv.type0.997879106838302"] = -0.29
+
+# run power analysis for our current sample, with a default significance
+#   criterion of .05 and an effect size of .4
+power.29 <- powerSim(planned_analyses_st,
+                  nsim = 1000)
+```
+
+
+```
+## Power for predictor 'conv.type', (95% confidence interval):
+##       79.90% (77.28, 82.34)
+## 
+## Test: Likelihood ratio
+## 
+## Based on 1000 simulations, (7 warnings, 0 errors)
+## alpha = 0.05, nrow = 236
+## 
+## Time elapsed: 0 h 1 m 7 s
+```
+
+
+## Power analyses for d = .2
+
+First, we run a power analysis for our model using recommendations from
+Brysbaert and Stevens (2018). We run the power analysis for the standardized
+model.
+
+
+```r
+# power analyses for the standardized model
+planned_analyses_st <- lmer(RR ~ conv.type + (1|speaker_code),
+                            data = standardized_df, REML = FALSE)
+
+# change the fixed effect to the assumed effect size of .4 (Brysbaert & Stevens, 2018)
+#   (although with a negative sign)
+fixef(planned_analyses_st)["conv.type0.997879106838302"] = -0.2
+
+# run power analysis for our current sample, with a default significance
+#   criterion of .05 and an effect size of .4
+power.2 <- powerSim(planned_analyses_st,
+                  nsim = 1000)
+```
+
+
+```
+## Power for predictor 'conv.type', (95% confidence interval):
+##       44.70% (41.59, 47.84)
+## 
+## Test: Likelihood ratio
+## 
+## Based on 1000 simulations, (13 warnings, 0 errors)
+## alpha = 0.05, nrow = 236
+## 
+## Time elapsed: 0 h 1 m 8 s
+```
+
+## Power analyses for d = .1
+
+First, we run a power analysis for our model using recommendations from
+Brysbaert and Stevens (2018). We run the power analysis for the standardized
+model.
+
+
+```r
+# power analyses for the standardized model
+planned_analyses_st <- lmer(RR ~ conv.type + (1|speaker_code),
+                            data = standardized_df, REML = FALSE)
+
+# change the fixed effect to the assumed effect size of .4 (Brysbaert & Stevens, 2018)
+#   (although with a negative sign)
+fixef(planned_analyses_st)["conv.type0.997879106838302"] = -0.1
+
+# run power analysis for our current sample, with a default significance
+#   criterion of .05 and an effect size of .4
+power.1 <- powerSim(planned_analyses_st,
+                  nsim = 1000)
+```
+
+
+```
+## Power for predictor 'conv.type', (95% confidence interval):
+##       14.30% (12.19, 16.62)
+## 
+## Test: Likelihood ratio
+## 
+## Based on 1000 simulations, (6 warnings, 0 errors)
 ## alpha = 0.05, nrow = 236
 ## 
 ## Time elapsed: 0 h 1 m 6 s
@@ -519,9 +663,9 @@ es_planned_analyses_raw <- lme.dscore(planned_analyses_raw,
 ## Number of obs: 236, groups:  speaker_code, 118
 ## 
 ## Fixed effects:
-##              Estimate Std. Error       df t value             Pr(>|t|)    
-## (Intercept)   29.3813     0.4979 227.5761  59.015 < 0.0000000000000002 ***
-## conv.type0.5   4.7168     0.6327 117.9998   7.455      0.0000000000165 ***
+##              Estimate Std. Error       df t value Pr(>|t|)    
+## (Intercept)   29.3813     0.4979 227.5761  59.015  < 2e-16 ***
+## conv.type0.5   4.7168     0.6327 117.9998   7.455 1.65e-11 ***
 ## ---
 ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 ## 
@@ -2025,7 +2169,7 @@ es_post_hoc_rNRLINE_st <- cohensD(x = Diff_rNRLINE~cond_c,
 |       **(Intercept)**       |  0.0755  |   0.1339   | 0.5641  | 0.57 |     |
 | **cond_c0.946346316347633** | -0.1437  |   0.1847   | -0.7781 | 0.44 |     |
 
-![](beyond_consistency_files/figure-html/unnamed-chunk-51-1.png)<!-- -->
+![](beyond_consistency_files/figure-html/unnamed-chunk-61-1.png)<!-- -->
 
 In contrast with RR and DET, we do not see a
 difference in the normalized number of lines on the RP by conversation type. Essentially, this is another measure of continued structure within a
@@ -2153,7 +2297,7 @@ function words is smaller when having a friendly conversation as compared to an
 argumentative one.
 
 
-![](beyond_consistency_files/figure-html/unnamed-chunk-58-1.png)<!-- -->
+![](beyond_consistency_files/figure-html/unnamed-chunk-68-1.png)<!-- -->
 
 ***
 
@@ -2277,7 +2421,7 @@ followed by a friendly conversation. In other words, the change in the average
 uninterrupted sequence of function word use is smaller when having a friendly
 conversation as compared to an argumentative one.
 
-![](beyond_consistency_files/figure-html/unnamed-chunk-65-1.png)<!-- -->
+![](beyond_consistency_files/figure-html/unnamed-chunk-75-1.png)<!-- -->
 
 ***
 
@@ -2406,6 +2550,6 @@ lengths means higher rENTR).
 ## Warning: Removed 3 rows containing missing values (geom_point).
 ```
 
-![](beyond_consistency_files/figure-html/unnamed-chunk-72-1.png)<!-- -->
+![](beyond_consistency_files/figure-html/unnamed-chunk-82-1.png)<!-- -->
 
 ***
