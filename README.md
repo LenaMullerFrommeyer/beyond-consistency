@@ -1,7 +1,8 @@
 # beyond-consistency
 This repository contains the code for the analyses presented in our article,
 "Beyond consistency: Contextual dependency of language style in monologue and
-conversation" (Müller-Frommeyer, Kauffeld, & Paxton, *in preparation*).
+conversation" (Müller-Frommeyer, Kauffeld, & Paxton, *accepted*,
+  *Cognitive Science*).
 
 # Overview
 The repository contains several analysis files, figures, an R markdown file,
@@ -29,5 +30,5 @@ rather than the similarly named `.Rmd` file. (Analyses should be run using the
 recommend taking a look at
 [RStudio's introduction to R markdown](http://rmarkdown.rstudio.com/) before
 attempting to run the `.Rmd` file. (Be sure to download
-[RStudio](https://www.rstudio.com/) first, if you do not already have it 
+[RStudio](https://www.rstudio.com/) first, if you do not already have it
 installed on your machine.)
