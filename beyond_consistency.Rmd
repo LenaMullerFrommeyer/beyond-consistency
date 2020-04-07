@@ -250,8 +250,8 @@ for (next_conv in split_conv){
   #                     recpt=FALSE)
   # png(filename = paste0('./figures/conversation/rp-speaker_',speaker_code,'-conversation.png'))
   # plotRP(rqa_for_conv$RP,
-  #        list(unit = 2, labelx = "Speaker A", labely = "Speaker A",
-  #             cols = "black", pcex = .01))
+  #                  list(unit = 2, labelx = "Speaker A", labely = "Speaker A",
+  #                       cols = "black", pcex = .01))
   # dev.off()
 }
 

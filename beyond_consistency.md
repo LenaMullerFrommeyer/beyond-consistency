@@ -238,8 +238,8 @@ for (next_conv in split_conv){
   #                     recpt=FALSE)
   # png(filename = paste0('./figures/conversation/rp-speaker_',speaker_code,'-conversation.png'))
   # plotRP(rqa_for_conv$RP,
-  #        list(unit = 2, labelx = "Speaker A", labely = "Speaker A",
-  #             cols = "black", pcex = .01))
+  #                  list(unit = 2, labelx = "Speaker A", labely = "Speaker A",
+  #                       cols = "black", pcex = .01))
   # dev.off()
 }
 
@@ -417,7 +417,7 @@ power.4 <- powerSim(planned_analyses_st,
 ## Based on 1000 simulations, (13 warnings, 0 errors)
 ## alpha = 0.05, nrow = 236
 ## 
-## Time elapsed: 0 h 1 m 6 s
+## Time elapsed: 0 h 1 m 5 s
 ```
 
 
@@ -453,7 +453,7 @@ power.3 <- powerSim(planned_analyses_st,
 ## Based on 1000 simulations, (13 warnings, 0 errors)
 ## alpha = 0.05, nrow = 236
 ## 
-## Time elapsed: 0 h 1 m 7 s
+## Time elapsed: 0 h 1 m 6 s
 ```
 
 ## Additional Power analyses d = .29 to see if the power is below 80% 
@@ -488,7 +488,7 @@ power.29 <- powerSim(planned_analyses_st,
 ## Based on 1000 simulations, (7 warnings, 0 errors)
 ## alpha = 0.05, nrow = 236
 ## 
-## Time elapsed: 0 h 1 m 7 s
+## Time elapsed: 0 h 1 m 2 s
 ```
 
 
@@ -524,7 +524,7 @@ power.2 <- powerSim(planned_analyses_st,
 ## Based on 1000 simulations, (13 warnings, 0 errors)
 ## alpha = 0.05, nrow = 236
 ## 
-## Time elapsed: 0 h 1 m 8 s
+## Time elapsed: 0 h 1 m 2 s
 ```
 
 ## Power analyses for d = .1
@@ -559,7 +559,7 @@ power.1 <- powerSim(planned_analyses_st,
 ## Based on 1000 simulations, (6 warnings, 0 errors)
 ## alpha = 0.05, nrow = 236
 ## 
-## Time elapsed: 0 h 1 m 6 s
+## Time elapsed: 0 h 1 m 5 s
 ```
 
 ***
@@ -663,9 +663,9 @@ es_planned_analyses_raw <- lme.dscore(planned_analyses_raw,
 ## Number of obs: 236, groups:  speaker_code, 118
 ## 
 ## Fixed effects:
-##              Estimate Std. Error       df t value Pr(>|t|)    
-## (Intercept)   29.3813     0.4979 227.5761  59.015  < 2e-16 ***
-## conv.type0.5   4.7168     0.6327 117.9998   7.455 1.65e-11 ***
+##              Estimate Std. Error       df t value             Pr(>|t|)    
+## (Intercept)   29.3813     0.4979 227.5761  59.015 < 0.0000000000000002 ***
+## conv.type0.5   4.7168     0.6327 117.9998   7.455      0.0000000000165 ***
 ## ---
 ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 ## 
